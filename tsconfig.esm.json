@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/esm",
+    "module": "ESNext",
+    "target": "ES6"
+  },
+  "exclude": [
+    "node_modules/**",
+    "**/*.spec.*"
+  ]
+}

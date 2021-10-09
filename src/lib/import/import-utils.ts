@@ -1,0 +1,377 @@
+import {
+    Action,
+    Alignment,
+    Appearance,
+    Arc,
+    ArcType,
+    Component,
+    DataEvent,
+    DataEventType,
+    DataGroup,
+    DataLayout,
+    DataRef,
+    DataRefBehavior,
+    DataVariable,
+    Event,
+    EventPhase,
+    Expression,
+    I18nString,
+    I18nWithDynamic,
+    Icon,
+    IconType,
+    LayoutType,
+    PetriNet,
+    Place,
+    ProcessRoleRef,
+    ProcessUserRef,
+    Property,
+    RoleRef,
+    Template,
+    Trigger,
+    TriggerType,
+    UserRef
+} from '../model';
+
+export class ImportUtils {
+
+    constructor() {
+    }
+
+    public tagValue(xmlTag: Element | Document, child: string): string {
+        if (!xmlTag || xmlTag.getElementsByTagName(child).length === 0 || xmlTag.getElementsByTagName(child)[0].childNodes.length === 0) {
+            return '';
+        }
+        const parentNodeName = xmlTag.nodeName === '#document' ? 'document' : xmlTag.nodeName;
+        const tags: any = Array.from(xmlTag.getElementsByTagName(child)).filter(tag => (tag as any).parentNode.nodeName === parentNodeName);
+        if (tags === undefined || tags.length === 0) {
+            return '';
+        }
+        return tags[0].childNodes[0].nodeValue;
+    }
+
+    public parseI18n(xmlTag: Element | Document, child: string): I18nString {
+        const i18n = new I18nString(this.tagValue(xmlTag, child));
+        if (i18n.value !== '') {
+            const name = xmlTag.getElementsByTagName(child)[0].getAttribute('name');
+            i18n.name = name === null ? undefined : name;
+        }
+        return i18n;
+    }
+
+    public parseI18nWithDynamic(xmlTag: Element | Document, child: string): I18nWithDynamic {
+        const i18n = new I18nWithDynamic(this.tagValue(xmlTag, child));
+        if (i18n.value !== '') {
+            const name = xmlTag.getElementsByTagName(child)[0].getAttribute('name');
+            i18n.name = name === null ? undefined : name;
+            i18n.dynamic = xmlTag.getElementsByTagName(child)[0].getAttribute('dynamic') === 'true';
+        }
+        return i18n;
+    }
+
+    public tagAttribute(xmlTag: Element, attribute: string): string {
+        const attr = xmlTag.attributes[attribute];
+        if (attr === undefined) {
+            return '';
+        }
+        return attr.value;
+    }
+
+    public parseAction(actionTag: Element): Action {
+        const actionId = actionTag.getAttribute('id');
+        let actionDefinition = '';
+        for (const node of Array.from(actionTag.childNodes)) {
+            if (node.nodeName === '#comment') {
+                if (node.nodeValue.includes('@formatter')) {
+                    continue;
+                }
+                actionDefinition += '<!--' + node.nodeValue + '-->';
+            } else if (node.nodeName === '#cdata-section') {
+                actionDefinition += '<![CDATA[' + node.nodeValue + ']]>';
+            } else {
+                actionDefinition += node.nodeValue;
+            }
+        }
+        return new Action(actionId, actionDefinition);
+    }
+
+    public parseEncryption(xmlTag: Element): string {
+        const encryption = this.tagValue(xmlTag, 'encryption');
+        if (!encryption || encryption !== 'true') {
+            return undefined;
+        }
+        const algorithm = xmlTag.getElementsByTagName('encryption')[0].getAttribute('algorithm');
+        if (typeof algorithm === 'string' && algorithm !== '') {
+            return algorithm;
+        }
+        return encryption;
+    }
+
+    public parseViewAndComponent(xmlTag: Element): Component {
+        const xmlComponent = xmlTag.getElementsByTagName('component')[0];
+        if (!xmlComponent?.children || xmlComponent.children.length === 0) {
+            const xmlViewTag = xmlTag.getElementsByTagName('view')[0];
+            if (!xmlViewTag?.children || xmlViewTag.children.length === 0) {
+                return undefined;
+            }
+            // TODO: <view><list>5</list></view>
+            return new Component(xmlViewTag.children[0].nodeName);
+        }
+        return this.parseComponent(xmlTag);
+    }
+
+    public parseComponent(xmlTag: Element): Component {
+        const xmlComponent = xmlTag.getElementsByTagName('component')[0];
+        if (!xmlComponent?.children || xmlComponent.children.length === 0) {
+            return undefined;
+        }
+        const comp = new Component(this.tagValue(xmlComponent, 'name'));
+        const properties = xmlComponent.getElementsByTagName('properties')[0];
+        if (properties?.children && properties.children.length > 0) {
+            for (const prop of Array.from(properties.getElementsByTagName('property'))) {
+                comp.properties.push(this.parseProperty(prop));
+            }
+            const icons = properties.getElementsByTagName('option_icons').item(0);
+            if (icons?.children && icons.children.length > 0) {
+                for (const iconXml of Array.from(icons.getElementsByTagName('icon'))) {
+                    const key = this.tagAttribute(iconXml, 'key');
+                    let type = this.tagAttribute(iconXml, 'type') as IconType;
+                    if (type as string === '') {
+                        type = IconType.MATERIAL;
+                    }
+                    const icon = iconXml.innerHTML;
+                    comp.icons.push(new Icon(key, icon, type));
+                }
+            }
+        } else {
+            for (const prop of Array.from(xmlComponent.getElementsByTagName('property'))) {
+                comp.properties.push(this.parseProperty(prop));
+            }
+        }
+        return comp;
+    }
+
+    public parseProperty(property: Element): Property {
+        const key = this.tagAttribute(property, 'key');
+        const value = property.innerHTML;
+        return new Property(key, value);
+    }
+
+    public resolveLogic(xmlRoleRefLogic: Element, roleRef: RoleRef | UserRef): void {
+        roleRef.logic.delegate = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delegate'));
+        roleRef.logic.perform = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'perform'));
+        roleRef.logic.assigned = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assigned'));
+        roleRef.logic.cancel = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'cancel'));
+        roleRef.logic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
+    }
+
+    public resolveLogicValue(logicValue: string): boolean {
+        return (logicValue !== undefined && logicValue !== '') ? logicValue === 'true' : undefined;
+    }
+
+    public resolveCaseLogic(xmlRoleRefLogic: Element, roleRef: ProcessRoleRef | ProcessUserRef): void {
+        roleRef.caseLogic.create = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'create'));
+        roleRef.caseLogic.delete = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delete'));
+        roleRef.caseLogic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
+    }
+
+    public checkVariability(model: PetriNet, arc: Arc, reference: string): void {
+        let ref: Place | DataVariable = model.getPlace(reference);
+        if (ref !== undefined) {
+            this.attachReference(arc, ref);
+        } else {
+            ref = model.getData(reference);
+            if (ref !== undefined) {
+                this.attachReference(arc, ref);
+            }
+        }
+    }
+
+    public attachReference(arc: Arc, reference: Place | DataVariable): void {
+        const vaha = reference instanceof Place ? reference.marking : parseInt(reference.init.expression as string, 10);
+
+        if (isNaN(vaha)) {
+            throw new Error('Not a number. Cannot change the value of arc weight.');
+        }
+        if (vaha < 0) {
+            throw new Error('A negative number. Cannot change the value of arc weight.');
+        }
+
+        if (!isNaN(vaha) && vaha >= 0) {
+            arc.multiplicity = vaha;
+            arc.reference = reference.id;
+        }
+    }
+
+    public parseTrigger(xmlTrigger: Element): Trigger {
+        const trigger = new Trigger();
+        trigger.type = this.tagAttribute(xmlTrigger, 'type') as TriggerType;
+        if (trigger.type === TriggerType.TIME) {
+            trigger.delay = this.tagValue(xmlTrigger, 'delay') === '' ? undefined : this.tagValue(xmlTrigger, 'delay');
+            trigger.exact = this.tagValue(xmlTrigger, 'exact') === '' ? undefined : new Date(this.tagValue(xmlTrigger, 'exact'));
+        }
+        return trigger;
+    }
+
+    public parseRoleRef(xmlRoleRef: Element): RoleRef {
+        const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('logic')[0];
+        const roleRef = new RoleRef(this.tagValue(xmlRoleRef, 'id'));
+        this.resolveLogic(xmlRoleRefLogic, roleRef);
+        return roleRef;
+    }
+
+    public parseDataRef(xmlDataRef: Element, index: number): DataRef {
+        const dataRef = new DataRef(this.tagValue(xmlDataRef, 'id'));
+        for (const xmlEvent of Array.from(xmlDataRef.getElementsByTagName('event'))) {
+            const event = new DataEvent(this.tagAttribute(xmlEvent, 'type') as DataEventType);
+            this.parseEvent(xmlEvent, event);
+            dataRef.mergeEvent(event);
+        }
+        const xmlDataRefLogic = xmlDataRef.getElementsByTagName('logic')[0];
+        if (xmlDataRefLogic) {
+            const actionTags = Array.from(xmlDataRefLogic.getElementsByTagName('action'));
+            if (actionTags.length > 0) {
+                for (const actionTag of actionTags) {
+                    const action = this.parseAction(actionTag);
+                    const actionTrigger = actionTag.getAttribute('trigger') as DataEventType;
+                    dataRef.addAction(action, actionTrigger);
+                }
+            }
+            for (const logic of Array.from(xmlDataRefLogic.getElementsByTagName('behavior'))) {
+                if (logic.childNodes[0].nodeValue as DataRefBehavior === DataRefBehavior.REQUIRED) {
+                    dataRef.logic.required = true;
+                } else if (logic.childNodes[0].nodeValue as DataRefBehavior !== DataRefBehavior.OPTIONAL) {
+                    dataRef.logic.behavior = logic.childNodes[0].nodeValue as DataRefBehavior;
+                }
+            }
+        }
+        dataRef.component = this.parseComponent(xmlDataRef);
+        const xmlLayout = xmlDataRef.getElementsByTagName('layout');
+        if (xmlLayout.length !== 0) {
+            dataRef.layout = this.parseDataLayout(xmlLayout.item(0));
+        } else {
+            dataRef.layout = new DataLayout();
+            dataRef.layout.x = 0;
+            dataRef.layout.y = index;
+            dataRef.layout.rows = 1;
+            dataRef.layout.cols = 2;
+        }
+        return dataRef;
+    }
+
+    public parseDataLayout(xmlLayout: Element): DataLayout {
+        const layout = new DataLayout();
+        layout.x = this.parseNumberValue(xmlLayout, 'x');
+        layout.y = this.parseNumberValue(xmlLayout, 'y');
+        layout.rows = this.parseNumberValue(xmlLayout, 'rows');
+        layout.cols = this.parseNumberValue(xmlLayout, 'cols');
+        layout.template = this.tagValue(xmlLayout, 'template') as Template;
+        layout.appearance = this.tagValue(xmlLayout, 'appearance') as Appearance;
+        layout.offset = this.parseNumberValue(xmlLayout, 'offset');
+        layout.alignment = this.tagValue(xmlLayout, 'alignment') as Alignment;
+        return layout;
+    }
+
+    public parseDataGroup(xmlDataGroup: Element): DataGroup {
+        const dataGroup = new DataGroup(this.tagValue(xmlDataGroup, 'id'));
+        dataGroup.cols = this.parseNumberValue(xmlDataGroup, 'cols');
+        dataGroup.rows = this.parseNumberValue(xmlDataGroup, 'rows');
+        dataGroup.alignment = this.tagValue(xmlDataGroup, 'alignment') as Alignment;
+        dataGroup.layout = this.tagValue(xmlDataGroup, 'layout') as LayoutType;
+        dataGroup.stretch = this.tagValue(xmlDataGroup, 'stretch') === 'true';
+        dataGroup.title = this.parseI18n(xmlDataGroup, 'title');
+        const xmlDataRefs = Array.from(xmlDataGroup.getElementsByTagName('dataRef'));
+        for (let i = 0; i < xmlDataRefs.length; i++) {
+            const xmlDataRef = xmlDataRefs[i];
+            dataGroup.addDataRef(this.parseDataRef(xmlDataRef, i));
+        }
+        return dataGroup;
+    }
+
+    public parsePlaceStatic(xmlPlace: Element): boolean {
+        let isStatic = false;
+        if (this.checkLengthAndNodes(xmlPlace, 'isStatic')) {
+            isStatic = (xmlPlace.getElementsByTagName('isStatic')[0].childNodes[0].nodeValue === 'true');
+        }
+        if (this.checkLengthAndNodes(xmlPlace, 'static')) {
+            isStatic = (xmlPlace.getElementsByTagName('static')[0].childNodes[0].nodeValue === 'true');
+        }
+        return isStatic;
+    }
+
+    public parseArcType(xmlArc: Element): ArcType {
+        let parsedArcType = ArcType.REGULAR;
+        if (this.checkLengthAndNodes(xmlArc, 'type')) {
+            parsedArcType = xmlArc.getElementsByTagName('type')[0].childNodes[0].nodeValue as ArcType;
+        }
+        return parsedArcType;
+    }
+
+    public parseEvent<T>(xmlEvent: Element, event: Event<T>): void {
+        event.id = this.tagValue(xmlEvent, 'id');
+        for (const actionsElement of Array.from(xmlEvent.getElementsByTagName('actions'))) {
+            const actionsPhase = this.tagAttribute(actionsElement, 'phase') as EventPhase;
+            const actionTags = Array.from(actionsElement.getElementsByTagName('action'));
+            if (actionTags.length > 0) {
+                for (const actionTag of actionTags) {
+                    const action = this.parseAction(actionTag);
+                    event.addAction(action, actionsPhase);
+                }
+            }
+        }
+    }
+
+    public resolveInits(xmlData: Element): Array<Expression> {
+        const inits: Array<Expression> = [];
+        if (this.checkLengthAndNodes(xmlData, 'inits')) {
+            for (const value of Array.from(xmlData.getElementsByTagName('inits')[0]?.getElementsByTagName('init'))) {
+                const dynamic = this.tagAttribute(value, 'dynamic');
+                inits.push(new Expression(value.textContent, dynamic === '' ? undefined : dynamic === 'true'));
+            }
+        }
+        return inits;
+    }
+
+    public resolveInit(xmlData: Element): Expression {
+        for (const value of Array.from(xmlData.getElementsByTagName('init'))) {
+            if (value.parentElement.tagName !== 'data') {
+                continue;
+            }
+            const dynamic = this.tagAttribute(value, 'dynamic');
+            return new Expression(value.textContent, dynamic === '' ? undefined : dynamic === 'true');
+        }
+    }
+
+    public checkLengthAndNodes(element: Element, name: string) {
+        return element.getElementsByTagName(name).length > 0 &&
+            element.getElementsByTagName(name)[0].childNodes.length !== 0;
+    }
+
+    public resolveFormat(xmlData: Element, data: DataVariable): void {
+        if (this.checkLengthAndNodes(xmlData, 'format')) {
+            if (data.component === undefined) {
+                data.component = new Component('currency');
+            }
+            const xmlCur = xmlData.getElementsByTagName('format').item(0).getElementsByTagName('currency').item(0);
+            data.component.properties.push(new Property('locale', this.tagValue(xmlCur, 'locale')));
+            data.component.properties.push(new Property('code', this.tagValue(xmlCur, 'code') !== '' ? this.tagValue(xmlCur, 'code') : 'EUR'));
+            data.component.properties.push(new Property('fractionSize', (this.parseNumberValue(xmlCur, 'fractionSize') !== undefined ? this.parseNumberValue(xmlCur, 'fractionSize') : 2).toString()));
+        }
+    }
+
+    public parseNumberValue(element: Element, name: string): number {
+        const value = parseInt(this.tagValue(element, name), 10);
+        return isNaN(value) ? undefined : value;
+    }
+
+    public parseExpression(xmlTag: Element, name: string): Expression {
+        const val = this.tagValue(xmlTag, name);
+        let dynamic;
+        if (xmlTag.getElementsByTagName(name).length > 0) {
+            dynamic = this.tagAttribute(xmlTag.getElementsByTagName(name).item(0), 'dynamic');
+        }
+        if (val === '' && dynamic !== 'true') {
+            return undefined;
+        }
+        return new Expression(val, dynamic === '' ? undefined : dynamic === 'true');
+    }
+}

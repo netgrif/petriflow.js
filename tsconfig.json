@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES5",
+    "moduleResolution": "Node",
+    "outDir": "dist/main",
+    "lib": [
+      "ES2018",
+      "DOM"
+    ],
+    "typeRoots": [
+      "node_modules/@types",
+      "src/lib/types"
+    ],
+    "experimentalDecorators": true,
+    "inlineSourceMap": true,
+    "importHelpers": true,
+    //    "strict": true,
+//    "strictFunctionTypes": true,
+//    "strictNullChecks": true,
+//    "alwaysStrict": true,
+//    "skipLibCheck": true,
+//    "esModuleInterop": true,
+//    "resolveJsonModule": true,
+//    "noImplicitReturns": true,
+//    "noImplicitThis": true,
+//    "noImplicitAny": true,
+//    "noUnusedLocals": true,
+//    "noUnusedParameters": true,
+//    "noFallthroughCasesInSwitch": true,
+
+    /* Debugging Options */
+    "traceResolution": false,
+    "listEmittedFiles": false,
+    "listFiles": false,
+    "pretty": true
+  },
+  "include": [
+    "src/lib/**/*"
+  ],
+  "exclude": [
+    "node_modules/**",
+    "**/*.spec.*"
+  ],
+  "compileOnSave": false
+}
