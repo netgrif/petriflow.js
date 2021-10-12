@@ -31,7 +31,6 @@
         "dist",
         "LICENSE",
         "README.md",
-        "CHANGELOG.md",
         "package.json",
         "!**/*.spec.*",
         "!**/test"
@@ -39,7 +38,7 @@
     "scripts": {
         "build": "tsc -p tsconfig.dts.json && rollup -c",
         "build:test": "npm run build && npm run test:unit",
-        "test": "npm run build && npm run test:lint && npm run test:spell && npm run test:cov",
+        "test": "npm run build && npm run test:lint && npm run test:spell && npm run test:unit",
         "test:lint": "eslint src --ext .ts",
         "test:spell": "cspell \"{*.md,src/**/*.ts}\"",
         "test:unit": "jest",

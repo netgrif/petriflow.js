@@ -28,11 +28,7 @@
         "NETGRIF",
         "PETRIFLOW",
         "petrinet",
-        "unpatched",
-        "datagroup",
-        "MULTICHOICE",
-        "multichoice",
-        "DATETIME"
+        "unpatched"
     ],
     "flagWords": [],
     "ignorePaths": [

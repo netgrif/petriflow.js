@@ -3,11 +3,11 @@ export enum DataType {
     TEXT = 'text',
     ENUMERATION = 'enumeration',
     ENUMERATION_MAP = 'enumeration_map',
-    MULTICHOICE = 'multichoice',
-    MULTICHOICE_MAP = 'multichoice_map',
+    MULTICHOICE = 'multichoice', // cspell:disable-line
+    MULTICHOICE_MAP = 'multichoice_map', // cspell:disable-line
     BOOLEAN = 'boolean',
     DATE = 'date',
-    DATETIME = 'dateTime',
+    DATETIME = 'dateTime', // cspell:disable-line
     FILE = 'file',
     FILE_LIST = 'fileList',
     USER = 'user',

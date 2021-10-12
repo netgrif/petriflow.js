@@ -1,5 +1,5 @@
 import {DataRef} from '../transition/data-ref';
-import {DataGroup} from '../transition/datagroup';
+import {DataGroup} from '../transition/datagroup'; // cspell:disable-line
 import {RoleRef} from '../transition/role-ref';
 import {Trigger} from '../transition/trigger';
 

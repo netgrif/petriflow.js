@@ -2,7 +2,7 @@ import {I18nString} from '../i18n/i18n-string';
 import {AssignPolicy} from './assign-policy.enum';
 import {AssignedUser} from './assigned-user';
 import {DataFocusPolicy} from './data-focus-policy.enum';
-import {DataGroup} from './datagroup';
+import {DataGroup} from './datagroup'; // cspell:disable-line
 import {FinishPolicy} from './finish-policy.enum';
 import {RoleRef} from './role-ref';
 import {TransitionEvent} from './transition-event';

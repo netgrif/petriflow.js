@@ -47,7 +47,7 @@ export * from './transition/data-ref';
 export * from './transition/data-ref-behavior.enum';
 export * from './transition/data-ref-logic';
 export * from './transition/data-ref-logic-util';
-export * from './transition/datagroup';
+export * from './transition/datagroup'; // cspell:disable-line
 export * from './transition/finish-policy.enum';
 export * from './transition/layout';
 export * from './transition/layout-type.enum';

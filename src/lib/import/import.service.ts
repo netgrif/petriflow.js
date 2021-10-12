@@ -43,6 +43,7 @@ import {PetriNetResult} from './petri-net-result';
 
 export class ImportService {
 
+    /* cspell:disable-next-line */
     private static readonly PARSE_ERROR_LINE_EXTRACTION_REGEX = '(?:L|l)ine.*?(\\d+).*?(?:C|c)olumn.*?(\\d+)';
     private static readonly DEFAULT_ROLE_DEFAULT_VALUE = false;
     private static readonly TRANSITION_ROLE_DEFAULT_VALUE = false;
@@ -61,7 +62,7 @@ export class ImportService {
 
     public parseFromXml(txt: string): PetriNetResult {
         const doc = this.parseXml(txt);
-        const parseError = doc.getElementsByTagName('parsererror');
+        const parseError = doc.getElementsByTagName('parsererror'); // cspell:disable-line
         let result = new PetriNetResult();
 
         if (parseError.length !== 0) {
