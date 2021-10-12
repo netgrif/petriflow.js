@@ -3,7 +3,7 @@
 ![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green)
 ![Typescript 4.4.3](https://img.shields.io/badge/Typescript-4.4.3-blue)
 ![Petriflow 1.0.0](https://img.shields.io/badge/Petriflow-1.0.0-0aa8ff)
-[![build](https://github.com/netgrif/petriflow.js/actions/workflows/release-build.yml/badge.svg)](https://github.com/netgrif/petriflow.js/actions/workflows/release-build.yml)
+[![build](https://github.com/netgrif/petriflow.js/actions/workflows/master-build.yml/badge.svg)](https://github.com/netgrif/petriflow.js/actions/workflows/release-build.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=netgrif_petriflow.js&metric=alert_status)](https://sonarcloud.io/dashboard?id=netgrif_petriflow.js)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=netgrif_petriflow.js&metric=coverage)](https://sonarcloud.io/dashboard?id=netgrif_petriflow.js)
 

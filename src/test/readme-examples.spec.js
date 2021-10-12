@@ -24,7 +24,7 @@ describe('README Examples test', () => {
                 done();
             }));
         });
-    });
+    }, 10000);
 
     test('should export empty petriflow process', () => {
         const net = new PetriNet();
