@@ -1,68 +1,73 @@
 {
-  "name": "@netgrif/petriflow",
-  "version": "1.0.0",
-  "description": "Javascript / Typescript library of Petriflow objects",
-  "main": "dist/petriflow.js",
-  "module": "dist/petriflow.esm.js",
-  "types": "dist/petriflow.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/netgrif/petriflow.js.git"
-  },
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/netgrif/petriflow.js/issues"
-  },
-  "homepage": "https://github.com/netgrif/petriflow.js#readme",
-  "keywords": [
-    "petriflow",
-    "pf",
-    "netgrif",
-    "petri nets",
-    "workflow"
-  ],
-  "contributors": [
-    "Milan Mladoniczky <mladoniczky@netgrif.com>",
-    "Juraj Mažári <mazari@netgrif.com>",
-    "Tomáš Kováčik <kovacik@netgrif.com>",
-    "Jakub Kovář <kovar@netgrif.com>"
-  ],
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md",
-    "CHANGELOG.md",
-    "package.json",
-    "!**/*.spec.*",
-    "!**/test"
-  ],
-  "scripts": {
-    "build": "tsc -p tsconfig.dts.json && rollup -c",
-    "test": "npm run test:lint && npm run test:spell && npm run test:cov",
-    "test:lint": "eslint src --ext .ts",
-    "test:spell": "cspell \"{*.md,src/**/*.ts}\"",
-    "test:unit": "jest --verbose",
-    "test:cov": "jest --coverage --verbose",
-    "doc": "typedoc --entryPoints src/lib/index.ts --exclude **/*.spec.* --out doc --theme default",
-    "version": ""
-  },
-  "devDependencies": {
-    "@rollup/plugin-typescript": "^8.2.5",
-    "@typescript-eslint/eslint-plugin": "^4.33.0",
-    "@typescript-eslint/parser": "^4.33.0",
-    "cspell": "^5.12.3",
-    "eslint": "^7.32.0",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-import": "^2.24.2",
-    "jest": "^27.2.5",
-    "rollup": "^2.58.0",
-    "rollup-plugin-delete": "^2.0.0",
-    "rollup-plugin-dts": "^4.0.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "typedoc": "^0.22.5",
-    "typescript": "^4.4.3"
-  },
-  "dependencies": {
-    "tslib": "^2.3.1"
-  }
+    "name": "@netgrif/petriflow",
+    "version": "1.0.0",
+    "description": "Javascript / Typescript library of Petriflow objects",
+    "main": "dist/petriflow.js",
+    "module": "dist/petriflow.esm.js",
+    "types": "dist/petriflow.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/netgrif/petriflow.js.git"
+    },
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/netgrif/petriflow.js/issues"
+    },
+    "homepage": "https://github.com/netgrif/petriflow.js#readme",
+    "keywords": [
+        "petriflow",
+        "pf",
+        "netgrif",
+        "petri nets",
+        "workflow"
+    ],
+    "contributors": [
+        "Milan Mladoniczky <mladoniczky@netgrif.com>",
+        "Juraj Mažári <mazari@netgrif.com>",
+        "Tomáš Kováčik <kovacik@netgrif.com>",
+        "Jakub Kovář <kovar@netgrif.com>"
+    ],
+    "files": [
+        "dist",
+        "LICENSE",
+        "README.md",
+        "CHANGELOG.md",
+        "package.json",
+        "!**/*.spec.*",
+        "!**/test"
+    ],
+    "scripts": {
+        "build": "tsc -p tsconfig.dts.json && rollup -c",
+        "build:test": "npm run build && npm run test:unit",
+        "test": "npm run build && npm run test:lint && npm run test:spell && npm run test:cov",
+        "test:lint": "eslint src --ext .ts",
+        "test:spell": "cspell \"{*.md,src/**/*.ts}\"",
+        "test:unit": "jest",
+        "doc": "typedoc --entryPoints src/lib/index.ts --exclude **/*.spec.* --out doc --theme default",
+        "version": ""
+    },
+    "devDependencies": {
+        "@rollup/plugin-typescript": "^8.2.5",
+        "@typescript-eslint/eslint-plugin": "^4.33.0",
+        "@typescript-eslint/parser": "^4.33.0",
+        "cspell": "^5.12.3",
+        "eslint": "^7.32.0",
+        "eslint-plugin-eslint-comments": "^3.2.0",
+        "eslint-plugin-import": "^2.24.2",
+        "jest": "^27.2.5",
+        "rollup": "^2.58.0",
+        "rollup-plugin-delete": "^2.0.0",
+        "rollup-plugin-dts": "^4.0.0",
+        "rollup-plugin-terser": "^7.0.2",
+        "typedoc": "^0.22.5",
+        "typescript": "^4.4.3"
+    },
+    "dependencies": {
+        "tslib": "^2.3.1"
+    },
+    "jest": {
+        "verbose": true,
+        "collectCoverage": true,
+        "testEnvironment": "jsdom"
+    }
 }

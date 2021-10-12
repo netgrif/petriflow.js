@@ -304,7 +304,7 @@ export class ExportService {
             this.exportUtils.exportTag(exportTrans, 'x', trans.x?.toString(), true);
             this.exportUtils.exportTag(exportTrans, 'y', trans.y?.toString(), true);
             this.exportUtils.exportTag(exportTrans, 'label', trans.label, true);
-            if (!trans.layout.empty()) {
+            if (trans.layout && !trans.layout.empty()) {
                 this.exportTransitionLayout(exportTrans, trans.layout);
             }
             this.exportUtils.exportTag(exportTrans, 'icon', trans.icon ?? '');
@@ -419,7 +419,7 @@ export class ExportService {
             this.exportUtils.exportTag(exportLayout, 'y', layout.y?.toString());
             this.exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString());
             this.exportUtils.exportTag(exportLayout, 'cols', layout.cols?.toString());
-            this.exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString());
+            this.exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString() ?? '');
             this.exportUtils.exportTag(exportLayout, 'template', layout.template);
             this.exportUtils.exportTag(exportLayout, 'appearance', layout.appearance);
             this.exportUtils.exportTag(exportLayout, 'alignment', layout.alignment?.toString() ?? '');
@@ -442,7 +442,7 @@ export class ExportService {
     private exportLayout(exportLayout: Element, layout: Layout): void {
         this.exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString());
         this.exportUtils.exportTag(exportLayout, 'cols', layout.cols?.toString());
-        this.exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString());
+        this.exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString() ?? '');
     }
 
     public exportDataGroup(element: Element, dataGroup: DataGroup): void {

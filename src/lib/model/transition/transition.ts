@@ -16,7 +16,7 @@ export class Transition {
     private _x: number;
     private _y: number;
     private _label: I18nString;
-    private _layout: TransitionLayout;
+    private _layout?: TransitionLayout;
     private _icon?: string;
     private _priority?: number;
     private _assignPolicy: AssignPolicy;
@@ -38,7 +38,6 @@ export class Transition {
         this._assignPolicy = AssignPolicy.MANUAL;
         this._dataFocusPolicy = DataFocusPolicy.MANUAL;
         this._finishPolicy = FinishPolicy.MANUAL;
-        this._layout = new TransitionLayout();
         this._triggers = [];
         this._roleRefs = [];
         this._userRefs = [];
@@ -78,11 +77,11 @@ export class Transition {
         this._label = value;
     }
 
-    get layout(): TransitionLayout {
+    get layout(): TransitionLayout | undefined {
         return this._layout;
     }
 
-    set layout(value: TransitionLayout) {
+    set layout(value: TransitionLayout | undefined) {
         this._layout = value;
     }
 

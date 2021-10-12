@@ -3,14 +3,13 @@ import {Alignment} from './alignment.enum';
 export abstract class Layout {
     private _rows: number;
     private _cols: number;
-    private _offset: number;
+    private _offset?: number;
     private _alignment?: Alignment;
 
 
-    constructor(rows = 0, cols = 0, offset = 0) {
+    constructor(rows = 0, cols = 0) {
         this._rows = rows;
         this._cols = cols;
-        this._offset = offset;
     }
 
     get rows(): number {
@@ -29,11 +28,11 @@ export abstract class Layout {
         this._cols = value;
     }
 
-    get offset(): number {
+    get offset(): number | undefined {
         return this._offset;
     }
 
-    set offset(value: number) {
+    set offset(value: number | undefined) {
         this._offset = value;
     }
 

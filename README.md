@@ -23,11 +23,16 @@ You can install it with the following command:
 npm install --save @netgrif/petriflow
 ```
 
+### Requirements
+
+Currently, the library **only supports browser applications** because **requires DOM Web API** to correctly process Petriflow files.
+It can be used in Node.js environments with installed the latest release of [jsdom](https://github.com/jsdom/jsdom) library.
+
 ## Usage
 
 The library support both CommonJS and ES Modules importing systems.
 
-For Node.js applications and applications that uses CommonJS module system you can use require function, i.e.:
+For applications that use CommonJS module system you can use require function, i.e.:
 ```javascript
 const {PetriNet, ImportService} = require('@netgrif/petriflow')
 ```
@@ -53,14 +58,14 @@ immutability of parsed objects.
 
 The class can be used to parse whole file at once or parse only parts of the xml file.
 
-##### Node.js example
+##### Import example
 ```javascript
-const fs = require('fs');
-const {ImportService, PetriNetResult} = require('@netgrif/petriflow');
+import {ImportService, PetriNetResult} from '@netgrif/petriflow';
 
-const file = fs.readFileSync('/path/to/petriflow/file.xml');
-const net = new ImportService().parseFromXml(file);
-console.log('Net id: ' + net.model.id);
+fetch('https://raw.githubusercontent.com/netgrif/petriflow/main/examples/order-approval.xml').then(result => {
+    const net = new ImportService().parseFromXml(result);
+    console.log('Net id: ' + net.model.id); 
+});
 ```
 
 ### Export service
@@ -69,14 +74,13 @@ console.log('Net id: ' + net.model.id);
 
 The class can be used to serialize whole process at once or only parts of it. Methods use DOM API to create Petriflow XML file.
 
-##### Node.js example
+##### Export example
 ```javascript
-const fs = require('fs');
-const {ExportService, PetriNet} = require('@netgrif/petriflow');
+import {ExportService, PetriNet} from '@netgrif/petriflow';
 
 const net = new PetriNet();
 const xml = new ExportService().exportXml(net);
-fs.writeFileSync('/path/to/new/file.xml', xml);
+console.log(xml);
 ```
 
 ## Reporting issue

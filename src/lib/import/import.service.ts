@@ -34,7 +34,7 @@ import {
     Transaction,
     Transition,
     TransitionEvent,
-    TransitionEventType,
+    TransitionEventType, TransitionLayout,
     UserRef,
     Validation
 } from '../model';
@@ -62,7 +62,7 @@ export class ImportService {
     public parseFromXml(txt: string): PetriNetResult {
         const doc = this.parseXml(txt);
         const parseError = doc.getElementsByTagName('parsererror');
-        const result = new PetriNetResult();
+        let result = new PetriNetResult();
 
         if (parseError.length !== 0) {
             let matches = parseError.item(0)?.textContent?.match(ImportService.PARSE_ERROR_LINE_EXTRACTION_REGEX);
@@ -79,7 +79,9 @@ export class ImportService {
             return result;
         }
 
-        return this.importFromXml(doc, result);
+        result = this.importFromXml(doc, result);
+        this.importUtils.resetIds();
+        return result;
     }
 
     private importFromXml(xmlDoc: Document, result: PetriNetResult): PetriNetResult { // TODO: return stream
@@ -135,7 +137,7 @@ export class ImportService {
         }
         role.title = title;
         for (const xmlEvent of Array.from(xmlRole.getElementsByTagName('event'))) {
-            const event = new RoleEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as RoleEventType);
+            const event = new RoleEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as RoleEventType, '');
             event.message = this.importUtils.parseI18n(xmlEvent, 'message');
             event.title = this.importUtils.parseI18n(xmlEvent, 'title');
             this.importUtils.parseEvent(xmlEvent, event);
@@ -148,7 +150,7 @@ export class ImportService {
         for (const xmlEvent of Array.from(xmlDoc.getElementsByTagName('processEvents'))) {
             for (const xmlBasicEvent of Array.from(xmlEvent.getElementsByTagName('event'))) {
                 try {
-                    const event = new ProcessEvent(this.importUtils.tagAttribute(xmlBasicEvent, 'type') as ProcessEventType);
+                    const event = new ProcessEvent(this.importUtils.tagAttribute(xmlBasicEvent, 'type') as ProcessEventType, '');
                     this.importUtils.parseEvent(xmlBasicEvent, event);
                     modelResult.model.addProcessEvent(event);
                 } catch (e: unknown) {
@@ -159,7 +161,7 @@ export class ImportService {
         for (const xmlEvent of Array.from(xmlDoc.getElementsByTagName('caseEvents'))) {
             for (const xmlBasicEvent of Array.from(xmlEvent.getElementsByTagName('event'))) {
                 try {
-                    const event = new CaseEvent(this.importUtils.tagAttribute(xmlBasicEvent, 'type') as CaseEventType);
+                    const event = new CaseEvent(this.importUtils.tagAttribute(xmlBasicEvent, 'type') as CaseEventType, '');
                     this.importUtils.parseEvent(xmlBasicEvent, event);
                     modelResult.model.addCaseEvent(event);
                 } catch (e: unknown) {
@@ -246,6 +248,11 @@ export class ImportService {
         for (const actionRef of Array.from(xmlData.getElementsByTagName('actionRef'))) {
             data.actionRef.push(this.importUtils.tagValue(actionRef, 'id'));
         }
+        for (const xmlEvent of Array.from(xmlData.getElementsByTagName('event'))) {
+            const event = new DataEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as DataEventType, '');
+            this.importUtils.parseEvent(xmlEvent, event);
+            data.mergeEvent(event);
+        }
         const actionTags = Array.from(xmlData.getElementsByTagName('action'));
         if (actionTags.length > 0) {
             let converted = 0;
@@ -262,11 +269,6 @@ export class ImportService {
                 result.addInfo(`${converted} action${converted > 1 ? 's' : ''} of data variable ${data.id} converted into event actions`);
             }
         }
-        for (const xmlEvent of Array.from(xmlData.getElementsByTagName('event'))) {
-            const event = new DataEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as DataEventType);
-            this.importUtils.parseEvent(xmlEvent, event);
-            data.mergeEvent(event);
-        }
         if (xmlData.getElementsByTagName('allowedNets').length > 0) {
             for (const val of Array.from(xmlData.getElementsByTagName('allowedNets')[0]?.children)) {
                 data.allowedNets.push(val.innerHTML);
@@ -279,8 +281,8 @@ export class ImportService {
         for (const xmlTrans of Array.from(xmlDoc.getElementsByTagName('transition'))) {
             const id = this.importUtils.tagValue(xmlTrans, 'id');
             try {
-                const xx = this.importUtils.parseNumberValue(xmlTrans, 'x');
-                const yy = this.importUtils.parseNumberValue(xmlTrans, 'y');
+                const xx = this.importUtils.parseNumberValue(xmlTrans, 'x') ?? 0;
+                const yy = this.importUtils.parseNumberValue(xmlTrans, 'y') ?? 0;
                 const trans = new Transition(xx, yy, id);
                 this.parseTransition(modelResult, xmlTrans, trans);
             } catch (e) {
@@ -369,9 +371,11 @@ export class ImportService {
         try {
             const xmlLayout = xmlTrans.getElementsByTagName('layout');
             if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode?.isSameNode(xmlTrans)) {
-                trans.layout.cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols');
-                trans.layout.rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows');
-                trans.layout.offset = this.importUtils.parseNumberValue(xmlLayout.item(0), 'offset');
+                if(!trans.layout)
+                    trans.layout = new TransitionLayout();
+                trans.layout.cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols') ?? 0;
+                trans.layout.rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows') ?? 0;
+                trans.layout.offset = this.importUtils.parseNumberValue(xmlLayout.item(0), 'offset') ?? 0;
                 trans.layout.alignment = this.importUtils.tagValue(xmlLayout.item(0), 'fieldAlignment') as Alignment;
                 trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
             }
@@ -411,10 +415,10 @@ export class ImportService {
 
     private importTransitionEvent(xmlEvent: Element, index: number, trans: Transition, result: PetriNetResult) {
         try {
-            if (!xmlEvent.parentElement?.tagName && xmlEvent.parentElement?.tagName !== 'transition') {
+            if (xmlEvent.parentElement?.tagName !== 'transition') {
                 return;
             }
-            const event = new TransitionEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as TransitionEventType);
+            const event = new TransitionEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as TransitionEventType, '');
             event.message = this.importUtils.parseI18n(xmlEvent, 'message');
             event.title = this.importUtils.parseI18n(xmlEvent, 'title');
             this.importUtils.parseEvent(xmlEvent, event);
@@ -490,8 +494,8 @@ export class ImportService {
     public importPlaces(modelResult: PetriNetResult, xmlDoc: Document): void {
         for (const xmlPlace of Array.from(xmlDoc.getElementsByTagName('place'))) {
             try {
-                const xx = this.importUtils.parseNumberValue(xmlPlace, 'x');
-                const yy = this.importUtils.parseNumberValue(xmlPlace, 'y');
+                const xx = this.importUtils.parseNumberValue(xmlPlace, 'x') ?? 0;
+                const yy = this.importUtils.parseNumberValue(xmlPlace, 'y') ?? 0;
                 const isStatic = this.importUtils.parsePlaceStatic(xmlPlace);
                 const placeId = xmlPlace.getElementsByTagName('id')[0]?.childNodes[0]?.nodeValue;
                 if (!placeId)
@@ -507,7 +511,7 @@ export class ImportService {
     public parsePlace(model: PetriNet, xmlPlace: Element, place: Place): void {
         model.addPlace(place);
 
-        place.marking = this.importUtils.parseNumberValue(xmlPlace, 'tokens');
+        place.marking = this.importUtils.parseNumberValue(xmlPlace, 'tokens') ?? 0;
         if (xmlPlace.getElementsByTagName('label').length > 0 &&
             xmlPlace.getElementsByTagName('label')[0].childNodes.length !== 0) {
             const label = xmlPlace.getElementsByTagName('label')[0]?.childNodes[0]?.nodeValue
@@ -538,7 +542,7 @@ export class ImportService {
         if (!arcId)
             throw new Error("Id of an arc must be defined!");
         const arc = new Arc(source, target, parsedArcType, arcId);
-        arc.multiplicity = this.importUtils.parseNumberValue(xmlArc, 'multiplicity');
+        arc.multiplicity = this.importUtils.parseNumberValue(xmlArc, 'multiplicity') ?? 0;
         if (arc.type === ArcType.VARIABLE) {
             arc.type = ArcType.REGULAR;
             arc.reference = xmlArc.getElementsByTagName('multiplicity')[0]?.childNodes[0]?.nodeValue ?? undefined;

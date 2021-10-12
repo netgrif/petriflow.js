@@ -9,7 +9,7 @@ export class DataLayout extends Layout {
     private _appearance: Appearance;
 
 
-    constructor(x = 0, y = 0, template = Template.MATERIAL, appearance = Appearance.STANDARD) {
+    constructor(x = 0, y = 0, template = Template.MATERIAL, appearance = Appearance.OUTLINE) {
         super();
         this._x = x;
         this._y = y;

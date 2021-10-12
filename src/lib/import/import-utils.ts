@@ -34,6 +34,9 @@ import {
 
 export class ImportUtils {
 
+    private eventIdCounter = 0;
+    private actionIdCounter = 0;
+
     public tagValue(xmlTag: Element | Document | null, child: string): string {
         if (!xmlTag || xmlTag.getElementsByTagName(child).length === 0 || xmlTag.getElementsByTagName(child)[0].childNodes.length === 0) {
             return '';
@@ -82,7 +85,7 @@ export class ImportUtils {
     }
 
     public parseAction(actionTag: Element): Action {
-        const actionId = actionTag.getAttribute('id') ?? 'id_' + (Math.floor((Math.random() * 999) + 1));
+        const actionId = actionTag.getAttribute('id') ?? 'action_' + this.getNextActionId();
         let actionDefinition = '';
         for (const node of Array.from(actionTag.childNodes)) {
             if (node.nodeName === '#comment') {
@@ -93,10 +96,10 @@ export class ImportUtils {
             } else if (node.nodeName === '#cdata-section') {
                 actionDefinition += '<![CDATA[' + node.nodeValue + ']]>';
             } else {
-                actionDefinition += node.nodeValue;
+                actionDefinition += node.nodeValue?.trim();
             }
         }
-        return new Action(actionId, actionDefinition);
+        return new Action(actionId, actionDefinition.trim());
     }
 
     public parseEncryption(xmlTag: Element): string | undefined {
@@ -228,7 +231,7 @@ export class ImportUtils {
     public parseDataRef(xmlDataRef: Element, index: number): DataRef {
         const dataRef = new DataRef(this.tagValue(xmlDataRef, 'id'));
         for (const xmlEvent of Array.from(xmlDataRef.getElementsByTagName('event'))) {
-            const event = new DataEvent(this.tagAttribute(xmlEvent, 'type') as DataEventType);
+            const event = new DataEvent(this.tagAttribute(xmlEvent, 'type') as DataEventType, '');
             this.parseEvent(xmlEvent, event);
             dataRef.mergeEvent(event);
         }
@@ -268,10 +271,10 @@ export class ImportUtils {
         const layout = new DataLayout();
         if (!xmlLayout)
             return layout;
-        layout.x = this.parseNumberValue(xmlLayout, 'x');
-        layout.y = this.parseNumberValue(xmlLayout, 'y');
-        layout.rows = this.parseNumberValue(xmlLayout, 'rows');
-        layout.cols = this.parseNumberValue(xmlLayout, 'cols');
+        layout.x = this.parseNumberValue(xmlLayout, 'x') ?? 0;
+        layout.y = this.parseNumberValue(xmlLayout, 'y') ?? 0;
+        layout.rows = this.parseNumberValue(xmlLayout, 'rows') ?? 0;
+        layout.cols = this.parseNumberValue(xmlLayout, 'cols') ?? 0;
         layout.template = this.tagValue(xmlLayout, 'template') as Template;
         layout.appearance = this.tagValue(xmlLayout, 'appearance') as Appearance;
         layout.offset = this.parseNumberValue(xmlLayout, 'offset');
@@ -316,6 +319,9 @@ export class ImportUtils {
 
     public parseEvent<T>(xmlEvent: Element, event: Event<T>): void {
         event.id = this.tagValue(xmlEvent, 'id');
+        if (event.id === '') {
+            event.id = event.type + "_event_" + this.getNextEventId();
+        }
         for (const actionsElement of Array.from(xmlEvent.getElementsByTagName('actions'))) {
             const actionsPhase = this.tagAttribute(actionsElement, 'phase') as EventPhase;
             const actionTags = Array.from(actionsElement.getElementsByTagName('action'));
@@ -367,15 +373,15 @@ export class ImportUtils {
             if (!xmlCur) return;
             data.component.properties.push(new Property('locale', this.tagValue(xmlCur, 'locale')));
             data.component.properties.push(new Property('code', this.tagValue(xmlCur, 'code') !== '' ? this.tagValue(xmlCur, 'code') : 'EUR'));
-            data.component.properties.push(new Property('fractionSize', (this.parseNumberValue(xmlCur, 'fractionSize') !== undefined ? this.parseNumberValue(xmlCur, 'fractionSize') : 2).toString()));
+            data.component.properties.push(new Property('fractionSize', (this.parseNumberValue(xmlCur, 'fractionSize') !== undefined ? this.parseNumberValue(xmlCur, 'fractionSize') : 2)?.toString() ?? ''));
         }
     }
 
-    public parseNumberValue(element: Element | null, name: string): number {
+    public parseNumberValue(element: Element | null, name: string): number | undefined {
         if (!element)
-            return NaN;
+            return undefined;
         const value = parseInt(this.tagValue(element, name), 10);
-        return isNaN(value) ? NaN : value;
+        return isNaN(value) ? undefined : value;
     }
 
     public parseExpression(xmlTag: Element, name: string): Expression | undefined {
@@ -388,5 +394,26 @@ export class ImportUtils {
             return undefined;
         }
         return new Expression(val, dynamic === '' ? undefined : dynamic === 'true');
+    }
+
+    private getNextEventId(): number {
+        return this.eventIdCounter++;
+    }
+
+    private getNextActionId(): number {
+        return this.actionIdCounter++;
+    }
+
+    public resetEventId(): void {
+        this.eventIdCounter = 0;
+    }
+
+    public resetActionId(): void {
+        this.actionIdCounter = 0;
+    }
+
+    public resetIds(): void {
+        this.resetEventId();
+        this.resetActionId();
     }
 }

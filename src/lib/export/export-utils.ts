@@ -91,7 +91,7 @@ export class ExportUtils {
         const cdataSections = action.match(this.CDATA_REGRET);
         const splitCdata = action.split(this.CDATA_REGRET);
         for (let i = 0; i < splitCdata.length; i++) {
-            if (splitCdata[i] !== '') {
+            if (splitCdata[i].trim() !== '') {
                 const commentSections = splitCdata[i].match(this.COMMENT_REGRET);
                 const splitComment = splitCdata[i].split(this.COMMENT_REGRET);
                 for (let j = 0; j < splitComment.length; j++) {

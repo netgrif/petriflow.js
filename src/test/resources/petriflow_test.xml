@@ -40,6 +40,7 @@
             <actions phase="pre">
                 <action>
                     test("case_create_pre")
+                    test("second_run_case_create_pre")
                 </action>
             </actions>
             <actions phase="post">

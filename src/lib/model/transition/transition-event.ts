@@ -6,8 +6,8 @@ export class TransitionEvent extends Event<TransitionEventType> {
     private _title: I18nString;
     private _message: I18nString;
 
-    constructor(type: TransitionEventType) {
-        super(type);
+    constructor(type: TransitionEventType, id: string) {
+        super(type, id);
         this._title = new I18nString('');
         this._message = new I18nString('');
     }
@@ -29,8 +29,7 @@ export class TransitionEvent extends Event<TransitionEventType> {
     }
 
     public clone(): TransitionEvent {
-        const event = new TransitionEvent(this.type);
-        event.id = this.id;
+        const event = new TransitionEvent(this.type, this.id);
         event._message = this._message;
         event._title = this._title;
         this.preActions.forEach(item => event.preActions.push(item.clone()));

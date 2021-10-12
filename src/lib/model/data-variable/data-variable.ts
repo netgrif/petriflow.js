@@ -214,7 +214,7 @@ export class DataVariable {
 
     public addAction(action: Action, type: DataEventType, phase?: EventPhase): void {
         if (!this._events.has(type)) {
-            this._events.set(type, new DataEvent(type));
+            this._events.set(type, new DataEvent(type, ''));
         }
         if (!phase) {
             phase = (type === DataEventType.GET ? EventPhase.PRE : EventPhase.POST);

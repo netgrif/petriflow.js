@@ -6,8 +6,8 @@ export class RoleEvent extends Event<RoleEventType> {
     private _title: I18nString;
     private _message: I18nString;
 
-    constructor(type: RoleEventType) {
-        super(type);
+    constructor(type: RoleEventType, id: string) {
+        super(type, id);
         this._title = new I18nString('');
         this._message = new I18nString('');
     }
@@ -29,8 +29,7 @@ export class RoleEvent extends Event<RoleEventType> {
     }
 
     public clone(): RoleEvent {
-        const event = new RoleEvent(this.type);
-        event.id = this.id;
+        const event = new RoleEvent(this.type, this.id);
         event._message = this._message;
         event._title = this._title;
         this.preActions.forEach(item => event.preActions.push(item.clone()));
