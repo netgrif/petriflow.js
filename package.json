@@ -42,7 +42,7 @@
         "test:lint": "eslint src --ext .ts",
         "test:spell": "cspell -s \"{*.md,src/**/*.ts}\"",
         "test:unit": "jest",
-        "doc": "typedoc --entryPoints src/lib/index.ts --exclude **/*.spec.* --out doc --theme default",
+        "doc": "typedoc --entryPoints src/lib/index.ts --exclude **/*.spec.* --out docs --theme default",
         "version": ""
     },
     "devDependencies": {
