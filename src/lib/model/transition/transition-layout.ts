@@ -1,14 +1,14 @@
-import {LayoutType} from './layout-type.enum';
 import {Layout} from './layout';
+import {LayoutType} from './layout-type.enum';
 
 export class TransitionLayout extends Layout {
     private _type?: LayoutType;
 
-    get type(): LayoutType {
+    get type(): LayoutType | undefined {
         return this._type;
     }
 
-    set type(value: LayoutType) {
+    set type(value: LayoutType | undefined) {
         this._type = value;
     }
 

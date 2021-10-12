@@ -7,7 +7,7 @@ export class Arc {
     private _source: string;
     private _destination: string;
     private _multiplicity: number;
-    private _reference: string;
+    private _reference?: string;
     private _breakpoints: Array<Breakpoint>;
 
     constructor(source: string, target: string, type: ArcType, id: string) {
@@ -59,11 +59,11 @@ export class Arc {
         this._multiplicity = value;
     }
 
-    get reference(): string {
+    get reference(): string | undefined {
         return this._reference;
     }
 
-    set reference(value: string) {
+    set reference(value: string | undefined) {
         this._reference = value;
     }
 

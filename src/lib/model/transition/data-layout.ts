@@ -1,12 +1,21 @@
+import {Appearance} from './appearance.enum';
 import {Layout} from './layout';
 import {Template} from './template.enum';
-import {Appearance} from './appearance.enum';
 
 export class DataLayout extends Layout {
     private _x: number;
     private _y: number;
     private _template: Template;
     private _appearance: Appearance;
+
+
+    constructor(x = 0, y = 0, template = Template.MATERIAL, appearance = Appearance.STANDARD) {
+        super();
+        this._x = x;
+        this._y = y;
+        this._template = template;
+        this._appearance = appearance;
+    }
 
     get x(): number {
         return this._x;

@@ -21,11 +21,12 @@ export class I18nTranslations {
         return Array.from(this._i18ns.values());
     }
 
-    getI18n(name: string): I18nString {
+    getI18n(name: string): I18nString | undefined {
         return this._i18ns.get(name);
     }
 
     addI18n(value: I18nString) {
+        if (!value || !value.name) return;
         if (this._i18ns.has(value.name)) {
             throw new Error(`Duplicate translation with name ${value.name}`);
         }

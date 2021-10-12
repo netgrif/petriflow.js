@@ -34,19 +34,16 @@ import {
 
 export class ImportUtils {
 
-    constructor() {
-    }
-
-    public tagValue(xmlTag: Element | Document, child: string): string {
+    public tagValue(xmlTag: Element | Document | null, child: string): string {
         if (!xmlTag || xmlTag.getElementsByTagName(child).length === 0 || xmlTag.getElementsByTagName(child)[0].childNodes.length === 0) {
             return '';
         }
         const parentNodeName = xmlTag.nodeName === '#document' ? 'document' : xmlTag.nodeName;
-        const tags: any = Array.from(xmlTag.getElementsByTagName(child)).filter(tag => (tag as any).parentNode.nodeName === parentNodeName);
-        if (tags === undefined || tags.length === 0) {
+        const tags: Element[] = Array.from(xmlTag.getElementsByTagName(child)).filter(tag => tag?.parentNode?.nodeName === parentNodeName);
+        if (tags === undefined || tags.length === 0 || tags[0]?.childNodes.length === 0) {
             return '';
         }
-        return tags[0].childNodes[0].nodeValue;
+        return tags[0]?.childNodes[0]?.nodeValue ?? '';
     }
 
     public parseI18n(xmlTag: Element | Document, child: string): I18nString {
@@ -68,20 +65,28 @@ export class ImportUtils {
         return i18n;
     }
 
-    public tagAttribute(xmlTag: Element, attribute: string): string {
-        const attr = xmlTag.attributes[attribute];
-        if (attr === undefined) {
+    public tagAttribute(xmlTag: Element | null, attribute: string): string {
+        if (!xmlTag)
+            return '';
+        let attr;
+        for (let i = 0; i < xmlTag.attributes.length; i++) {
+            if (xmlTag.attributes.item(i)?.name === attribute) {
+                attr = xmlTag.attributes.item(i);
+                break;
+            }
+        }
+        if (!attr) {
             return '';
         }
         return attr.value;
     }
 
     public parseAction(actionTag: Element): Action {
-        const actionId = actionTag.getAttribute('id');
+        const actionId = actionTag.getAttribute('id') ?? 'id_' + (Math.floor((Math.random() * 999) + 1));
         let actionDefinition = '';
         for (const node of Array.from(actionTag.childNodes)) {
             if (node.nodeName === '#comment') {
-                if (node.nodeValue.includes('@formatter')) {
+                if (!node.nodeValue || node.nodeValue.includes('@formatter')) {
                     continue;
                 }
                 actionDefinition += '<!--' + node.nodeValue + '-->';
@@ -94,7 +99,7 @@ export class ImportUtils {
         return new Action(actionId, actionDefinition);
     }
 
-    public parseEncryption(xmlTag: Element): string {
+    public parseEncryption(xmlTag: Element): string | undefined {
         const encryption = this.tagValue(xmlTag, 'encryption');
         if (!encryption || encryption !== 'true') {
             return undefined;
@@ -106,7 +111,7 @@ export class ImportUtils {
         return encryption;
     }
 
-    public parseViewAndComponent(xmlTag: Element): Component {
+    public parseViewAndComponent(xmlTag: Element): Component | undefined {
         const xmlComponent = xmlTag.getElementsByTagName('component')[0];
         if (!xmlComponent?.children || xmlComponent.children.length === 0) {
             const xmlViewTag = xmlTag.getElementsByTagName('view')[0];
@@ -119,7 +124,7 @@ export class ImportUtils {
         return this.parseComponent(xmlTag);
     }
 
-    public parseComponent(xmlTag: Element): Component {
+    public parseComponent(xmlTag: Element): Component | undefined {
         const xmlComponent = xmlTag.getElementsByTagName('component')[0];
         if (!xmlComponent?.children || xmlComponent.children.length === 0) {
             return undefined;
@@ -164,7 +169,7 @@ export class ImportUtils {
         roleRef.logic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
     }
 
-    public resolveLogicValue(logicValue: string): boolean {
+    public resolveLogicValue(logicValue: string): boolean | undefined {
         return (logicValue !== undefined && logicValue !== '') ? logicValue === 'true' : undefined;
     }
 
@@ -174,30 +179,31 @@ export class ImportUtils {
         roleRef.caseLogic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
     }
 
-    public checkVariability(model: PetriNet, arc: Arc, reference: string): void {
-        let ref: Place | DataVariable = model.getPlace(reference);
-        if (ref !== undefined) {
+    public checkVariability(model: PetriNet, arc: Arc, reference: string | undefined): void {
+        if (!reference) return;
+        let ref: Place | DataVariable | undefined = model.getPlace(reference);
+        if (ref) {
             this.attachReference(arc, ref);
         } else {
             ref = model.getData(reference);
-            if (ref !== undefined) {
+            if (ref) {
                 this.attachReference(arc, ref);
             }
         }
     }
 
     public attachReference(arc: Arc, reference: Place | DataVariable): void {
-        const vaha = reference instanceof Place ? reference.marking : parseInt(reference.init.expression as string, 10);
+        const weight = reference instanceof Place ? reference.marking : parseInt(reference.init?.expression ?? '' as string, 10);
 
-        if (isNaN(vaha)) {
+        if (isNaN(weight)) {
             throw new Error('Not a number. Cannot change the value of arc weight.');
         }
-        if (vaha < 0) {
+        if (weight < 0) {
             throw new Error('A negative number. Cannot change the value of arc weight.');
         }
 
-        if (!isNaN(vaha) && vaha >= 0) {
-            arc.multiplicity = vaha;
+        if (!isNaN(weight) && weight >= 0) {
+            arc.multiplicity = weight;
             arc.reference = reference.id;
         }
     }
@@ -258,8 +264,10 @@ export class ImportUtils {
         return dataRef;
     }
 
-    public parseDataLayout(xmlLayout: Element): DataLayout {
+    public parseDataLayout(xmlLayout: Element | null): DataLayout {
         const layout = new DataLayout();
+        if (!xmlLayout)
+            return layout;
         layout.x = this.parseNumberValue(xmlLayout, 'x');
         layout.y = this.parseNumberValue(xmlLayout, 'y');
         layout.rows = this.parseNumberValue(xmlLayout, 'rows');
@@ -325,20 +333,24 @@ export class ImportUtils {
         if (this.checkLengthAndNodes(xmlData, 'inits')) {
             for (const value of Array.from(xmlData.getElementsByTagName('inits')[0]?.getElementsByTagName('init'))) {
                 const dynamic = this.tagAttribute(value, 'dynamic');
-                inits.push(new Expression(value.textContent, dynamic === '' ? undefined : dynamic === 'true'));
+                inits.push(new Expression(value.textContent ?? '', dynamic === '' ? undefined : dynamic === 'true'));
             }
         }
         return inits;
     }
 
-    public resolveInit(xmlData: Element): Expression {
+    public resolveInit(xmlData: Element): Expression | undefined {
+        let elementValue;
         for (const value of Array.from(xmlData.getElementsByTagName('init'))) {
-            if (value.parentElement.tagName !== 'data') {
+            if (!value.parentElement?.tagName || value.parentElement.tagName !== 'data') {
                 continue;
             }
-            const dynamic = this.tagAttribute(value, 'dynamic');
-            return new Expression(value.textContent, dynamic === '' ? undefined : dynamic === 'true');
+            elementValue = value;
         }
+        if (!elementValue)
+            return undefined;
+        const dynamic = this.tagAttribute(elementValue, 'dynamic');
+        return new Expression(elementValue.textContent ?? '', dynamic === '' ? undefined : dynamic === 'true');
     }
 
     public checkLengthAndNodes(element: Element, name: string) {
@@ -351,19 +363,22 @@ export class ImportUtils {
             if (data.component === undefined) {
                 data.component = new Component('currency');
             }
-            const xmlCur = xmlData.getElementsByTagName('format').item(0).getElementsByTagName('currency').item(0);
+            const xmlCur = xmlData.getElementsByTagName('format')?.item(0)?.getElementsByTagName('currency').item(0);
+            if (!xmlCur) return;
             data.component.properties.push(new Property('locale', this.tagValue(xmlCur, 'locale')));
             data.component.properties.push(new Property('code', this.tagValue(xmlCur, 'code') !== '' ? this.tagValue(xmlCur, 'code') : 'EUR'));
             data.component.properties.push(new Property('fractionSize', (this.parseNumberValue(xmlCur, 'fractionSize') !== undefined ? this.parseNumberValue(xmlCur, 'fractionSize') : 2).toString()));
         }
     }
 
-    public parseNumberValue(element: Element, name: string): number {
+    public parseNumberValue(element: Element | null, name: string): number {
+        if (!element)
+            return NaN;
         const value = parseInt(this.tagValue(element, name), 10);
-        return isNaN(value) ? undefined : value;
+        return isNaN(value) ? NaN : value;
     }
 
-    public parseExpression(xmlTag: Element, name: string): Expression {
+    public parseExpression(xmlTag: Element, name: string): Expression | undefined {
         const val = this.tagValue(xmlTag, name);
         let dynamic;
         if (xmlTag.getElementsByTagName(name).length > 0) {

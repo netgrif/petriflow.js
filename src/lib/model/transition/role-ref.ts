@@ -4,7 +4,7 @@ export class RoleRef {
     private _id: string;
     private _logic: Logic;
 
-    constructor(id) {
+    constructor(id: string) {
         this._id = id;
         this._logic = new Logic();
     }
@@ -26,8 +26,8 @@ export class RoleRef {
     }
 
     public clone(): RoleRef {
-        const roleref = new RoleRef(this._id);
-        roleref._logic = this._logic.clone();
-        return roleref;
+        const roleRef = new RoleRef(this._id);
+        roleRef._logic = this._logic.clone();
+        return roleRef;
     }
 }

@@ -1,5 +1,5 @@
-import {Event} from '../petrinet/event';
 import {I18nString} from '../i18n/i18n-string';
+import {Event} from '../petrinet/event';
 import {TransitionEventType} from './transition-event-type.enum';
 
 export class TransitionEvent extends Event<TransitionEventType> {

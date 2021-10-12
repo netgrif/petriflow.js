@@ -1,6 +1,6 @@
 import {I18nString} from '../i18n/i18n-string';
-import {RoleEventType} from './role-event-type.enum';
 import {RoleEvent} from './role-event';
+import {RoleEventType} from './role-event-type.enum';
 
 export class Role {
     private _id: string;
@@ -33,7 +33,7 @@ export class Role {
         return Array.from(this._events.values());
     }
 
-    getEvent(type: RoleEventType): RoleEvent {
+    getEvent(type: RoleEventType): RoleEvent | undefined {
         return this._events.get(type);
     }
 
@@ -51,6 +51,7 @@ export class Role {
     mergeEvent(event: RoleEvent) {
         if (this._events.has(event.type)) {
             const oldEvent = this._events.get(event.type);
+            if (!oldEvent) return;
             oldEvent.preActions.push(...event.preActions);
             oldEvent.postActions.push(...event.postActions);
         } else {

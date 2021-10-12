@@ -44,12 +44,14 @@ import {PetriNetResult} from './petri-net-result';
 export class ImportService {
 
     private static readonly PARSE_ERROR_LINE_EXTRACTION_REGEX = '(?:L|l)ine.*?(\\d+).*?(?:C|c)olumn.*?(\\d+)';
+    private static readonly DEFAULT_ROLE_DEFAULT_VALUE = false;
+    private static readonly TRANSITION_ROLE_DEFAULT_VALUE = false;
 
     constructor(protected importUtils: ImportUtils = new ImportUtils()) {
     }
 
     private parseXml(txt: string): Document {
-        let xmlDoc;
+        let xmlDoc = new Document();
         if (window.DOMParser) {
             const parser = new DOMParser();
             xmlDoc = parser.parseFromString(txt, 'text/xml');
@@ -60,19 +62,20 @@ export class ImportService {
     public parseFromXml(txt: string): PetriNetResult {
         const doc = this.parseXml(txt);
         const parseError = doc.getElementsByTagName('parsererror');
-        const result = new PetriNetResult(undefined);
+        const result = new PetriNetResult();
 
         if (parseError.length !== 0) {
-            const matches = parseError.item(0).textContent.match(ImportService.PARSE_ERROR_LINE_EXTRACTION_REGEX);
+            let matches = parseError.item(0)?.textContent?.match(ImportService.PARSE_ERROR_LINE_EXTRACTION_REGEX);
+            matches = !matches ? [] : matches;
             let message;
 
-            if (matches.length === 0) {
-                message = parseError.item(0).textContent;
+            if (!!matches && matches.length === 0) {
+                message = parseError.item(0)?.textContent;
             } else {
                 message = `XML parsing error at line ${matches[1]} column ${matches[2]}`;
             }
 
-            result.errors.push(message);
+            result.errors.push(!message ? '' : message);
             return result;
         }
 
@@ -105,12 +108,12 @@ export class ImportService {
             modelResult.model.version = this.importUtils.tagValue(xmlDoc, 'version');
             modelResult.model.initials = this.importUtils.tagValue(xmlDoc, 'initials');
             modelResult.model.icon = this.importUtils.tagValue(xmlDoc, 'icon');
-            modelResult.model.defaultRole = this.importUtils.tagValue(xmlDoc, 'defaultRole') === '' ? undefined : this.importUtils.tagValue(xmlDoc, 'defaultRole') === 'true';
-            modelResult.model.transitionRole = this.importUtils.tagValue(xmlDoc, 'transitionRole') === '' ? undefined : this.importUtils.tagValue(xmlDoc, 'transitionRole') === 'true';
+            modelResult.model.defaultRole = this.importUtils.tagValue(xmlDoc, 'defaultRole') === '' ? ImportService.DEFAULT_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'defaultRole') === 'true';
+            modelResult.model.transitionRole = this.importUtils.tagValue(xmlDoc, 'transitionRole') === '' ? ImportService.TRANSITION_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'transitionRole') === 'true';
             modelResult.model.title = this.importUtils.parseI18n(xmlDoc, 'title');
             modelResult.model.caseName = this.importUtils.parseI18nWithDynamic(xmlDoc, 'caseName');
-        } catch (e) {
-            modelResult.addError('Error happened during the importing model properties: ' + e.toString(), e);
+        } catch (e: unknown) {
+            modelResult.addError('Error happened during the importing model properties: ' + (e as Error).toString(), e as Error);
         }
     }
 
@@ -119,8 +122,8 @@ export class ImportService {
             try {
                 const role = new Role(this.importUtils.tagValue(xmlRole, 'id'));
                 this.parseRole(modelResult.model, xmlRole, role);
-            } catch (e) {
-                modelResult.addError('Error happened during the importing role [' + this.importUtils.tagValue(xmlRole, 'id') + ']: ' + e.toString(), e);
+            } catch (e: unknown) {
+                modelResult.addError('Error happened during the importing role [' + this.importUtils.tagValue(xmlRole, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
     }
@@ -148,8 +151,8 @@ export class ImportService {
                     const event = new ProcessEvent(this.importUtils.tagAttribute(xmlBasicEvent, 'type') as ProcessEventType);
                     this.importUtils.parseEvent(xmlBasicEvent, event);
                     modelResult.model.addProcessEvent(event);
-                } catch (e) {
-                    modelResult.addError('Error happened during the importing process event: ' + e.toString(), e);
+                } catch (e: unknown) {
+                    modelResult.addError('Error happened during the importing process event: ' + (e as Error).toString(), e as Error);
                 }
             }
         }
@@ -159,8 +162,8 @@ export class ImportService {
                     const event = new CaseEvent(this.importUtils.tagAttribute(xmlBasicEvent, 'type') as CaseEventType);
                     this.importUtils.parseEvent(xmlBasicEvent, event);
                     modelResult.model.addCaseEvent(event);
-                } catch (e) {
-                    modelResult.addError('Error happened during the importing case event: ' + e.toString(), e);
+                } catch (e: unknown) {
+                    modelResult.addError('Error happened during the importing case event: ' + (e as Error).toString(), e as Error);
                 }
             }
         }
@@ -174,7 +177,7 @@ export class ImportService {
                 const data = new DataVariable(id, type);
                 this.parseData(modelResult, xmlData, data);
             } catch (e) {
-                modelResult.addError('Error happened during the importing data [' + this.importUtils.tagValue(xmlData, 'id') + ']: ' + e.toString(), e);
+                modelResult.addError('Error happened during the importing data [' + this.importUtils.tagValue(xmlData, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
     }
@@ -207,8 +210,9 @@ export class ImportService {
             for (const val of values) {
                 if (val.childNodes[0] !== undefined) {
                     const option = new Option();
-                    option.value = new I18nWithDynamic(val.childNodes[0].nodeValue);
-                    option.key = val.childNodes[0].nodeValue;
+                    const nodeValue = !val.childNodes[0].nodeValue ? '' : val.childNodes[0].nodeValue;
+                    option.value = new I18nWithDynamic(nodeValue);
+                    option.key = nodeValue;
                     data.options.push(option);
                 }
             }
@@ -217,9 +221,9 @@ export class ImportService {
 
         if (xmlData.getElementsByTagName('options').length > 0) {
             for (const val of Array.from(xmlData.getElementsByTagName('options')[0]?.getElementsByTagName('option'))) {
-                const key = val.getAttribute('key');
+                const key = val.getAttribute('key') ?? '';
                 const value = new I18nString(val.innerHTML);
-                value.name = val.getAttribute('name');
+                value.name = val.getAttribute('name') ?? '';
                 data.options.push(Option.of(key, value));
             }
             data.optionsInit = this.importUtils.parseExpression(xmlData.getElementsByTagName('options')[0], 'init');
@@ -227,7 +231,7 @@ export class ImportService {
         const valid = this.importUtils.tagValue(xmlData, 'valid');
         if (valid !== '') {
             const validation = new Validation();
-            validation.expression = new Expression(valid, xmlData.getElementsByTagName('valid').item(0).getAttribute('dynamic') === 'true');
+            validation.expression = new Expression(valid, xmlData.getElementsByTagName('valid')?.item(0)?.getAttribute('dynamic') === 'true');
             data.addValidation(validation);
             result.addInfo(`Tags <valid> of field ${data.id} changed to validations`);
         }
@@ -280,7 +284,7 @@ export class ImportService {
                 const trans = new Transition(xx, yy, id);
                 this.parseTransition(modelResult, xmlTrans, trans);
             } catch (e) {
-                modelResult.addError('Importing transition [' + id + ']: ' + e.toString(), e);
+                modelResult.addError('Importing transition [' + id + ']: ' + (e as Error).toString(), e as Error);
             }
         }
     }
@@ -305,7 +309,7 @@ export class ImportService {
                 trans.roleRefs.push(this.importUtils.parseRoleRef(xmlRoleRef));
             }
         } catch (e) {
-            result.addError('Importing transition role refs failed', e);
+            result.addError('Importing transition role refs failed', e as Error);
         }
     }
 
@@ -318,7 +322,7 @@ export class ImportService {
                 trans.userRefs.push(userRef);
             }
         } catch (e) {
-            result.addError('Importing transition user refs failed', e);
+            result.addError('Importing transition user refs failed', e as Error);
         }
     }
 
@@ -328,7 +332,7 @@ export class ImportService {
                 trans.triggers.push(this.importUtils.parseTrigger(xmlTrigger));
             }
         } catch (e) {
-            result.addError('Importing transition triggers failed', e);
+            result.addError('Importing transition triggers failed', e as Error);
         }
     }
 
@@ -339,7 +343,7 @@ export class ImportService {
                 try {
                     trans.dataGroups.push(this.importUtils.parseDataGroup(xmlDataGroup));
                 } catch (e) {
-                    result.addError(`Importing data group '${id}' failed`, e);
+                    result.addError(`Importing data group '${id}' failed`, e as Error);
                 }
             }
             const xmlDataRefs = Array.from(xmlTrans.getElementsByTagName('dataRef'));
@@ -348,7 +352,7 @@ export class ImportService {
                 dataGroup.stretch = true;
                 for (let i = 0; i < xmlDataRefs.length; i++) {
                     const xmlDataRef = xmlDataRefs[i];
-                    if (xmlDataRef.parentElement.tagName !== 'transition') {
+                    if (xmlDataRef?.parentElement?.tagName !== 'transition') {
                         continue;
                     }
                     dataGroup.addDataRef(this.importUtils.parseDataRef(xmlDataRef, i));
@@ -357,14 +361,14 @@ export class ImportService {
                 result.addInfo(`Data references of transition '${trans.id}' wrapped with new data group`);
             }
         } catch (e) {
-            result.addError('Importing transition data groups failed', e);
+            result.addError('Importing transition data groups failed', e as Error);
         }
     }
 
     private importTransitionLayout(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
         try {
             const xmlLayout = xmlTrans.getElementsByTagName('layout');
-            if (xmlLayout.length !== 0 && xmlLayout.item(0).parentNode.isSameNode(xmlTrans)) {
+            if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode?.isSameNode(xmlTrans)) {
                 trans.layout.cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols');
                 trans.layout.rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows');
                 trans.layout.offset = this.importUtils.parseNumberValue(xmlLayout.item(0), 'offset');
@@ -372,7 +376,7 @@ export class ImportService {
                 trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
             }
         } catch (e) {
-            result.addError('Importing transition layout failed', e);
+            result.addError('Importing transition layout failed', e as Error);
         }
     }
 
@@ -390,7 +394,7 @@ export class ImportService {
             const finishPolicy = this.importUtils.tagValue(xmlTrans, 'finishPolicy');
             trans.finishPolicy = finishPolicy === '' ? FinishPolicy.MANUAL : (finishPolicy as FinishPolicy);
         } catch (e) {
-            result.addError('Importing transition metadata failed', e);
+            result.addError('Importing transition metadata failed', e as Error);
         }
     }
 
@@ -401,13 +405,13 @@ export class ImportService {
                 this.importTransitionEvent(xmlEvent, index, trans, result);
             });
         } catch (e) {
-            result.addError('Importing transition events failed', e);
+            result.addError('Importing transition events failed', e as Error);
         }
     }
 
     private importTransitionEvent(xmlEvent: Element, index: number, trans: Transition, result: PetriNetResult) {
         try {
-            if (xmlEvent.parentElement.tagName !== 'transition') {
+            if (!xmlEvent.parentElement?.tagName && xmlEvent.parentElement?.tagName !== 'transition') {
                 return;
             }
             const event = new TransitionEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as TransitionEventType);
@@ -416,7 +420,7 @@ export class ImportService {
             this.importUtils.parseEvent(xmlEvent, event);
             trans.mergeEvent(event);
         } catch (e) {
-            result.addError(`Importing transition event with index [${index} ${xmlEvent.id}] failed`, e);
+            result.addError(`Importing transition event with index [${index} ${xmlEvent.id}] failed`, e as Error);
         }
     }
 
@@ -427,7 +431,7 @@ export class ImportService {
                 trans.transactionRef = this.importUtils.tagValue(xmlTrans, 'transactionRef');
             }
         } catch (e) {
-            result.addError('Importing transaction refs failed', e);
+            result.addError('Importing transaction refs failed', e as Error);
         }
     }
 
@@ -441,7 +445,7 @@ export class ImportService {
                 trans.assignedUser = assignedUser;
             }
         } catch (e) {
-            result.addError('Importing assigned user failed', e);
+            result.addError('Importing assigned user failed', e as Error);
         }
     }
 
@@ -451,7 +455,7 @@ export class ImportService {
                 const title = this.importUtils.parseI18n(xmlTransaction, 'title');
                 modelResult.model.addTransaction(new Transaction(this.importUtils.tagValue(xmlTransaction, 'id'), title));
             } catch (e) {
-                modelResult.addError('Error happened during the importing transaction [' + this.importUtils.tagValue(xmlTransaction, 'id') + ']: ' + e.toString(), e);
+                modelResult.addError('Error happened during the importing transaction [' + this.importUtils.tagValue(xmlTransaction, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
     }
@@ -466,7 +470,7 @@ export class ImportService {
                     modelResult.model.addRoleRef(roleRef);
                 }
             } catch (e) {
-                modelResult.addError('Error happened during the importing process role refs [' + this.importUtils.tagValue(xmlRoleRef, 'id') + ']: ' + e.toString(), e);
+                modelResult.addError('Error happened during the importing process role refs [' + this.importUtils.tagValue(xmlRoleRef, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
         for (const xmlUserRef of Array.from(xmlDoc.getElementsByTagName('usersRef'))) {
@@ -478,7 +482,7 @@ export class ImportService {
                     modelResult.model.addUserRef(userRef);
                 }
             } catch (e) {
-                modelResult.addError('Error happened during the importing process user refs  [' + this.importUtils.tagValue(xmlUserRef, 'id') + ']: ' + e.toString(), e);
+                modelResult.addError('Error happened during the importing process user refs  [' + this.importUtils.tagValue(xmlUserRef, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
     }
@@ -489,10 +493,13 @@ export class ImportService {
                 const xx = this.importUtils.parseNumberValue(xmlPlace, 'x');
                 const yy = this.importUtils.parseNumberValue(xmlPlace, 'y');
                 const isStatic = this.importUtils.parsePlaceStatic(xmlPlace);
-                const place = new Place(xx, yy, isStatic, xmlPlace.getElementsByTagName('id')[0].childNodes[0].nodeValue);
+                const placeId = xmlPlace.getElementsByTagName('id')[0]?.childNodes[0]?.nodeValue;
+                if (!placeId)
+                    throw new Error("Id of a place must be defined!");
+                const place = new Place(xx, yy, isStatic, placeId);
                 this.parsePlace(modelResult.model, xmlPlace, place);
             } catch (e) {
-                modelResult.addError('Error happened during the importing places [' + this.importUtils.tagValue(xmlPlace, 'id') + ']: ' + e.toString(), e);
+                modelResult.addError('Error happened during the importing places [' + this.importUtils.tagValue(xmlPlace, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
     }
@@ -503,7 +510,8 @@ export class ImportService {
         place.marking = this.importUtils.parseNumberValue(xmlPlace, 'tokens');
         if (xmlPlace.getElementsByTagName('label').length > 0 &&
             xmlPlace.getElementsByTagName('label')[0].childNodes.length !== 0) {
-            place.label = new I18nString(xmlPlace.getElementsByTagName('label')[0].childNodes[0].nodeValue);
+            const label = xmlPlace.getElementsByTagName('label')[0]?.childNodes[0]?.nodeValue
+            place.label = new I18nString(label ?? '');
         }
     }
 
@@ -513,29 +521,36 @@ export class ImportService {
                 const arc = this.parseArc(modelResult, xmlArc);
                 modelResult.model.addArc(arc);
             } catch (e) {
-                modelResult.addError('Error happened during the importing arcs [' + this.importUtils.tagValue(xmlArc, 'id') + ']: ' + e.toString(), e);
+                modelResult.addError('Error happened during the importing arcs [' + this.importUtils.tagValue(xmlArc, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
     }
 
     public parseArc(result: PetriNetResult, xmlArc: Element): Arc {
         const source = xmlArc.getElementsByTagName('sourceId')[0].childNodes[0].nodeValue;
+        if (!source)
+            throw new Error("Source of an arc must be defined!");
         const target = xmlArc.getElementsByTagName('destinationId')[0].childNodes[0].nodeValue;
+        if (!target)
+            throw new Error("Target of an arc must be defined!");
         const parsedArcType = this.importUtils.parseArcType(xmlArc);
-        const arc = new Arc(source, target, parsedArcType, xmlArc.getElementsByTagName('id')[0].childNodes[0].nodeValue);
+        const arcId = xmlArc.getElementsByTagName('id')[0].childNodes[0].nodeValue;
+        if (!arcId)
+            throw new Error("Id of an arc must be defined!");
+        const arc = new Arc(source, target, parsedArcType, arcId);
         arc.multiplicity = this.importUtils.parseNumberValue(xmlArc, 'multiplicity');
         if (arc.type === ArcType.VARIABLE) {
             arc.type = ArcType.REGULAR;
-            arc.reference = xmlArc.getElementsByTagName('multiplicity')[0].childNodes[0].nodeValue;
+            arc.reference = xmlArc.getElementsByTagName('multiplicity')[0]?.childNodes[0]?.nodeValue ?? undefined;
             this.importUtils.checkVariability(result.model, arc, arc.reference);
             result.addInfo(`Variable arc '${arc.id}' converted to regular with data field reference`);
         } else if (this.importUtils.checkLengthAndNodes(xmlArc, 'reference')) {
-            const refhrany = xmlArc.getElementsByTagName('reference')[0].childNodes[0].nodeValue;
-            this.importUtils.checkVariability(result.model, arc, refhrany);
+            const arcReference = xmlArc.getElementsByTagName('reference')[0].childNodes[0].nodeValue ?? undefined;
+            this.importUtils.checkVariability(result.model, arc, arcReference);
         }
 
         if (xmlArc.getElementsByTagName('breakPoint').length > 0) {
-            Array.from(xmlArc.getElementsByTagName('breakPoint')).forEach((breakpoint, index) => {
+            Array.from(xmlArc.getElementsByTagName('breakPoint')).forEach((breakpoint) => {
                 const xx = this.importUtils.parseNumberValue(breakpoint, 'x');
                 const yy = this.importUtils.parseNumberValue(breakpoint, 'y');
                 arc.breakpoints.push({x: xx, y: yy} as Breakpoint);
@@ -551,7 +566,7 @@ export class ImportService {
                 const i18nNode = new I18nTranslations(locale);
                 this.parseI18n(modelResult, xmlI18n, i18nNode);
             } catch (e) {
-                modelResult.addError('Error happened during the importing i18n [' + this.importUtils.tagAttribute(xmlI18n, 'locale') + ']: ' + e.toString(), e);
+                modelResult.addError('Error happened during the importing i18n [' + this.importUtils.tagAttribute(xmlI18n, 'locale') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
     }
@@ -564,7 +579,7 @@ export class ImportService {
                 const translation = xmlI18string.innerHTML;
                 i18nNode.addI18n(new I18nString(translation, name));
             } catch (e) {
-                result.addError(`Importing i18n string '${name}' failed`, e);
+                result.addError(`Importing i18n string '${name}' failed`, e as Error);
             }
         }
         result.model.addI18n(i18nNode);
@@ -577,7 +592,7 @@ export class ImportService {
                     this.importUtils.tagValue(xmlMap, 'transitionRef'));
                 this.parseMapping(modelResult.model, xmlMap, mapping);
             } catch (e) {
-                modelResult.addError('Error happened during the importing mapping [' + this.importUtils.tagValue(xmlMap, 'id') + ']: ' + e.toString(), e);
+                modelResult.addError('Error happened during the importing mapping [' + this.importUtils.tagValue(xmlMap, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
     }
@@ -589,7 +604,7 @@ export class ImportService {
         const xmlDataRefs = Array.from(xmlMap.getElementsByTagName('dataRef'));
         for (let i = 0; i < xmlDataRefs.length; i++) {
             const xmlDataRef = xmlDataRefs[i];
-            if (xmlDataRef.parentElement.tagName !== 'mapping') {
+            if (xmlDataRef.parentElement?.tagName !== 'mapping') {
                 continue;
             }
             mapping.dataRef.push(this.importUtils.parseDataRef(xmlDataRef, i));
@@ -606,38 +621,38 @@ export class ImportService {
     private checkI18ns(modelResult: PetriNetResult) {
         const model = modelResult.model;
         model.getI18ns().forEach(i18ns => {
-            this.checkI18n(model.title, i18ns, modelResult);
+            ImportService.checkI18n(model.title, i18ns, modelResult);
             model.getRoles().forEach(r => {
-                this.checkI18n(r.title, i18ns, modelResult);
+                ImportService.checkI18n(r.title, i18ns, modelResult);
             });
             model.getDataSet().forEach(d => {
-                this.checkI18n(d.title, i18ns, modelResult);
-                this.checkI18n(d.placeholder, i18ns, modelResult);
-                this.checkI18n(d.desc, i18ns, modelResult);
+                ImportService.checkI18n(d.title, i18ns, modelResult);
+                ImportService.checkI18n(d.placeholder, i18ns, modelResult);
+                ImportService.checkI18n(d.desc, i18ns, modelResult);
                 d.options.forEach(o => {
-                    this.checkI18n(o.value, i18ns, modelResult);
+                    ImportService.checkI18n(o.value, i18ns, modelResult);
                 });
-                d.getValidations().forEach(v => {
-                    this.checkI18n(v.message, i18ns, modelResult);
+                d.getValidations()?.forEach(v => {
+                    ImportService.checkI18n(v.message, i18ns, modelResult);
                 });
             });
             model.getTransitions().forEach(t => {
-                this.checkI18n(t.label, i18ns, modelResult);
+                ImportService.checkI18n(t.label, i18ns, modelResult);
                 t.dataGroups.forEach(g => {
-                    this.checkI18n(g.title, i18ns, modelResult);
+                    ImportService.checkI18n(g.title, i18ns, modelResult);
                 });
                 t.getEvents().forEach(e => {
-                    this.checkI18n(e.title, i18ns, modelResult);
-                    this.checkI18n(e.message, i18ns, modelResult);
+                    ImportService.checkI18n(e.title, i18ns, modelResult);
+                    ImportService.checkI18n(e.message, i18ns, modelResult);
                 });
             });
             model.getPlaces().forEach(p => {
-                this.checkI18n(p.label, i18ns, modelResult);
+                ImportService.checkI18n(p.label, i18ns, modelResult);
             });
         });
     }
 
-    private checkI18n(s: I18nString, i18ns: I18nTranslations, modelResult: PetriNetResult) {
+    private static checkI18n(s: I18nString | undefined, i18ns: I18nTranslations, modelResult: PetriNetResult) {
         if (s && s.name) {
             const i18n = i18ns.getI18n(s.name);
             if (!i18n) {

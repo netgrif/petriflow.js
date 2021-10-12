@@ -1,23 +1,22 @@
 import {Component} from '../data-variable/component';
 import {DataEvent} from '../data-variable/data-event';
-import {DataRefLogic} from './data-ref-logic';
 import {DataEventType} from '../data-variable/data-event-type.enum';
 import {Action} from '../petrinet/action';
 import {EventPhase} from '../petrinet/event-phase.enum';
 import {DataLayout} from './data-layout';
+import {DataRefLogic} from './data-ref-logic';
 
 export class DataRef {
     private _id: string;
     private _logic: DataRefLogic;
     private _layout: DataLayout;
-    private _component: Component;
+    private _component?: Component;
     private _events: Map<DataEventType, DataEvent>;
 
-    constructor(id) {
+    constructor(id: string) {
         this._id = id;
         this._logic = new DataRefLogic();
         this._layout = new DataLayout();
-        this._component = undefined;
         this._events = new Map<DataEventType, DataEvent>();
     }
 
@@ -45,11 +44,11 @@ export class DataRef {
         this._layout = value;
     }
 
-    get component(): Component {
+    get component(): Component | undefined {
         return this._component;
     }
 
-    set component(value: Component) {
+    set component(value: Component | undefined) {
         this._component = value;
     }
 
@@ -57,7 +56,7 @@ export class DataRef {
         return Array.from(this._events.values());
     }
 
-    getEvent(type: DataEventType): DataEvent {
+    getEvent(type: DataEventType): DataEvent | undefined {
         return this._events.get(type);
     }
 
@@ -86,6 +85,7 @@ export class DataRef {
     public mergeEvent(event: DataEvent) {
         if (this._events.has(event.type)) {
             const oldEvent = this._events.get(event.type);
+            if (!oldEvent) return;
             oldEvent.preActions.push(...event.preActions);
             oldEvent.postActions.push(...event.postActions);
         } else {
@@ -100,6 +100,6 @@ export class DataRef {
         if (!phase) {
             phase = (type === DataEventType.GET ? EventPhase.PRE : EventPhase.POST);
         }
-        this._events.get(type).addAction(action, phase);
+        this._events.get(type)?.addAction(action, phase);
     }
 }

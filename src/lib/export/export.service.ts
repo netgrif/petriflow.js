@@ -39,30 +39,34 @@ export class ExportService {
         return this.xmlToString(xmlText).replace('xmlns="http://www.w3.org/1999/xhtml"', '');
     }
 
-    public xmlToString(node, level = 0, singleton = false): string {
-        if (typeof node === 'string') {
-            node = new DOMParser().parseFromString(node, 'text/xml');
-        }
-        if (node === undefined || node === null) {
+    public xmlToString(inputNode: string | Element, level = 0, singleton = false): string {
+        let node: Element;
+        if (inputNode === undefined || inputNode === null) {
             return '';
+        } else if (typeof inputNode === 'string') {
+            node = new DOMParser().parseFromString(inputNode, 'text/xml')?.documentElement;
+        } else {
+            node = inputNode;
         }
+
+        const innerText = (n: Element) => n.textContent === null ? '' : n.textContent;
         const tabs = Array(level + 1).fill('').join('\t');
         const newLine = '\n';
         if (node.nodeType === Node.TEXT_NODE) {
-            return (singleton ? '' : tabs) + (node.innerHTML === undefined ? node.textContent.trim() : node.innerHTML.trim()) + (singleton ? '' : newLine);
+            return (singleton ? '' : tabs) + innerText(node) + (singleton ? '' : newLine);
         }
         if (node.nodeType === Node.CDATA_SECTION_NODE) {
-            return '<![CDATA[' + (node.innerHTML === undefined ? node.textContent : node.innerHTML) + ']]>';
+            return '<![CDATA[' + innerText(node) + ']]>';
         }
         if (node.nodeType === Node.COMMENT_NODE) {
-            return '<!--' + (node.innerHTML === undefined ? node.textContent : node.innerHTML) + '-->';
+            return '<!--' + innerText(node) + '-->';
         }
         if (!node.tagName) {
-            return this.xmlToString(node.firstChild);
+            return this.xmlToString(node.firstChild as Element);
         }
         let output = tabs + `<${node.tagName}`;
-        for (const attr of node.attributes) {
-            output += ` ${attr.name}="${attr.value}"`;
+        for (let i = 0; i < node.attributes.length; i++) {
+            output += ` ${node.attributes.item(i)?.name}="${node.attributes.item(i)?.value}"`;
         }
         if (node.childNodes.length === 0) {
             return output + ' />' + newLine;
@@ -73,9 +77,9 @@ export class ExportService {
         if (!onlyOneTextChild) {
             output += newLine;
         }
-        for (const child of node.childNodes) {
-            output += this.xmlToString(child, level + 1, onlyOneTextChild);
-        }
+        node.childNodes.forEach(child => {
+            output += this.xmlToString(child as Element, level + 1, onlyOneTextChild);
+        });
         return output + (onlyOneTextChild ? '' : tabs) + `</${node.tagName}>` + newLine;
     }
 
@@ -102,8 +106,8 @@ export class ExportService {
         this.exportUtils.exportTag(doc, 'initials', model.initials, true);
         this.exportUtils.exportTag(doc, 'title', model.title, true);
         this.exportUtils.exportTag(doc, 'icon', model.icon);
-        this.exportUtils.exportTag(doc, 'defaultRole', model.defaultRole !== undefined ? (model.defaultRole.toString()) : undefined);
-        this.exportUtils.exportTag(doc, 'transitionRole', model.transitionRole !== undefined ? (model.transitionRole.toString()) : undefined);
+        this.exportUtils.exportTag(doc, 'defaultRole', model.defaultRole !== undefined ? (model.defaultRole.toString()) : '');
+        this.exportUtils.exportTag(doc, 'transitionRole', model.transitionRole !== undefined ? (model.transitionRole.toString()) : '');
         this.exportUtils.exportTag(doc, 'caseName', model.caseName);
     }
 
@@ -148,7 +152,7 @@ export class ExportService {
         if (event.postActions.length > 0) {
             this.exportUtils.exportActions(exportEvent, event, 'post');
         }
-        if (event instanceof ProcessEvent || event instanceof CaseEvent) {
+        if ((event instanceof ProcessEvent || event instanceof CaseEvent) && !!exportProcessEvent) {
             exportProcessEvent.appendChild(exportEvent);
             element.appendChild(exportProcessEvent);
         } else {
@@ -218,9 +222,9 @@ export class ExportService {
                 this.exportUtils.exportExpression(options, 'init', data.optionsInit);
                 exportData.appendChild(options);
             }
-            if (data.getValidations().length > 0) {
+            if (!!data.getValidations() && (data.getValidations()?.length ?? 0) > 0) {
                 const validations = this.xmlConstructor.createElement('validations');
-                data.getValidations().forEach(item => {
+                data.getValidations()?.forEach(item => {
                     const valid = this.xmlConstructor.createElement('validation');
                     this.exportUtils.exportExpression(valid, 'expression', item.expression);
                     this.exportUtils.exportTag(valid, 'message', item.message);
@@ -286,7 +290,7 @@ export class ExportService {
             translations.getI18ns().forEach(i18n => {
                 this.exportUtils.exportTag(i18ns, 'i18nString', i18n.value, false, [{
                     key: 'name',
-                    value: i18n.name
+                    value: i18n.name ?? ''
                 }]);
             });
             doc.appendChild(i18ns);
@@ -303,13 +307,13 @@ export class ExportService {
             if (!trans.layout.empty()) {
                 this.exportTransitionLayout(exportTrans, trans.layout);
             }
-            this.exportUtils.exportTag(exportTrans, 'icon', trans.icon);
+            this.exportUtils.exportTag(exportTrans, 'icon', trans.icon ?? '');
             if (trans.priority) {
                 this.exportUtils.exportTag(exportTrans, 'priority', `${trans.priority}`);
             }
-            this.exportUtils.exportTag(exportTrans, 'assignPolicy', trans.assignPolicy === AssignPolicy.MANUAL ? undefined : trans.assignPolicy);
-            this.exportUtils.exportTag(exportTrans, 'finishPolicy', trans.finishPolicy === FinishPolicy.MANUAL ? undefined : trans.finishPolicy);
-            this.exportUtils.exportTag(exportTrans, 'dataFocusPolicy', trans.dataFocusPolicy === DataFocusPolicy.MANUAL ? undefined : trans.dataFocusPolicy);
+            this.exportUtils.exportTag(exportTrans, 'assignPolicy', trans.assignPolicy === AssignPolicy.MANUAL ? '' : trans.assignPolicy);
+            this.exportUtils.exportTag(exportTrans, 'finishPolicy', trans.finishPolicy === FinishPolicy.MANUAL ? '' : trans.finishPolicy);
+            this.exportUtils.exportTag(exportTrans, 'dataFocusPolicy', trans.dataFocusPolicy === DataFocusPolicy.MANUAL ? '' : trans.dataFocusPolicy);
             trans.triggers.forEach(trigger => {
                 if (trigger.type !== TriggerType.TIME) {
                     const exportTrigger = this.xmlConstructor.createElement('trigger');
@@ -329,7 +333,7 @@ export class ExportService {
                     }
                 }
             });
-            this.exportUtils.exportTag(exportTrans, 'transactionRef', trans.transactionRef);
+            this.exportUtils.exportTag(exportTrans, 'transactionRef', trans.transactionRef ?? '');
             trans.roleRefs.forEach(roleRef => {
                 this.exportTransitionRef(exportTrans, roleRef);
             });
@@ -338,8 +342,8 @@ export class ExportService {
             });
             if (trans.assignedUser !== undefined) {
                 const assignedUser = this.xmlConstructor.createElement('assignedUser');
-                this.exportUtils.exportTag(assignedUser, 'cancel', trans.assignedUser.cancel?.toString());
-                this.exportUtils.exportTag(assignedUser, 'reassign', trans.assignedUser.reassign?.toString());
+                this.exportUtils.exportTag(assignedUser, 'cancel', trans.assignedUser.cancel?.toString() ?? '');
+                this.exportUtils.exportTag(assignedUser, 'reassign', trans.assignedUser.reassign?.toString() ?? '');
                 exportTrans.appendChild(assignedUser);
             }
             trans.dataGroups.forEach(dataGroup => {
@@ -418,7 +422,7 @@ export class ExportService {
             this.exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString());
             this.exportUtils.exportTag(exportLayout, 'template', layout.template);
             this.exportUtils.exportTag(exportLayout, 'appearance', layout.appearance);
-            this.exportUtils.exportTag(exportLayout, 'alignment', layout.alignment?.toString());
+            this.exportUtils.exportTag(exportLayout, 'alignment', layout.alignment?.toString() ?? '');
             element.appendChild(exportLayout);
         }
     }
@@ -427,7 +431,7 @@ export class ExportService {
         if (layout !== undefined) {
             const exportLayout = this.xmlConstructor.createElement('layout');
             this.exportLayout(exportLayout, layout);
-            this.exportUtils.exportTag(exportLayout, 'fieldAlignment', layout.alignment?.toString());
+            this.exportUtils.exportTag(exportLayout, 'fieldAlignment', layout.alignment?.toString() ?? '');
             if (layout.type && layout.type !== LayoutType.GRID) {
                 exportLayout.setAttribute('type', layout.type);
             }
@@ -444,12 +448,12 @@ export class ExportService {
     public exportDataGroup(element: Element, dataGroup: DataGroup): void {
         const exportGroup = this.xmlConstructor.createElement('dataGroup');
         this.exportUtils.exportTag(exportGroup, 'id', dataGroup.id, true);
-        this.exportUtils.exportTag(exportGroup, 'cols', dataGroup.cols?.toString());
-        this.exportUtils.exportTag(exportGroup, 'rows', dataGroup.rows?.toString());
-        this.exportUtils.exportTag(exportGroup, 'title', dataGroup.title);
-        this.exportUtils.exportTag(exportGroup, 'layout', dataGroup.layout);
-        this.exportUtils.exportTag(exportGroup, 'alignment', dataGroup.alignment);
-        this.exportUtils.exportTag(exportGroup, 'stretch', dataGroup.stretch === false ? undefined : dataGroup.stretch?.toString());
+        this.exportUtils.exportTag(exportGroup, 'cols', dataGroup.cols?.toString() ?? '');
+        this.exportUtils.exportTag(exportGroup, 'rows', dataGroup.rows?.toString() ?? '');
+        this.exportUtils.exportTag(exportGroup, 'title', dataGroup.title ?? '');
+        this.exportUtils.exportTag(exportGroup, 'layout', dataGroup.layout ?? '');
+        this.exportUtils.exportTag(exportGroup, 'alignment', dataGroup.alignment ?? '');
+        this.exportUtils.exportTag(exportGroup, 'stretch', !dataGroup.stretch ? '' : dataGroup.stretch?.toString());
         dataGroup.getDataRefs().forEach(dataRef => this.exportDataRef(exportGroup, dataRef));
         element.appendChild(exportGroup);
     }
@@ -474,7 +478,7 @@ export class ExportService {
             this.exportUtils.exportTag(exportArc, 'type', arc.type);
             this.exportUtils.exportTag(exportArc, 'sourceId', arc.source);
             this.exportUtils.exportTag(exportArc, 'destinationId', arc.destination);
-            this.exportUtils.exportTag(exportArc, 'reference', arc.reference);
+            this.exportUtils.exportTag(exportArc, 'reference', arc.reference ?? '');
             this.exportUtils.exportTag(exportArc, 'multiplicity', arc.multiplicity?.toString());
             if (arc.breakpoints !== undefined) {
                 this.exportBreakpoints(exportArc, arc);

@@ -2,19 +2,19 @@ export class AssignedUser {
     private _cancel?: boolean;
     private _reassign?: boolean;
 
-    get cancel(): boolean {
+    get cancel(): boolean | undefined {
         return this._cancel;
     }
 
-    set cancel(value: boolean) {
+    set cancel(value: boolean | undefined) {
         this._cancel = value;
     }
 
-    get reassign(): boolean {
+    get reassign(): boolean | undefined {
         return this._reassign;
     }
 
-    set reassign(value: boolean) {
+    set reassign(value: boolean | undefined) {
         this._reassign = value;
     }
 

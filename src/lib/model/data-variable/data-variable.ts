@@ -1,33 +1,33 @@
 import {I18nString} from '../i18n/i18n-string';
-import {Option} from './option';
-import {Validation} from './validation';
-import {Component} from './component';
-import {DataEvent} from './data-event';
-import {Expression} from './expression';
-import {DataEventType} from './data-event-type.enum';
 import {Action} from '../petrinet/action';
 import {EventPhase} from '../petrinet/event-phase.enum';
+import {Component} from './component';
+import {DataEvent} from './data-event';
+import {DataEventType} from './data-event-type.enum';
 import {DataType} from './data-type.enum';
+import {Expression} from './expression';
+import {Option} from './option';
+import {Validation} from './validation';
 
 export class DataVariable {
     private _id: string;
     private _title: I18nString;
-    private _placeholder?: I18nString;
-    private _desc?: I18nString;
-    private _options?: Array<Option>;
+    private _placeholder: I18nString;
+    private _desc: I18nString;
+    private _options: Array<Option>;
     private _optionsInit?: Expression;
-    private _validations?: Array<Validation>;
+    private _validations: Array<Validation>;
     private _init?: Expression;
-    private _inits?: Array<Expression>;
+    private _inits: Array<Expression>;
     private _component?: Component;
     private _type: DataType;
-    private _immediate?: boolean;
+    private _immediate: boolean;
     private _encryption?: string;
     private _remote?: boolean;
-    private _actionRef?: Array<string>;
-    private _events?: Map<DataEventType, DataEvent>;
+    private _actionRef: Array<string>;
+    private _events: Map<DataEventType, DataEvent>;
     private _length?: number;
-    private _allowedNets?: Array<string>;
+    private _allowedNets: Array<string>;
 
     constructor(id: string, type: DataType) {
         this._id = id;
@@ -84,27 +84,29 @@ export class DataVariable {
         this._options = value;
     }
 
-    get optionsInit(): Expression {
+    get optionsInit(): Expression | undefined {
         return this._optionsInit;
     }
 
-    set optionsInit(value: Expression) {
+    set optionsInit(value: Expression | undefined) {
         this._optionsInit = value;
     }
 
-    getValidations(): Array<Validation> {
+    getValidations(): Array<Validation> | undefined {
         return this._validations;
     }
 
     addValidation(value: Validation) {
+        if (!this._validations)
+            this._validations = [];
         this._validations.push(value);
     }
 
-    get init(): Expression {
+    get init(): Expression | undefined {
         return this._init;
     }
 
-    set init(value: Expression) {
+    set init(value: Expression | undefined) {
         this._init = value;
     }
 
@@ -116,11 +118,11 @@ export class DataVariable {
         this._inits = value;
     }
 
-    get component(): Component {
+    get component(): Component | undefined {
         return this._component;
     }
 
-    set component(value: Component) {
+    set component(value: Component | undefined) {
         this._component = value;
     }
 
@@ -140,19 +142,19 @@ export class DataVariable {
         this._immediate = value;
     }
 
-    get encryption(): string {
+    get encryption(): string | undefined {
         return this._encryption;
     }
 
-    set encryption(value: string) {
+    set encryption(value: string | undefined) {
         this._encryption = value;
     }
 
-    get remote(): boolean {
+    get remote(): boolean | undefined {
         return this._remote;
     }
 
-    set remote(value: boolean) {
+    set remote(value: boolean | undefined) {
         this._remote = value;
     }
 
@@ -168,7 +170,7 @@ export class DataVariable {
         return Array.from(this._events.values());
     }
 
-    getEvent(type: DataEventType): DataEvent {
+    getEvent(type: DataEventType): DataEvent | undefined {
         return this._events.get(type);
     }
 
@@ -183,11 +185,11 @@ export class DataVariable {
         this._events.delete(type);
     }
 
-    get length(): number {
+    get length(): number | undefined {
         return this._length;
     }
 
-    set length(value: number) {
+    set length(value: number | undefined) {
         this._length = value;
     }
 
@@ -202,6 +204,7 @@ export class DataVariable {
     public mergeEvent(event: DataEvent) {
         if (this._events.has(event.type)) {
             const oldEvent = this._events.get(event.type);
+            if (!oldEvent) return;
             oldEvent.preActions.push(...event.preActions);
             oldEvent.postActions.push(...event.postActions);
         } else {
@@ -216,7 +219,7 @@ export class DataVariable {
         if (!phase) {
             phase = (type === DataEventType.GET ? EventPhase.PRE : EventPhase.POST);
         }
-        this._events.get(type).addAction(action, phase);
+        this._events.get(type)?.addAction(action, phase);
     }
 
     public clone(): DataVariable {

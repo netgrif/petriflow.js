@@ -4,7 +4,7 @@ export class Transaction {
     private _id: string;
     private _title: I18nString;
 
-    constructor(id, title) {
+    constructor(id: string, title: I18nString) {
         this._id = id;
         this._title = title;
     }

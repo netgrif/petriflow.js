@@ -1,13 +1,13 @@
-import {PetriNet} from '../model/petri-net';
+import {PetriNet} from '../model';
 
 export class PetriNetResult {
     private _model: PetriNet;
     private _errors: Array<string>;
     private _warnings: Array<string>;
     private _info: Array<string>;
-    private _fileName: string;
+    private _fileName?: string;
 
-    constructor(model: PetriNet) {
+    constructor(model: PetriNet = new PetriNet()) {
         this._model = model;
         this._errors = [];
         this._warnings = [];
@@ -47,11 +47,11 @@ export class PetriNetResult {
         this._info.push(value);
     }
 
-    get fileName(): string {
+    get fileName(): string | undefined {
         return this._fileName;
     }
 
-    set fileName(value: string) {
+    set fileName(value: string | undefined) {
         this._fileName = value;
     }
 }

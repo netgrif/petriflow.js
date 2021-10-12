@@ -26,8 +26,8 @@ export class ProcessUserRef {
     }
 
     public clone(): ProcessUserRef {
-        const userref = new ProcessUserRef(this._id);
-        userref._caseLogic = this._caseLogic.clone();
-        return userref;
+        const userRef = new ProcessUserRef(this._id);
+        userRef._caseLogic = this._caseLogic.clone();
+        return userRef;
     }
 }

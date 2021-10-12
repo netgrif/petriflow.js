@@ -2,8 +2,12 @@ import {TriggerType} from './trigger-type.enum';
 
 export class Trigger {
     private _type: TriggerType;
-    private _delay: string; // TODO: refactor, inheritance
-    private _exact: Date;
+    private _delay?: string; // TODO: refactor, inheritance
+    private _exact?: Date;
+
+    constructor(type = TriggerType.AUTO) {
+        this._type = type;
+    }
 
     get type(): TriggerType {
         return this._type;
@@ -13,19 +17,19 @@ export class Trigger {
         this._type = value;
     }
 
-    get delay(): string {
+    get delay(): string | undefined {
         return this._delay;
     }
 
-    set delay(value: string) {
+    set delay(value: string | undefined) {
         this._delay = value;
     }
 
-    get exact(): Date {
+    get exact(): Date | undefined {
         return this._exact;
     }
 
-    set exact(value: Date) {
+    set exact(value: Date | undefined) {
         this._exact = value;
     }
 

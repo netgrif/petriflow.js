@@ -1,6 +1,6 @@
+import {I18nString} from '../i18n/i18n-string';
 import {Event} from '../petrinet/event';
 import {RoleEventType} from './role-event-type.enum';
-import {I18nString} from '../i18n/i18n-string';
 
 export class RoleEvent extends Event<RoleEventType> {
     private _title: I18nString;

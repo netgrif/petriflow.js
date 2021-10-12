@@ -1,33 +1,33 @@
 import {I18nString} from '../i18n/i18n-string';
+import {AssignPolicy} from './assign-policy.enum';
+import {AssignedUser} from './assigned-user';
+import {DataFocusPolicy} from './data-focus-policy.enum';
+import {DataGroup} from './datagroup';
+import {FinishPolicy} from './finish-policy.enum';
+import {RoleRef} from './role-ref';
+import {TransitionEvent} from './transition-event';
+import {TransitionEventType} from './transition-event-type.enum';
 import {TransitionLayout} from './transition-layout';
 import {Trigger} from './trigger';
-import {RoleRef} from './role-ref';
 import {UserRef} from './user-ref';
-import {TransitionEvent} from './transition-event';
-import {DataGroup} from './datagroup';
-import {AssignedUser} from './assigned-user';
-import {TransitionEventType} from './transition-event-type.enum';
-import {AssignPolicy} from './assign-policy.enum';
-import {FinishPolicy} from './finish-policy.enum';
-import {DataFocusPolicy} from './data-focus-policy.enum';
 
 export class Transition {
     private _id: string;
     private _x: number;
     private _y: number;
     private _label: I18nString;
-    private _layout?: TransitionLayout;
+    private _layout: TransitionLayout;
     private _icon?: string;
     private _priority?: number;
-    private _assignPolicy?: AssignPolicy;
-    private _finishPolicy?: FinishPolicy;
-    private _dataFocusPolicy?: DataFocusPolicy;
-    private _triggers?: Array<Trigger>;
+    private _assignPolicy: AssignPolicy;
+    private _finishPolicy: FinishPolicy;
+    private _dataFocusPolicy: DataFocusPolicy;
+    private _triggers: Array<Trigger>;
     private _transactionRef?: string;
-    private _roleRefs?: Array<RoleRef>;
-    private _userRefs?: Array<UserRef>;
-    private _dataGroups?: Array<DataGroup>;
-    private _events?: Map<TransitionEventType, TransitionEvent>;
+    private _roleRefs: Array<RoleRef>;
+    private _userRefs: Array<UserRef>;
+    private _dataGroups: Array<DataGroup>;
+    private _events: Map<TransitionEventType, TransitionEvent>;
     private _assignedUser?: AssignedUser;
 
     constructor(x: number, y: number, id: string) {
@@ -86,19 +86,19 @@ export class Transition {
         this._layout = value;
     }
 
-    get icon(): string {
+    get icon(): string | undefined {
         return this._icon;
     }
 
-    set icon(value: string) {
+    set icon(value: string | undefined) {
         this._icon = value;
     }
 
-    get priority(): number {
+    get priority(): number | undefined {
         return this._priority;
     }
 
-    set priority(value: number) {
+    set priority(value: number | undefined) {
         this._priority = value;
     }
 
@@ -134,11 +134,11 @@ export class Transition {
         this._triggers = value;
     }
 
-    get transactionRef(): string {
+    get transactionRef(): string | undefined {
         return this._transactionRef;
     }
 
-    set transactionRef(value: string) {
+    set transactionRef(value: string | undefined) {
         this._transactionRef = value;
     }
 
@@ -170,7 +170,7 @@ export class Transition {
         return Array.from(this._events.values());
     }
 
-    getEvent(type: TransitionEventType): TransitionEvent {
+    getEvent(type: TransitionEventType): TransitionEvent | undefined {
         return this._events.get(type);
     }
 
@@ -185,17 +185,18 @@ export class Transition {
         this._events.delete(type);
     }
 
-    get assignedUser(): AssignedUser {
+    get assignedUser(): AssignedUser | undefined {
         return this._assignedUser;
     }
 
-    set assignedUser(value: AssignedUser) {
+    set assignedUser(value: AssignedUser | undefined) {
         this._assignedUser = value;
     }
 
     public mergeEvent(event: TransitionEvent) {
         if (this._events.has(event.type)) {
             const oldEvent = this._events.get(event.type);
+            if (!oldEvent) return;
             oldEvent.preActions.push(...event.preActions);
             oldEvent.postActions.push(...event.postActions);
         } else {

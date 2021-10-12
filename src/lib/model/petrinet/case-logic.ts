@@ -3,27 +3,27 @@ export class CaseLogic {
     private _delete?: boolean;
     private _view?: boolean;
 
-    get create(): boolean {
+    get create(): boolean | undefined {
         return this._create;
     }
 
-    set create(value: boolean) {
+    set create(value: boolean | undefined) {
         this._create = value;
     }
 
-    get delete(): boolean {
+    get delete(): boolean | undefined {
         return this._delete;
     }
 
-    set delete(value: boolean) {
+    set delete(value: boolean | undefined) {
         this._delete = value;
     }
 
-    get view(): boolean {
+    get view(): boolean | undefined {
         return this._view;
     }
 
-    set view(value: boolean) {
+    set view(value: boolean | undefined) {
         this._view = value;
     }
 

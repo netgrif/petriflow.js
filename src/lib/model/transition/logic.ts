@@ -5,43 +5,43 @@ export class Logic {
     private _assigned?: boolean;
     private _view?: boolean;
 
-    get perform(): boolean {
+    get perform(): boolean | undefined {
         return this._perform;
     }
 
-    set perform(value: boolean) {
+    set perform(value: boolean | undefined) {
         this._perform = value;
     }
 
-    get delegate(): boolean {
+    get delegate(): boolean | undefined {
         return this._delegate;
     }
 
-    set delegate(value: boolean) {
+    set delegate(value: boolean | undefined) {
         this._delegate = value;
     }
 
-    get cancel(): boolean {
+    get cancel(): boolean | undefined {
         return this._cancel;
     }
 
-    set cancel(value: boolean) {
+    set cancel(value: boolean | undefined) {
         this._cancel = value;
     }
 
-    get assigned(): boolean {
+    get assigned(): boolean | undefined {
         return this._assigned;
     }
 
-    set assigned(value: boolean) {
+    set assigned(value: boolean | undefined) {
         this._assigned = value;
     }
 
-    get view(): boolean {
+    get view(): boolean | undefined {
         return this._view;
     }
 
-    set view(value: boolean) {
+    set view(value: boolean | undefined) {
         this._view = value;
     }
 

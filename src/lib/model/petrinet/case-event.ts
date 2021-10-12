@@ -1,5 +1,5 @@
-import {Event} from './event';
 import {CaseEventType} from './case-event-type.enum';
+import {Event} from './event';
 
 export class CaseEvent extends Event<CaseEventType> {
 

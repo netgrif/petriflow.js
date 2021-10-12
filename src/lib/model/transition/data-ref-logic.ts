@@ -6,7 +6,8 @@ export class DataRefLogic {
     private _actionRefs: Array<string>;
 
     constructor() {
-        this.required = false;
+        this._behavior = DataRefBehavior.EDITABLE;
+        this._required = false;
         this._actionRefs = [];
     }
 

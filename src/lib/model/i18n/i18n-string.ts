@@ -1,5 +1,5 @@
 export class I18nString {
-    private _name: string;
+    private _name?: string;
     private _value: string;
 
     constructor(translation: string, name?: string) {
@@ -7,11 +7,11 @@ export class I18nString {
         this._name = name;
     }
 
-    get name(): string {
+    get name(): string | undefined {
         return this._name;
     }
 
-    set name(value: string) {
+    set name(value: string | undefined) {
         this._name = value;
     }
 

@@ -2,18 +2,18 @@ import {I18nString} from '../i18n/i18n-string';
 import {Expression} from './expression';
 
 export class Validation {
-    private _expression: Expression;
-    private _message?: I18nString;
+    private _expression?: Expression;
+    private _message: I18nString;
 
     constructor() {
         this._message = new I18nString('');
     }
 
-    get expression(): Expression {
+    get expression(): Expression | undefined {
         return this._expression;
     }
 
-    set expression(value: Expression) {
+    set expression(value: Expression | undefined) {
         this._expression = value;
     }
 

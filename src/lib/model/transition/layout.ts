@@ -6,6 +6,13 @@ export abstract class Layout {
     private _offset: number;
     private _alignment?: Alignment;
 
+
+    constructor(rows = 0, cols = 0, offset = 0) {
+        this._rows = rows;
+        this._cols = cols;
+        this._offset = offset;
+    }
+
     get rows(): number {
         return this._rows;
     }
@@ -30,11 +37,11 @@ export abstract class Layout {
         this._offset = value;
     }
 
-    get alignment(): Alignment {
+    get alignment(): Alignment | undefined {
         return this._alignment;
     }
 
-    set alignment(value: Alignment) {
+    set alignment(value: Alignment | undefined) {
         this._alignment = value;
     }
 }

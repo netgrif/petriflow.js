@@ -1,42 +1,42 @@
+import {Arc} from './arc/arc';
+import {DataType} from './data-variable/data-type.enum';
+import {DataVariable} from './data-variable/data-variable';
 import {I18nString} from './i18n/i18n-string';
+import {I18nTranslations} from './i18n/i18n-translations';
+import {I18nWithDynamic} from './i18n/i18n-with-dynamic';
+import {CaseEvent} from './petrinet/case-event';
+import {CaseEventType} from './petrinet/case-event-type.enum';
+import {Mapping} from './petrinet/mapping';
+import {Place} from './petrinet/place';
+import {ProcessEvent} from './petrinet/process-event';
+import {ProcessEventType} from './petrinet/process-event-type.enum';
 import {ProcessRoleRef} from './petrinet/process-role-ref';
 import {ProcessUserRef} from './petrinet/process-user-ref';
-import {ProcessEvent} from './petrinet/process-event';
-import {CaseEvent} from './petrinet/case-event';
 import {Transaction} from './petrinet/transaction';
 import {Role} from './role/role';
-import {DataVariable} from './data-variable/data-variable';
-import {Mapping} from './petrinet/mapping';
-import {I18nTranslations} from './i18n/i18n-translations';
 import {Transition} from './transition/transition';
-import {Place} from './petrinet/place';
-import {Arc} from './arc/arc';
-import {I18nWithDynamic} from './i18n/i18n-with-dynamic';
-import {ProcessEventType} from './petrinet/process-event-type.enum';
-import {CaseEventType} from './petrinet/case-event-type.enum';
-import {DataType} from './data-variable/data-type.enum';
 
 export class PetriNet {
     private _id: string;
-    private _version?: string;
+    private _version: string;
     private _initials: string;
     private _title: I18nString;
-    private _icon?: string;
+    private _icon: string;
     private _defaultRole: boolean;
     private _transitionRole: boolean;
-    private _caseName?: I18nWithDynamic;
-    private _roleRefs?: Map<string, ProcessRoleRef>;
-    private _userRefs?: Map<string, ProcessUserRef>;
-    private _processEvents?: Map<ProcessEventType, ProcessEvent>;
-    private _caseEvents?: Map<CaseEventType, CaseEvent>;
-    private _transactions?: Map<string, Transaction>;
-    private _roles?: Map<string, Role>;
-    private _data?: Map<string, DataVariable>;
-    private _mappings?: Map<string, Mapping>;
-    private _i18ns?: Map<string, I18nTranslations>;
-    private _transitions?: Map<string, Transition>;
-    private _places?: Map<string, Place>;
-    private _arcs?: Map<string, Arc>;
+    private _caseName: I18nWithDynamic;
+    private _roleRefs: Map<string, ProcessRoleRef>;
+    private _userRefs: Map<string, ProcessUserRef>;
+    private _processEvents: Map<ProcessEventType, ProcessEvent>;
+    private _caseEvents: Map<CaseEventType, CaseEvent>;
+    private _transactions: Map<string, Transaction>;
+    private _roles: Map<string, Role>;
+    private _data: Map<string, DataVariable>;
+    private _mappings: Map<string, Mapping>;
+    private _i18ns: Map<string, I18nTranslations>;
+    private _transitions: Map<string, Transition>;
+    private _places: Map<string, Place>;
+    private _arcs: Map<string, Arc>;
 
     constructor() {
         this._id = 'new_model';
@@ -129,7 +129,7 @@ export class PetriNet {
         return Array.from(this._roleRefs.values());
     }
 
-    getRoleRef(id: string): ProcessRoleRef {
+    getRoleRef(id: string): ProcessRoleRef | undefined {
         return this._roleRefs.get(id);
     }
 
@@ -151,7 +151,7 @@ export class PetriNet {
         return Array.from(this._userRefs.values());
     }
 
-    getUserRef(id: string): ProcessUserRef {
+    getUserRef(id: string): ProcessUserRef | undefined {
         return this._userRefs.get(id);
     }
 
@@ -159,7 +159,7 @@ export class PetriNet {
         if (!this._data.has(userRef.id)) {
             throw new Error(`Referenced user field with id ${userRef.id} does not exist`);
         }
-        if (this._data.get(userRef.id).type !== DataType.USER_LIST) {
+        if (this._data.get(userRef.id)?.type !== DataType.USER_LIST) {
             throw new Error(`Referenced field with id ${userRef.id} is not user field`);
         }
         if (this._userRefs.has(userRef.id)) {
@@ -176,7 +176,7 @@ export class PetriNet {
         return Array.from(this._processEvents.values());
     }
 
-    getProcessEvent(type: ProcessEventType): ProcessEvent {
+    getProcessEvent(type: ProcessEventType): ProcessEvent | undefined {
         return this._processEvents.get(type);
     }
 
@@ -195,7 +195,7 @@ export class PetriNet {
         return Array.from(this._caseEvents.values());
     }
 
-    getCaseEvent(type: CaseEventType): CaseEvent {
+    getCaseEvent(type: CaseEventType): CaseEvent | undefined {
         return this._caseEvents.get(type);
     }
 
@@ -214,7 +214,7 @@ export class PetriNet {
         return Array.from(this._transactions.values());
     }
 
-    getTransaction(id: string): Transaction {
+    getTransaction(id: string): Transaction | undefined {
         return this._transactions.get(id);
     }
 
@@ -233,7 +233,7 @@ export class PetriNet {
         return Array.from(this._roles.values());
     }
 
-    getRole(id: string): Role {
+    getRole(id: string): Role | undefined {
         return this._roles.get(id);
     }
 
@@ -252,7 +252,7 @@ export class PetriNet {
         return Array.from(this._data.values());
     }
 
-    getData(id: string): DataVariable {
+    getData(id: string): DataVariable | undefined {
         return this._data.get(id);
     }
 
@@ -271,7 +271,7 @@ export class PetriNet {
         return Array.from(this._mappings.values());
     }
 
-    getMapping(id: string): Mapping {
+    getMapping(id: string): Mapping | undefined {
         return this._mappings.get(id);
     }
 
@@ -290,7 +290,7 @@ export class PetriNet {
         return Array.from(this._i18ns.values());
     }
 
-    getI18n(locale: string): I18nTranslations {
+    getI18n(locale: string): I18nTranslations | undefined {
         return this._i18ns.get(locale);
     }
 
@@ -309,7 +309,7 @@ export class PetriNet {
         return Array.from(this._transitions.values());
     }
 
-    getTransition(id: string): Transition {
+    getTransition(id: string): Transition | undefined {
         return this._transitions.get(id);
     }
 
@@ -328,7 +328,7 @@ export class PetriNet {
         return Array.from(this._places.values());
     }
 
-    getPlace(id: string): Place {
+    getPlace(id: string): Place | undefined {
         return this._places.get(id);
     }
 
@@ -347,7 +347,7 @@ export class PetriNet {
         return Array.from(this._arcs.values());
     }
 
-    getArc(id: string): Arc {
+    getArc(id: string): Arc | undefined {
         return this._arcs.get(id);
     }
 

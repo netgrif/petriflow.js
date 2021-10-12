@@ -1,5 +1,5 @@
-import {Property} from './property';
 import {Icon} from './icon';
+import {Property} from './property';
 
 export class Component {
     private _name: string;

@@ -4,7 +4,7 @@ export class UserRef {
     private _id: string;
     private _logic: Logic;
 
-    constructor(id) {
+    constructor(id: string) {
         this._id = id;
         this._logic = new Logic();
     }

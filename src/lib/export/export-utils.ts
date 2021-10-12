@@ -1,13 +1,18 @@
-import {Action, CaseLogic, Event, Expression, I18nString, I18nWithDynamic, Logic} from '../model';
+import {
+    Action,
+    CaseLogic,
+    Event,
+    Expression,
+    I18nString,
+    I18nWithDynamic,
+    Logic
+} from '../model';
 
 export class ExportUtils {
 
     private CDATA_REGRET = /<!\[CDATA\[(?:\w|\s)*]]>/g;
     private COMMENT_REGRET = /<!--(?:.|\n)*?-->/g;
     protected xmlConstructor = document.implementation.createDocument(null, 'document', null);
-
-    constructor() {
-    }
 
     public exportTag(doc: Element, name: string, value: string | I18nString | I18nWithDynamic, force = false, attributes?: Array<{ key: string, value: string }>): void {
         if ((typeof value === 'string' && value !== '') ||
@@ -36,17 +41,17 @@ export class ExportUtils {
         }
     }
 
-    public exportExpression(doc: Element, name: string, value: Expression | Array<Expression>) {
+    public exportExpression(doc: Element, name: string, value: Expression | Array<Expression> | undefined) {
         if (value !== undefined) {
             if (!Array.isArray(value)) {
-                this.exportTag(doc, name, value.expression, false, value.dynamic === true ? [{
+                this.exportTag(doc, name, value.expression, false, value.dynamic ? [{
                     key: 'dynamic',
                     value: value.dynamic.toString()
                 }] : undefined);
             } else if (value.length > 0) {
                 const exportInits = this.xmlConstructor.createElement('inits');
                 value.forEach(init => {
-                    this.exportTag(exportInits, name, init.expression, false, init.dynamic === true ? [{
+                    this.exportTag(exportInits, name, init.expression, false, init.dynamic ? [{
                         key: 'dynamic',
                         value: init.dynamic.toString()
                     }] : undefined);
@@ -98,13 +103,13 @@ export class ExportUtils {
                             .split('').reverse().join('');
                     }
                 }
-                splitCdata[i] = this.mergeBack(commentSections, splitComment);
+                splitCdata[i] = ExportUtils.mergeBack(commentSections, splitComment);
             }
         }
-        return this.mergeBack(cdataSections, splitCdata);
+        return ExportUtils.mergeBack(cdataSections, splitCdata);
     }
 
-    private mergeBack(matches: Array<string>, splitted: Array<string>): string {
+    private static mergeBack(matches: Array<string> | null, splitted: Array<string>): string {
         if (matches === null) {
             return splitted.join('');
         }

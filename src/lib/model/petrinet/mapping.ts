@@ -1,15 +1,15 @@
-import {RoleRef} from '../transition/role-ref';
 import {DataRef} from '../transition/data-ref';
 import {DataGroup} from '../transition/datagroup';
+import {RoleRef} from '../transition/role-ref';
 import {Trigger} from '../transition/trigger';
 
 export class Mapping {
     private _id: string;
     private _transitionRef: string;
-    private _roleRef?: Array<RoleRef>;
-    private _dataRef?: Array<DataRef>;
-    private _dataGroup?: Array<DataGroup>;
-    private _trigger?: Array<Trigger>;
+    private _roleRef: Array<RoleRef>;
+    private _dataRef: Array<DataRef>;
+    private _dataGroup: Array<DataGroup>;
+    private _trigger: Array<Trigger>;
 
     constructor(id: string, transRef: string) {
         this._id = id;

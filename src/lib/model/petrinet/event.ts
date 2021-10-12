@@ -9,6 +9,7 @@ export abstract class Event<T> {
 
     protected constructor(type: T) {
         this._type = type;
+        this._id = type + "_event_" + Math.floor((Math.random() * 999) + 1);
         this._preActions = [];
         this._postActions = [];
     }

@@ -2,7 +2,7 @@ export class Action {
     private _id: string;
     private _definition: string;
 
-    constructor(id, definition) {
+    constructor(id: string, definition: string) {
         this._id = id;
         this._definition = definition;
     }

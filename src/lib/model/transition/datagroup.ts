@@ -1,21 +1,20 @@
-import {DataRef} from './data-ref';
-import {LayoutType} from './layout-type.enum';
 import {I18nString} from '../i18n/i18n-string';
 import {Alignment} from './alignment.enum';
+import {DataRef} from './data-ref';
+import {LayoutType} from './layout-type.enum';
 
 export class DataGroup {
     private _id: string;
     private _cols?: number;
     private _rows?: number;
     private _title?: I18nString;
-    private _layout: LayoutType;
+    private _layout?: LayoutType;
     private _alignment?: Alignment;
-    private _stretch?: boolean;
-    private _dataRefs?: Map<string, DataRef>;
+    private _stretch: boolean;
+    private _dataRefs: Map<string, DataRef>;
 
-    constructor(id) {
+    constructor(id: string) {
         this._id = id;
-        this._title = new I18nString('');
         this._stretch = false;
         this._dataRefs = new Map<string, DataRef>();
     }
@@ -28,43 +27,43 @@ export class DataGroup {
         this._id = value;
     }
 
-    get cols(): number {
+    get cols(): number | undefined {
         return this._cols;
     }
 
-    set cols(value: number) {
+    set cols(value: number | undefined) {
         this._cols = value;
     }
 
-    get rows(): number {
+    get rows(): number | undefined {
         return this._rows;
     }
 
-    set rows(value: number) {
+    set rows(value: number | undefined) {
         this._rows = value;
     }
 
-    get title(): I18nString {
+    get title(): I18nString | undefined {
         return this._title;
     }
 
-    set title(value: I18nString) {
+    set title(value: I18nString | undefined) {
         this._title = value;
     }
 
-    get layout(): LayoutType {
+    get layout(): LayoutType | undefined {
         return this._layout;
     }
 
-    set layout(value: LayoutType) {
+    set layout(value: LayoutType | undefined) {
         this._layout = value;
     }
 
-    get alignment(): Alignment {
+    get alignment(): Alignment | undefined {
         return this._alignment;
     }
 
-    set alignment(value: Alignment) {
+    set alignment(value: Alignment | undefined) {
         this._alignment = value;
     }
 
@@ -80,7 +79,7 @@ export class DataGroup {
         return Array.from(this._dataRefs.values());
     }
 
-    getDataRef(id: string): DataRef {
+    getDataRef(id: string): DataRef | undefined {
         return this._dataRefs.get(id);
     }
 
@@ -96,16 +95,16 @@ export class DataGroup {
     }
 
     public clone(): DataGroup {
-        const datagroup = new DataGroup(this._id);
-        datagroup._title = this._title?.clone();
-        datagroup._alignment = this._alignment;
-        datagroup._layout = this._layout;
-        datagroup._stretch = this._stretch;
-        datagroup._rows = this._rows;
-        datagroup._cols = this._cols;
+        const dataGroup = new DataGroup(this._id);
+        dataGroup._title = this._title?.clone();
+        dataGroup._alignment = this._alignment;
+        dataGroup._layout = this._layout;
+        dataGroup._stretch = this._stretch;
+        dataGroup._rows = this._rows;
+        dataGroup._cols = this._cols;
         this._dataRefs.forEach(item => {
-            datagroup.addDataRef(item.clone());
+            dataGroup.addDataRef(item.clone());
         });
-        return datagroup;
+        return dataGroup;
     }
 }
