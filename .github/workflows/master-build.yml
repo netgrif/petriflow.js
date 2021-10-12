@@ -34,16 +34,6 @@ jobs:
 
       - name: SonarCloud scan
         uses: sonarsource/sonarcloud-github-action@master
-        with:
-          projectBaseDir: src/
-          args: >
-            -Dsonar.projectKey=netgrif_petriflow.js
-            -Dsonar.organization=netgrif-oss
-            -Dsonar.sources=lib/
-            -Dsonar.tests=test/
-            -Dsonar.javascript.lcov.reportPaths=../coverage/lcov.info
-            -Dsonar.testExecutionReportPaths=../test-report.xml
-            -Dsonar.verbose=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

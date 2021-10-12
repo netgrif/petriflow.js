@@ -40,7 +40,7 @@
         "build:test": "npm run build && npm run test:unit",
         "test": "npm run test:lint && npm run test:spell && npm run test:unit",
         "test:lint": "eslint src --ext .ts",
-        "test:spell": "cspell \"{*.md,src/**/*.ts}\"",
+        "test:spell": "cspell -s \"{*.md,src/**/*.ts}\"",
         "test:unit": "jest",
         "doc": "typedoc --entryPoints src/lib/index.ts --exclude **/*.spec.* --out doc --theme default",
         "version": ""
