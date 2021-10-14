@@ -1,3 +1,4 @@
+import {DOMImplementation, DOMParser} from 'xmldom';
 import {
     Arc,
     AssignPolicy,
@@ -29,7 +30,7 @@ export class ExportService {
 
     public static readonly PETRIFLOW_SCHEMA_URL = 'https://netgrif.github.io/petriflow/petriflow.schema.xsd';
 
-    protected xmlConstructor = document.implementation.createDocument(null, 'document', null);
+    protected xmlConstructor = new DOMImplementation().createDocument(null, 'document', null);
 
     constructor(protected exportUtils: ExportUtils = new ExportUtils()) {
     }
