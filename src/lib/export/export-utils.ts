@@ -1,3 +1,4 @@
+import {DOMImplementation} from "xmldom";
 import {
     Action,
     CaseLogic,
@@ -12,7 +13,7 @@ export class ExportUtils {
 
     private CDATA_REGRET = /<!\[CDATA\[(?:\w|\s)*]]>/g;
     private COMMENT_REGRET = /<!--(?:.|\n)*?-->/g;
-    protected xmlConstructor = document.implementation.createDocument(null, 'document', null);
+    protected xmlConstructor = new DOMImplementation().createDocument(null, 'document', null);
 
     public exportTag(doc: Element, name: string, value: string | I18nString | I18nWithDynamic, force = false, attributes?: Array<{ key: string, value: string }>): void {
         if ((typeof value === 'string' && value !== '') ||

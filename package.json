@@ -1,7 +1,7 @@
 {
     "name": "@netgrif/petriflow",
     "version": "1.0.0",
-    "description": "Javascript / Typescript library of Petriflow objects",
+    "description": "Petriflow objects library",
     "main": "dist/petriflow.js",
     "module": "dist/petriflow.esm.js",
     "types": "dist/petriflow.d.ts",
@@ -13,7 +13,7 @@
     "bugs": {
         "url": "https://github.com/netgrif/petriflow.js/issues"
     },
-    "homepage": "https://github.com/netgrif/petriflow.js#readme",
+    "homepage": "https://netgrif.github.io/petriflow.js/",
     "keywords": [
         "petriflow",
         "pf",
@@ -47,6 +47,7 @@
     },
     "devDependencies": {
         "@rollup/plugin-typescript": "^8.2.5",
+        "@types/xmldom": "^0.1.31",
         "@typescript-eslint/eslint-plugin": "^4.33.0",
         "@typescript-eslint/parser": "^4.33.0",
         "cspell": "^5.12.3",
@@ -63,12 +64,12 @@
         "typescript": "^4.4.3"
     },
     "dependencies": {
-        "tslib": "^2.3.1"
+        "tslib": "^2.3.1",
+        "xmldom": "^0.6.0"
     },
     "jest": {
         "verbose": true,
         "collectCoverage": true,
-        "testEnvironment": "jsdom",
         "testResultsProcessor": "jest-sonar-reporter"
     }
 }
