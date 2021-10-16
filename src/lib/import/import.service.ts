@@ -1,3 +1,4 @@
+import {DOMParser} from 'xmldom';
 import {
     Alignment,
     Arc,
@@ -34,7 +35,8 @@ import {
     Transaction,
     Transition,
     TransitionEvent,
-    TransitionEventType, TransitionLayout,
+    TransitionEventType,
+    TransitionLayout,
     UserRef,
     Validation
 } from '../model';
@@ -51,17 +53,13 @@ export class ImportService {
     constructor(protected importUtils: ImportUtils = new ImportUtils()) {
     }
 
-    private parseXml(txt: string): Document {
-        let xmlDoc = new Document();
-        if (window.DOMParser) {
-            const parser = new DOMParser();
-            xmlDoc = parser.parseFromString(txt, 'text/xml');
-        }
-        return xmlDoc;
+    private static parseXml(txt: string): Document {
+        const parser = new DOMParser();
+        return parser.parseFromString(txt, 'text/xml');
     }
 
     public parseFromXml(txt: string): PetriNetResult {
-        const doc = this.parseXml(txt);
+        const doc = ImportService.parseXml(txt);
         const parseError = doc.getElementsByTagName('parsererror'); // cspell:disable-line
         let result = new PetriNetResult();
 
@@ -372,7 +370,7 @@ export class ImportService {
         try {
             const xmlLayout = xmlTrans.getElementsByTagName('layout');
             if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode?.isSameNode(xmlTrans)) {
-                if(!trans.layout)
+                if (!trans.layout)
                     trans.layout = new TransitionLayout();
                 trans.layout.cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols') ?? 0;
                 trans.layout.rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows') ?? 0;
