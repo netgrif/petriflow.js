@@ -199,7 +199,7 @@ export class ImportService {
             data.remote = true;
         }
 
-        const values = Array.from(xmlData.getElementsByTagName('values'));
+        const values = Array.from(xmlData.getElementsByTagName('values') ?? []);
         // transform <values>area</values>
         if (values.length === 1 && values[0].innerHTML === 'area' && data.type === DataType.TEXT) {
             if (!data.component) {
@@ -209,11 +209,11 @@ export class ImportService {
         } else if (values.length > 0) {
             // transform <values> to <options>
             for (const val of values) {
-                if (val.childNodes[0] !== undefined) {
+                if (val.childNodes.item(0) !== undefined) {
                     const option = new Option();
-                    const nodeValue = !val.childNodes[0].nodeValue ? '' : val.childNodes[0].nodeValue;
-                    option.value = new I18nWithDynamic(nodeValue);
-                    option.key = nodeValue;
+                    const nodeValue = !val.childNodes.item(0).nodeValue ? '' : val.childNodes.item(0).nodeValue;
+                    option.value = new I18nWithDynamic(nodeValue ?? '');
+                    option.key = nodeValue ?? '';
                     data.options.push(option);
                 }
             }
@@ -221,13 +221,13 @@ export class ImportService {
         }
 
         if (xmlData.getElementsByTagName('options').length > 0) {
-            for (const val of Array.from(xmlData.getElementsByTagName('options')[0]?.getElementsByTagName('option'))) {
+            for (const val of Array.from(xmlData.getElementsByTagName('options').item(0)?.getElementsByTagName('option') ?? [])) {
                 const key = val.getAttribute('key') ?? '';
                 const value = new I18nString(val.innerHTML);
                 value.name = val.getAttribute('name') ?? '';
                 data.options.push(Option.of(key, value));
             }
-            data.optionsInit = this.importUtils.parseExpression(xmlData.getElementsByTagName('options')[0], 'init');
+            data.optionsInit = this.importUtils.parseExpression(xmlData.getElementsByTagName('options').item(0), 'init');
         }
         const valid = this.importUtils.tagValue(xmlData, 'valid');
         if (valid !== '') {
@@ -237,9 +237,10 @@ export class ImportService {
             result.addInfo(`Tags <valid> of field ${data.id} changed to validations`);
         }
         if (xmlData.getElementsByTagName('validations').length > 0) {
-            for (const val of Array.from(xmlData.getElementsByTagName('validations')[0]?.children)) {
+            for (const val of Array.from(xmlData.getElementsByTagName('validations').item(0)?.childNodes ?? [])) {
                 const validation = new Validation();
-                validation.expression = new Expression(this.importUtils.tagValue((val as HTMLDataElement), 'expression'), val.getAttribute('dynamic') === 'true');
+                if((val as Text)?.splitText) continue;
+                validation.expression = new Expression(this.importUtils.tagValue((val as HTMLDataElement), 'expression'), (val as Element).getAttribute('dynamic') === 'true');
                 validation.message = this.importUtils.parseI18n((val as HTMLDataElement), 'message');
                 data.addValidation(validation);
             }
@@ -269,8 +270,8 @@ export class ImportService {
             }
         }
         if (xmlData.getElementsByTagName('allowedNets').length > 0) {
-            for (const val of Array.from(xmlData.getElementsByTagName('allowedNets')[0]?.children)) {
-                data.allowedNets.push(val.innerHTML);
+            for (const val of Array.from(xmlData.getElementsByTagName('allowedNets').item(0)?.childNodes ?? [])) {
+                data.allowedNets.push((val as Element).innerHTML);
             }
         }
         model.addData(data);
@@ -317,7 +318,7 @@ export class ImportService {
     private importTransitionUserRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
         try {
             for (const xmlUserRef of Array.from(xmlTrans.getElementsByTagName('usersRef'))) {
-                const xmlUserRefLogic = xmlUserRef.getElementsByTagName('logic')[0];
+                const xmlUserRefLogic = xmlUserRef.getElementsByTagName('logic').item(0);
                 const userRef = new UserRef(this.importUtils.tagValue(xmlUserRef, 'id'));
                 this.importUtils.resolveLogic(xmlUserRefLogic, userRef);
                 trans.userRefs.push(userRef);
@@ -369,7 +370,7 @@ export class ImportService {
     private importTransitionLayout(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
         try {
             const xmlLayout = xmlTrans.getElementsByTagName('layout');
-            if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode?.isSameNode(xmlTrans)) {
+            if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode === xmlTrans) {
                 if (!trans.layout)
                     trans.layout = new TransitionLayout();
                 trans.layout.cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols') ?? 0;
@@ -430,7 +431,7 @@ export class ImportService {
     private importTransactionRef(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
         try {
             if (xmlTrans.getElementsByTagName('transactionRef').length > 0 &&
-                xmlTrans.getElementsByTagName('transactionRef')[0].childNodes.length !== 0) {
+                xmlTrans.getElementsByTagName('transactionRef').item(0)?.childNodes.length !== 0) {
                 trans.transactionRef = this.importUtils.tagValue(xmlTrans, 'transactionRef');
             }
         } catch (e) {
@@ -466,7 +467,7 @@ export class ImportService {
     public importProcessRefs(modelResult: PetriNetResult, xmlDoc: Document): void { // TODO: two methods
         for (const xmlRoleRef of Array.from(xmlDoc.getElementsByTagName('roleRef'))) {
             try {
-                const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('caseLogic')[0];
+                const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('caseLogic').item(0);
                 if (xmlRoleRefLogic !== undefined) {
                     const roleRef = new ProcessRoleRef(this.importUtils.tagValue(xmlRoleRef, 'id'));
                     this.importUtils.resolveCaseLogic(xmlRoleRefLogic, roleRef);
@@ -478,7 +479,7 @@ export class ImportService {
         }
         for (const xmlUserRef of Array.from(xmlDoc.getElementsByTagName('usersRef'))) {
             try {
-                const xmlUserRefLogic = xmlUserRef.getElementsByTagName('caseLogic')[0];
+                const xmlUserRefLogic = xmlUserRef.getElementsByTagName('caseLogic').item(0);
                 if (xmlUserRefLogic !== undefined) {
                     const userRef = new ProcessUserRef(this.importUtils.tagValue(xmlUserRef, 'id'));
                     this.importUtils.resolveCaseLogic(xmlUserRefLogic, userRef);
@@ -496,7 +497,7 @@ export class ImportService {
                 const xx = this.importUtils.parseNumberValue(xmlPlace, 'x') ?? 0;
                 const yy = this.importUtils.parseNumberValue(xmlPlace, 'y') ?? 0;
                 const isStatic = this.importUtils.parsePlaceStatic(xmlPlace);
-                const placeId = xmlPlace.getElementsByTagName('id')[0]?.childNodes[0]?.nodeValue;
+                const placeId = xmlPlace.getElementsByTagName('id').item(0)?.childNodes.item(0)?.nodeValue;
                 if (!placeId)
                     throw new Error("Id of a place must be defined!");
                 const place = new Place(xx, yy, isStatic, placeId);
@@ -512,9 +513,10 @@ export class ImportService {
 
         place.marking = this.importUtils.parseNumberValue(xmlPlace, 'tokens') ?? 0;
         if (xmlPlace.getElementsByTagName('label').length > 0 &&
-            xmlPlace.getElementsByTagName('label')[0].childNodes.length !== 0) {
-            const label = xmlPlace.getElementsByTagName('label')[0]?.childNodes[0]?.nodeValue
-            place.label = new I18nString(label ?? '');
+            xmlPlace.getElementsByTagName('label').item(0)?.childNodes.length !== 0) {
+            const label = xmlPlace.getElementsByTagName('label').item(0)?.childNodes.item(0)?.nodeValue
+            const i18nName = xmlPlace.getElementsByTagName('label').item(0)?.getAttribute('name') ?? '';
+            place.label = new I18nString(label ?? '', i18nName);
         }
     }
 
@@ -530,25 +532,25 @@ export class ImportService {
     }
 
     public parseArc(result: PetriNetResult, xmlArc: Element): Arc {
-        const source = xmlArc.getElementsByTagName('sourceId')[0].childNodes[0].nodeValue;
+        const source = xmlArc.getElementsByTagName('sourceId').item(0)?.childNodes.item(0)?.nodeValue;
         if (!source)
             throw new Error("Source of an arc must be defined!");
-        const target = xmlArc.getElementsByTagName('destinationId')[0].childNodes[0].nodeValue;
+        const target = xmlArc.getElementsByTagName('destinationId').item(0)?.childNodes.item(0)?.nodeValue;
         if (!target)
             throw new Error("Target of an arc must be defined!");
         const parsedArcType = this.importUtils.parseArcType(xmlArc);
-        const arcId = xmlArc.getElementsByTagName('id')[0].childNodes[0].nodeValue;
+        const arcId = xmlArc.getElementsByTagName('id').item(0)?.childNodes.item(0)?.nodeValue;
         if (!arcId)
             throw new Error("Id of an arc must be defined!");
         const arc = new Arc(source, target, parsedArcType, arcId);
         arc.multiplicity = this.importUtils.parseNumberValue(xmlArc, 'multiplicity') ?? 0;
         if (arc.type === ArcType.VARIABLE) {
             arc.type = ArcType.REGULAR;
-            arc.reference = xmlArc.getElementsByTagName('multiplicity')[0]?.childNodes[0]?.nodeValue ?? undefined;
+            arc.reference = xmlArc.getElementsByTagName('multiplicity').item(0)?.childNodes.item(0)?.nodeValue ?? undefined;
             this.importUtils.checkVariability(result.model, arc, arc.reference);
             result.addInfo(`Variable arc '${arc.id}' converted to regular with data field reference`);
         } else if (this.importUtils.checkLengthAndNodes(xmlArc, 'reference')) {
-            const arcReference = xmlArc.getElementsByTagName('reference')[0].childNodes[0].nodeValue ?? undefined;
+            const arcReference = xmlArc.getElementsByTagName('reference').item(0)?.childNodes.item(0)?.nodeValue ?? undefined;
             this.importUtils.checkVariability(result.model, arc, arcReference);
         }
 

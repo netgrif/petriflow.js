@@ -28,7 +28,7 @@ export class PetriNetResult {
 
     addError(error: string, e: Error) {
         this._errors.push(error);
-        console.log(e);
+        console.error(e);
     }
 
     get warnings(): Array<string> {

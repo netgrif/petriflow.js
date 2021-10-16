@@ -38,7 +38,8 @@ export class ImportUtils {
     private actionIdCounter = 0;
 
     public tagValue(xmlTag: Element | Document | null, child: string): string {
-        if (!xmlTag || xmlTag.getElementsByTagName(child).length === 0 || xmlTag.getElementsByTagName(child)[0].childNodes.length === 0) {
+        if (xmlTag?.nodeValue?.trim() === '') return '';
+        if (!xmlTag || xmlTag.getElementsByTagName(child).length === 0 || xmlTag.getElementsByTagName(child).item(0)?.childNodes.length === 0) {
             return '';
         }
         const parentNodeName = xmlTag.nodeName === '#document' ? 'document' : xmlTag.nodeName;
@@ -46,14 +47,14 @@ export class ImportUtils {
         if (tags === undefined || tags.length === 0 || tags[0]?.childNodes.length === 0) {
             return '';
         }
-        return tags[0]?.childNodes[0]?.nodeValue ?? '';
+        return tags[0]?.childNodes.item(0)?.nodeValue ?? '';
     }
 
     public parseI18n(xmlTag: Element | Document, child: string): I18nString {
         const i18n = new I18nString(this.tagValue(xmlTag, child));
         if (i18n.value !== '') {
-            const name = xmlTag.getElementsByTagName(child)[0].getAttribute('name');
-            i18n.name = name === null ? undefined : name;
+            const name = xmlTag.getElementsByTagName(child).item(0)?.getAttribute('name');
+            i18n.name = name ?? undefined;
         }
         return i18n;
     }
@@ -61,9 +62,9 @@ export class ImportUtils {
     public parseI18nWithDynamic(xmlTag: Element | Document, child: string): I18nWithDynamic {
         const i18n = new I18nWithDynamic(this.tagValue(xmlTag, child));
         if (i18n.value !== '') {
-            const name = xmlTag.getElementsByTagName(child)[0].getAttribute('name');
-            i18n.name = name === null ? undefined : name;
-            i18n.dynamic = xmlTag.getElementsByTagName(child)[0].getAttribute('dynamic') === 'true';
+            const name = xmlTag.getElementsByTagName(child).item(0)?.getAttribute('name');
+            i18n.name = name ?? undefined;
+            i18n.dynamic = xmlTag.getElementsByTagName(child).item(0)?.getAttribute('dynamic') === 'true';
         }
         return i18n;
     }
@@ -107,7 +108,7 @@ export class ImportUtils {
         if (!encryption || encryption !== 'true') {
             return undefined;
         }
-        const algorithm = xmlTag.getElementsByTagName('encryption')[0].getAttribute('algorithm');
+        const algorithm = xmlTag.getElementsByTagName('encryption').item(0)?.getAttribute('algorithm');
         if (typeof algorithm === 'string' && algorithm !== '') {
             return algorithm;
         }
@@ -115,31 +116,31 @@ export class ImportUtils {
     }
 
     public parseViewAndComponent(xmlTag: Element): Component | undefined {
-        const xmlComponent = xmlTag.getElementsByTagName('component')[0];
-        if (!xmlComponent?.children || xmlComponent.children.length === 0) {
-            const xmlViewTag = xmlTag.getElementsByTagName('view')[0];
-            if (!xmlViewTag?.children || xmlViewTag.children.length === 0) {
+        const xmlComponent = xmlTag.getElementsByTagName('component').item(0);
+        if (!xmlComponent?.childNodes || xmlComponent.childNodes.length === 0) {
+            const xmlViewTag = xmlTag.getElementsByTagName('view').item(0);
+            if (!xmlViewTag?.childNodes || xmlViewTag.childNodes.length === 0) {
                 return undefined;
             }
             // TODO: <view><list>5</list></view>
-            return new Component(xmlViewTag.children[0].nodeName);
+            return new Component(xmlViewTag.childNodes.item(0)?.nodeName);
         }
         return this.parseComponent(xmlTag);
     }
 
     public parseComponent(xmlTag: Element): Component | undefined {
-        const xmlComponent = xmlTag.getElementsByTagName('component')[0];
-        if (!xmlComponent?.children || xmlComponent.children.length === 0) {
+        const xmlComponent = xmlTag.getElementsByTagName('component').item(0);
+        if (!xmlComponent?.childNodes || xmlComponent?.childNodes?.length === 0) {
             return undefined;
         }
         const comp = new Component(this.tagValue(xmlComponent, 'name'));
-        const properties = xmlComponent.getElementsByTagName('properties')[0];
-        if (properties?.children && properties.children.length > 0) {
+        const properties = xmlComponent.getElementsByTagName('properties').item(0);
+        if (properties?.childNodes && properties.childNodes.length > 0) {
             for (const prop of Array.from(properties.getElementsByTagName('property'))) {
                 comp.properties.push(this.parseProperty(prop));
             }
             const icons = properties.getElementsByTagName('option_icons').item(0);
-            if (icons?.children && icons.children.length > 0) {
+            if (icons?.childNodes && icons?.childNodes?.length > 0) {
                 for (const iconXml of Array.from(icons.getElementsByTagName('icon'))) {
                     const key = this.tagAttribute(iconXml, 'key');
                     let type = this.tagAttribute(iconXml, 'type') as IconType;
@@ -164,7 +165,9 @@ export class ImportUtils {
         return new Property(key, value);
     }
 
-    public resolveLogic(xmlRoleRefLogic: Element, roleRef: RoleRef | UserRef): void {
+    public resolveLogic(xmlRoleRefLogic: Element | null, roleRef: RoleRef | UserRef): void {
+        if (!xmlRoleRefLogic)
+            return;
         roleRef.logic.delegate = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delegate'));
         roleRef.logic.perform = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'perform'));
         roleRef.logic.assigned = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assigned'));
@@ -176,7 +179,8 @@ export class ImportUtils {
         return (logicValue !== undefined && logicValue !== '') ? logicValue === 'true' : undefined;
     }
 
-    public resolveCaseLogic(xmlRoleRefLogic: Element, roleRef: ProcessRoleRef | ProcessUserRef): void {
+    public resolveCaseLogic(xmlRoleRefLogic: Element | null, roleRef: ProcessRoleRef | ProcessUserRef): void {
+        if (!xmlRoleRefLogic) return;
         roleRef.caseLogic.create = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'create'));
         roleRef.caseLogic.delete = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delete'));
         roleRef.caseLogic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
@@ -222,7 +226,7 @@ export class ImportUtils {
     }
 
     public parseRoleRef(xmlRoleRef: Element): RoleRef {
-        const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('logic')[0];
+        const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('logic').item(0);
         const roleRef = new RoleRef(this.tagValue(xmlRoleRef, 'id'));
         this.resolveLogic(xmlRoleRefLogic, roleRef);
         return roleRef;
@@ -235,7 +239,7 @@ export class ImportUtils {
             this.parseEvent(xmlEvent, event);
             dataRef.mergeEvent(event);
         }
-        const xmlDataRefLogic = xmlDataRef.getElementsByTagName('logic')[0];
+        const xmlDataRefLogic = xmlDataRef.getElementsByTagName('logic').item(0);
         if (xmlDataRefLogic) {
             const actionTags = Array.from(xmlDataRefLogic.getElementsByTagName('action'));
             if (actionTags.length > 0) {
@@ -246,10 +250,10 @@ export class ImportUtils {
                 }
             }
             for (const logic of Array.from(xmlDataRefLogic.getElementsByTagName('behavior'))) {
-                if (logic.childNodes[0].nodeValue as DataRefBehavior === DataRefBehavior.REQUIRED) {
+                if (logic.childNodes.item(0)?.nodeValue as DataRefBehavior === DataRefBehavior.REQUIRED) {
                     dataRef.logic.required = true;
-                } else if (logic.childNodes[0].nodeValue as DataRefBehavior !== DataRefBehavior.OPTIONAL) {
-                    dataRef.logic.behavior = logic.childNodes[0].nodeValue as DataRefBehavior;
+                } else if (logic.childNodes.item(0)?.nodeValue as DataRefBehavior !== DataRefBehavior.OPTIONAL) {
+                    dataRef.logic.behavior = logic.childNodes.item(0)?.nodeValue as DataRefBehavior;
                 }
             }
         }
@@ -301,10 +305,10 @@ export class ImportUtils {
     public parsePlaceStatic(xmlPlace: Element): boolean {
         let isStatic = false;
         if (this.checkLengthAndNodes(xmlPlace, 'isStatic')) {
-            isStatic = (xmlPlace.getElementsByTagName('isStatic')[0].childNodes[0].nodeValue === 'true');
+            isStatic = (xmlPlace.getElementsByTagName('isStatic').item(0)?.childNodes.item(0)?.nodeValue === 'true');
         }
         if (this.checkLengthAndNodes(xmlPlace, 'static')) {
-            isStatic = (xmlPlace.getElementsByTagName('static')[0].childNodes[0].nodeValue === 'true');
+            isStatic = (xmlPlace.getElementsByTagName('static').item(0)?.childNodes.item(0)?.nodeValue === 'true');
         }
         return isStatic;
     }
@@ -312,7 +316,7 @@ export class ImportUtils {
     public parseArcType(xmlArc: Element): ArcType {
         let parsedArcType = ArcType.REGULAR;
         if (this.checkLengthAndNodes(xmlArc, 'type')) {
-            parsedArcType = xmlArc.getElementsByTagName('type')[0].childNodes[0].nodeValue as ArcType;
+            parsedArcType = xmlArc.getElementsByTagName('type').item(0)?.childNodes.item(0)?.nodeValue as ArcType;
         }
         return parsedArcType;
     }
@@ -337,7 +341,7 @@ export class ImportUtils {
     public resolveInits(xmlData: Element): Array<Expression> {
         const inits: Array<Expression> = [];
         if (this.checkLengthAndNodes(xmlData, 'inits')) {
-            for (const value of Array.from(xmlData.getElementsByTagName('inits')[0]?.getElementsByTagName('init'))) {
+            for (const value of Array.from(xmlData.getElementsByTagName('inits').item(0)?.getElementsByTagName('init') ?? [])) {
                 const dynamic = this.tagAttribute(value, 'dynamic');
                 inits.push(new Expression(value.textContent ?? '', dynamic === '' ? undefined : dynamic === 'true'));
             }
@@ -348,7 +352,7 @@ export class ImportUtils {
     public resolveInit(xmlData: Element): Expression | undefined {
         let elementValue;
         for (const value of Array.from(xmlData.getElementsByTagName('init'))) {
-            if (!value.parentElement?.tagName || value.parentElement.tagName !== 'data') {
+            if (value.parentNode?.nodeName !== 'data') {
                 continue;
             }
             elementValue = value;
@@ -361,7 +365,7 @@ export class ImportUtils {
 
     public checkLengthAndNodes(element: Element, name: string) {
         return element.getElementsByTagName(name).length > 0 &&
-            element.getElementsByTagName(name)[0].childNodes.length !== 0;
+            element.getElementsByTagName(name).item(0)?.childNodes?.length !== 0;
     }
 
     public resolveFormat(xmlData: Element, data: DataVariable): void {
@@ -384,7 +388,9 @@ export class ImportUtils {
         return isNaN(value) ? undefined : value;
     }
 
-    public parseExpression(xmlTag: Element, name: string): Expression | undefined {
+    public parseExpression(xmlTag: Element | null, name: string): Expression | undefined {
+        if (!xmlTag)
+            return undefined;
         const val = this.tagValue(xmlTag, name);
         let dynamic;
         if (xmlTag.getElementsByTagName(name).length > 0) {

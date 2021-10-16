@@ -40,7 +40,7 @@ export class ExportService {
         return this.xmlToString(xmlText).replace('xmlns="http://www.w3.org/1999/xhtml"', '');
     }
 
-    public xmlToString(inputNode: string | Element, level = 0, singleton = false): string {
+    public xmlToString(inputNode: string | Element, level = 0): string {
         let node: Element;
         if (inputNode === undefined || inputNode === null) {
             return '';
@@ -53,13 +53,10 @@ export class ExportService {
         const innerText = (n: Element) => n.textContent === null ? '' : n.textContent;
         const tabs = Array(level + 1).fill('').join('\t');
         const newLine = '\n';
-        if (node.nodeType === Node.TEXT_NODE) {
-            return (singleton ? '' : tabs) + innerText(node) + (singleton ? '' : newLine);
-        }
-        if (node.nodeType === Node.CDATA_SECTION_NODE) {
+        if (node.nodeType === node.CDATA_SECTION_NODE) {
             return '<![CDATA[' + innerText(node) + ']]>';
         }
-        if (node.nodeType === Node.COMMENT_NODE) {
+        if (node.nodeType === node.COMMENT_NODE) {
             return '<!--' + innerText(node) + '-->';
         }
         if (!node.tagName) {
@@ -69,19 +66,22 @@ export class ExportService {
         for (let i = 0; i < node.attributes.length; i++) {
             output += ` ${node.attributes.item(i)?.name}="${node.attributes.item(i)?.value}"`;
         }
-        if (node.childNodes.length === 0) {
+        if (node.childNodes.length === 0 && (!node.innerHTML || node.innerHTML === '')) {
             return output + ' />' + newLine;
         } else {
             output += '>';
         }
-        const onlyOneTextChild = ((node.childNodes.length === 1) && (node.childNodes[0].nodeType === Node.TEXT_NODE));
-        if (!onlyOneTextChild) {
+        const onlyInnerText = !!node.innerHTML;
+        if (!onlyInnerText) {
             output += newLine;
+        } else {
+            output += node.innerHTML;
         }
-        node.childNodes.forEach(child => {
-            output += this.xmlToString(child as Element, level + 1, onlyOneTextChild);
-        });
-        return output + (onlyOneTextChild ? '' : tabs) + `</${node.tagName}>` + newLine;
+        for (let i = 0; i < node.childNodes.length; i++) {
+            const child = node.childNodes.item(i);
+            output += this.xmlToString(child as Element, level + 1);
+        }
+        return output + (onlyInnerText ? '' : tabs) + `</${node.tagName}>` + newLine;
     }
 
     public generateXml(model: PetriNet): Element {
