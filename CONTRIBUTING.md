@@ -5,7 +5,7 @@ process in their applications.
 
 The library is updated together with the Petriflow specification.
 
-The library also contains functions to parse Petriflow files to Objects and to export Javascript Objects to Petriflow source code.
+The library also contains functions to parse Petriflow source code from XML files to Javascript Objects and to export Javascript Objects to Petriflow source code.
 
 ## Ways you can contribute
 
@@ -19,7 +19,7 @@ kind, help make Petriflow a community where new faces feel welcome and old hands
 ### Reporting bugs
 
 If you've found a bug in the Petriflow objects or in utility functions, let us know about it.
-* Search the [Issues](https://github.com/netgrif/petriflow.js/issues) to check we're not already tracking them.
+* Search the [Issues](https://github.com/netgrif/petriflow.js/issues) to check we're not already tracking it.
 * If you can't find an open issue that describes your problem, [open a new one](https://github.com/netgrif/petriflow.js/issues/new).
   * Include a **title and clear description**
   * Describe:
@@ -44,4 +44,4 @@ If you've got a great idea for the Petriflow language feature, start by checking
 hasn't already been rejected.
 
 If not, start by [opening an issue](https://github.com/netgrif/petriflow.js/issues/new) that describes your idea. 
-Do not be afraid of rejection, every excellent idea has to start somewhere. Give it a well describe a solution to the problem what your proposition is trying to solve.
+Do not be afraid of rejection, every excellent idea has to start somewhere. Give it a well described a solution to the problem which your proposition is trying to solve.

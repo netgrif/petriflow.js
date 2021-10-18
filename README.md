@@ -11,7 +11,7 @@
 
 Petriflow.js is a Javascript library of Petriflow objects, written in Typescript. The library is for those who want to integrate Petriflow
 processes into their applications. The library is updated together with the Petriflow specification to ensure up-to-date compatibility.
-The library also contains functions to parse Petriflow files to Javascript objects and to export Javascript Objects to Petriflow source code.
+The library also contains functions to parse Petriflow source code from XML files to Javascript objects and to export Javascript Objects to Petriflow source code.
 
 Full specification of Petriflow low-code language can be found in [Petriflow repository](https://github.com/netgrif/petriflow.js) 
 
@@ -26,13 +26,13 @@ npm install --save @netgrif/petriflow
 ### Requirements
 
 Currently, the library **only supports browser applications** because **requires DOM Web API** to correctly process Petriflow files.
-It can be used in Node.js environments with installed the latest release of the [jsdom](https://github.com/jsdom/jsdom) library.
+It can be used in Node.js environments with the latest release of the [jsdom](https://github.com/jsdom/jsdom) library installed.
 
 ## Usage
 
 The library support both CommonJS and ES Modules importing systems.
 
-For applications that use the CommonJS module system you can use require function, i.e.:
+For applications that use the CommonJS module system you can use the require function, i.e.:
 ```javascript
 const {PetriNet, ImportService} = require('@netgrif/petriflow')
 ```
@@ -48,9 +48,8 @@ The library is also published with type declaration and so your Typescript proje
 ### Petriflow model
 
 The library contains every object, constant, and structure to fully interpret Petriflow source code files in Javascript.
-The root object is [PetriNet](https://github.com/netgrif/petriflow.js/blob/master/src/lib/model/petri-net.ts) which contains all information from the Petriflow process. Every object in the library has
-`T.clone() => T` method to return a new object of the same type and with the same values, to support clean code design and
-immutability of parsed objects.
+The root object is a [PetriNet](https://github.com/netgrif/petriflow.js/blob/master/src/lib/model/petri-net.ts) which contains all information from the Petriflow process. Every object in the library has
+`T.clone() => T` method to make a deep copy of the object.
 
 ### Import service
 
@@ -72,7 +71,7 @@ fetch('https://raw.githubusercontent.com/netgrif/petriflow/main/examples/order-a
 
 `ExportService` class has methods to export your Petriflow objects to an XML file.
 
-The class can be used to serialize the whole process at once or only parts of it. Methods use DOM API to create Petriflow XML file.
+The class can be used to serialize the whole process at once or only parts of it. Methods use DOM API to create the Petriflow XML file.
 
 ##### Export example
 ```javascript
