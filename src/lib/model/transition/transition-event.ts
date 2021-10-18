@@ -29,11 +29,11 @@ export class TransitionEvent extends Event<TransitionEventType> {
     }
 
     public clone(): TransitionEvent {
-        const event = new TransitionEvent(this.type, this.id);
-        event._message = this._message;
-        event._title = this._title;
-        this.preActions.forEach(item => event.preActions.push(item.clone()));
-        this.postActions.forEach(item => event.postActions.push(item.clone()));
-        return event;
+        const cloned = new TransitionEvent(this.type, this.id);
+        cloned._message = this._message;
+        cloned._title = this._title;
+        this.preActions.forEach(item => cloned.preActions.push(item.clone()));
+        this.postActions.forEach(item => cloned.postActions.push(item.clone()));
+        return cloned;
     }
 }
