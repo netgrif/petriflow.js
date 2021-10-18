@@ -1,8 +1,10 @@
 # Petriflow.js
 
-[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Typescript 4.4.3](https://img.shields.io/badge/Typescript-4.4.3-blue)](https://www.typescriptlang.org/)
+[![GitHub](https://img.shields.io/github/license/netgrif/petriflow.js)](https://www.apache.org/licenses/LICENSE-2.0)
+[![npm dev dependency version (scoped)](https://img.shields.io/npm/dependency-version/@netgrif/petriflow/dev/typescript?label=Typescript)](https://www.typescriptlang.org/)
 [![Petriflow 1.0.0](https://img.shields.io/badge/Petriflow-1.0.0-0aa8ff)](https://petriflow.com)
+[![npm (scoped)](https://img.shields.io/npm/v/@netgrif/petriflow)](https://www.npmjs.com/package/@netgrif/petriflow)
+[![npm](https://img.shields.io/npm/dt/@netgrif/petriflow)](https://www.npmjs.com/package/@netgrif/petriflow)
 [![build](https://github.com/netgrif/petriflow.js/actions/workflows/master-build.yml/badge.svg)](https://github.com/netgrif/petriflow.js/actions/workflows/release-build.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=netgrif_petriflow.js&metric=alert_status)](https://sonarcloud.io/dashboard?id=netgrif_petriflow.js)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=netgrif_petriflow.js&metric=coverage)](https://sonarcloud.io/dashboard?id=netgrif_petriflow.js)
@@ -13,7 +15,7 @@ Petriflow.js is a Javascript library of Petriflow objects, written in Typescript
 processes into their applications. The library is updated together with the Petriflow specification to ensure up-to-date compatibility.
 The library also contains functions to parse Petriflow source code from XML files to Javascript objects and to export Javascript Objects to Petriflow source code.
 
-Full specification of Petriflow low-code language can be found in [Petriflow repository](https://github.com/netgrif/petriflow.js) 
+Full specification of Petriflow low-code language can be found at [Petriflow.com](https://petriflow.com) 
 
 ## Install
 First, make sure you have installed the latest version of Node.js and npm with it (You may need to restart your computer after this step).
