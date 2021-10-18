@@ -44,4 +44,4 @@ If you've got a great idea for the Petriflow language feature, start by checking
 hasn't already been rejected.
 
 If not, start by [opening an issue](https://github.com/netgrif/petriflow.js/issues/new) that describes your idea. 
-Do not be afraid of rejection, every excellent idea has to start somewhere. Give it a well described a solution to the problem which your proposition is trying to solve.
+Do not be afraid of rejection, every excellent idea has to start somewhere. Give it well described a solution to the problem which your proposition is trying to solve.
