@@ -1,4 +1,5 @@
 import {I18nString} from '../i18n/i18n-string';
+import {EventSource} from '../petrinet/event-source';
 import {AssignPolicy} from './assign-policy.enum';
 import {AssignedUser} from './assigned-user';
 import {DataFocusPolicy} from './data-focus-policy.enum';
@@ -11,7 +12,7 @@ import {TransitionLayout} from './transition-layout';
 import {Trigger} from './trigger';
 import {UserRef} from './user-ref';
 
-export class Transition {
+export class Transition extends EventSource<TransitionEvent, TransitionEventType> {
     private _id: string;
     private _x: number;
     private _y: number;
@@ -27,10 +28,10 @@ export class Transition {
     private _roleRefs: Array<RoleRef>;
     private _userRefs: Array<UserRef>;
     private _dataGroups: Array<DataGroup>;
-    private _events: Map<TransitionEventType, TransitionEvent>;
     private _assignedUser?: AssignedUser;
 
     constructor(x: number, y: number, id: string) {
+        super();
         this._id = id;
         this._x = x;
         this._y = y;
@@ -42,7 +43,6 @@ export class Transition {
         this._roleRefs = [];
         this._userRefs = [];
         this._dataGroups = [];
-        this._events = new Map();
     }
 
     get id(): string {
@@ -165,25 +165,6 @@ export class Transition {
         this._dataGroups = value;
     }
 
-    getEvents(): Array<TransitionEvent> {
-        return Array.from(this._events.values());
-    }
-
-    getEvent(type: TransitionEventType): TransitionEvent | undefined {
-        return this._events.get(type);
-    }
-
-    addEvent(event: TransitionEvent) {
-        if (this._events.has(event.type)) {
-            throw new Error(`Duplicate event of type ${event.type}`);
-        }
-        this._events.set(event.type, event);
-    }
-
-    removeEvent(type: TransitionEventType) {
-        this._events.delete(type);
-    }
-
     get assignedUser(): AssignedUser | undefined {
         return this._assignedUser;
     }
@@ -192,35 +173,22 @@ export class Transition {
         this._assignedUser = value;
     }
 
-    public mergeEvent(event: TransitionEvent) {
-        if (this._events.has(event.type)) {
-            const oldEvent = this._events.get(event.type);
-            if (!oldEvent) return;
-            oldEvent.preActions.push(...event.preActions);
-            oldEvent.postActions.push(...event.postActions);
-        } else {
-            this._events.set(event.type, event);
-        }
-    }
-
     public clone(): Transition {
-        const trans = new Transition(this._x, this._y, this._id);
-        trans._label = this._label?.clone();
-        trans._layout = this._layout?.clone();
-        trans._icon = this._icon;
-        trans._priority = this._priority;
-        trans._assignPolicy = this._assignPolicy;
-        trans._dataFocusPolicy = this._dataFocusPolicy;
-        trans._finishPolicy = this._finishPolicy;
-        trans._triggers = this._triggers.map(item => item.clone());
-        trans._transactionRef = this._transactionRef;
-        trans._roleRefs = this._roleRefs.map(item => item.clone());
-        trans._userRefs = this._userRefs.map(item => item.clone());
-        trans._dataGroups = this._dataGroups.map(item => item.clone());
-        this._events.forEach((event, type) => {
-            trans._events.set(type, event);
-        });
-        trans._assignedUser = this._assignedUser;
-        return trans;
+        const cloned = new Transition(this._x, this._y, this._id);
+        cloned._label = this._label?.clone();
+        cloned._layout = this._layout?.clone();
+        cloned._icon = this._icon;
+        cloned._priority = this._priority;
+        cloned._assignPolicy = this._assignPolicy;
+        cloned._dataFocusPolicy = this._dataFocusPolicy;
+        cloned._finishPolicy = this._finishPolicy;
+        cloned._triggers = this._triggers.map(item => item.clone());
+        cloned._transactionRef = this._transactionRef;
+        cloned._roleRefs = this._roleRefs.map(item => item.clone());
+        cloned._userRefs = this._userRefs.map(item => item.clone());
+        cloned._dataGroups = this._dataGroups.map(item => item.clone());
+        this.getEvents().forEach(event => cloned.addEvent(event.clone()));
+        cloned._assignedUser = this._assignedUser;
+        return cloned;
     }
 }

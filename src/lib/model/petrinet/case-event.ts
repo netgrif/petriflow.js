@@ -8,9 +8,9 @@ export class CaseEvent extends Event<CaseEventType> {
     }
 
     public clone(): CaseEvent {
-        const event = new CaseEvent(this.type, this.id);
-        this.preActions.forEach(a => event.preActions.push(a));
-        this.postActions.forEach(a => event.postActions.push(a));
-        return event;
+        const cloned = new CaseEvent(this.type, this.id);
+        this.preActions.forEach(a => cloned.preActions.push(a));
+        this.postActions.forEach(a => cloned.postActions.push(a));
+        return cloned;
     }
 }
