@@ -27,19 +27,19 @@ npm install --save @netgrif/petriflow
 
 ### Requirements
 
-Currently, the library **only supports browser applications** because **requires DOM Web API** to correctly process Petriflow files.
+Currently, the library **only supports browser applications** because **requires [DOM Web API](https://www.w3.org/DOM/DOMTR)** to correctly process Petriflow files.
 It can be used in Node.js environments with the latest release of the [jsdom](https://github.com/jsdom/jsdom) library installed.
 
 ## Usage
 
 The library support both CommonJS and ES Modules importing systems.
 
-For applications that use the CommonJS module system you can use the require function, i.e.:
+For applications that use the CommonJS module system (Node.js) you can use the `require` function, i.e.:
 ```javascript
 const {PetriNet, ImportService} = require('@netgrif/petriflow')
 ```
 
-For applications supporting ES6+ modules you can use import statement, i.e.:
+For applications supporting ES6+ modules you can use `import` statement, i.e.:
 
 ```javascript
 import {PetriNet, ImportService} from "@netgrif/petriflow";
@@ -73,7 +73,7 @@ fetch('https://raw.githubusercontent.com/netgrif/petriflow/main/examples/order-a
 
 `ExportService` class has methods to export your Petriflow objects to an XML file.
 
-The class can be used to serialize the whole process at once or only parts of it. Methods use DOM API to create the Petriflow XML file.
+The class can be used to serialize the whole process at once or only parts of it. Methods use [DOM API](https://www.w3.org/DOM/DOMTR) to create the Petriflow XML file.
 
 ##### Export example
 ```javascript

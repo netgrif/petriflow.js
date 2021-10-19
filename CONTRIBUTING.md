@@ -1,7 +1,7 @@
 # How to contribute to Petriflow.js
 
-Petriflow.js is a Javascript library written in Typescript of Petriflow objects. The library is for those who want to integrate the Petriflow 
-process in their applications.
+Petriflow.js is a Javascript library written in Typescript of Petriflow objects. The library is for those who want to integrate Petriflow 
+processes in their applications.
 
 The library is updated together with the Petriflow specification.
 

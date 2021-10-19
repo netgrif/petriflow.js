@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0](https://github.com/netgrif/petriflow.js/releases/tag/v1.0.0) (2021-10-13)
 
-First public release fo the project.
+First public release of the project.
 
 Full Changelog: [https://github.com/netgrif/petriflow.js/commits/v1.0.0](https://github.com/netgrif/petriflow.js/commits/v1.0.0)
 
