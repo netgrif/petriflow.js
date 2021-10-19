@@ -13,7 +13,7 @@
     "bugs": {
         "url": "https://github.com/netgrif/petriflow.js/issues"
     },
-    "homepage": "https://github.com/netgrif/petriflow.js#readme",
+    "homepage": "https://netgrif.github.io/petriflow.js/",
     "keywords": [
         "petriflow",
         "pf",
@@ -30,6 +30,7 @@
     "files": [
         "dist",
         "LICENSE",
+        "CHANGELOG.md",
         "README.md",
         "package.json",
         "!**/*.spec.*",
@@ -42,8 +43,7 @@
         "test:lint": "eslint src --ext .ts",
         "test:spell": "cspell -s \"{*.md,src/**/*.ts}\"",
         "test:unit": "jest",
-        "doc": "typedoc --entryPoints src/lib/index.ts --exclude **/*.spec.* --out docs --theme default",
-        "version": ""
+        "doc": "typedoc --entryPoints src/lib/index.ts --exclude **/*.spec.* --out docs --theme default"
     },
     "devDependencies": {
         "@rollup/plugin-typescript": "^8.2.5",
