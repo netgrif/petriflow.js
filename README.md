@@ -8,6 +8,7 @@
 [![build](https://github.com/netgrif/petriflow.js/actions/workflows/master-build.yml/badge.svg)](https://github.com/netgrif/petriflow.js/actions/workflows/release-build.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=netgrif_petriflow.js&metric=alert_status)](https://sonarcloud.io/dashboard?id=netgrif_petriflow.js)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=netgrif_petriflow.js&metric=coverage)](https://sonarcloud.io/dashboard?id=netgrif_petriflow.js)
+[![Known Vulnerabilities](https://snyk.io/test/github/netgrif/petriflow.js/badge.svg)](https://snyk.io/test/github/netgrif/petriflow.js)
 
 > Petriflow in Javascript world
 
