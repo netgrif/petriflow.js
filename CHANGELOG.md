@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/netgrif/petriflow.js/compare/v1.0.0...HEAD)
 
+## [1.1.0](https://github.com/netgrif/petriflow.js/releases/tag/v1.1.0) (2021-10-19)
+
+### Fixed
+ - [PF-3] Events are not cloned properly
+ - [PF-2] Grammar and spelling in non-code files
+
 ## [1.0.0](https://github.com/netgrif/petriflow.js/releases/tag/v1.0.0) (2021-10-13)
 
 First public release of the project.
