@@ -1,6 +1,6 @@
 # Description
 
-Please include a summary of the change and which issue is fixed. Please also include relevant links and special instructions if applicable.
+Please include a summary of the changes and which issue is fixed. Please also include relevant links and special instructions if applicable.
 
 Fixes [JIRA-000]
 Implements [JIRA-000]
@@ -27,7 +27,7 @@ Depends on # (PR id)
 
 # How Has This Been Tested?
 
-Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration
+Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration.
 
 - Test A (test A file)
 - Test B (test B file)
@@ -44,14 +44,14 @@ Please describe configuration for tests to run if applicable.
 - [ ] I have resolved all conflicts with the target branch of the PR
 - [ ] I have updated and synced my code with the target branch
 - [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing tests pass locally with my changes
+- [ ] New and existing tests pass locally with my changes:
   - [ ] Lint test
   - [ ] Unit tests
   - [ ] Integration tests
-- [ ] I have checked my contribution with code analysis tools.
+- [ ] I have checked my contribution with code analysis tools:
   - [ ] SonarCloud
   - [ ] Snyk
-- [ ] I have made corresponding changes to the documentation
+- [ ] I have made corresponding changes to the documentation:
   - [ ] Developer documentation
   - [ ] User Guides
   - [ ] Migration Guides
