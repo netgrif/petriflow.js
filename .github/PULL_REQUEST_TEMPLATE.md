@@ -11,20 +11,20 @@ First, **set yourself as an assignee**. You can also add other people responsibl
 Then **set reviewers**. There should be at least two reviewers. You can set your team lead, projects owner, or senior developer 
 (after his or her agreement, of course) as a PR reviewer.
 
-The last on the right panel are labels. Labels should be based on what type of change the PR brings to the table. 
+The last element on the right panel are labels. Labels should be based on what type of change the PR brings to the table. 
 You can **add one or more labels** that apply to the PR:
 
  - _Bugfix_ (a change that fixes a bug)
  - _New feature_ (a change that introduces new functionality)
  - _Improvement_ (a change that improves on an existing feature)
- - _Breaking change_ (fix or feature that would cause existing functionality don't work as expected)
+ - _Breaking change_ (fix or feature that would cause existing functionality doesn't work as expected)
  - _Documentation update_ (a change makes, or requires, change to the product documentation)
  - _New Dependency_ (a change that introduces new third-party dependency)
  - _Critical_ (a change that is critical to a release and must not be omitted)
 
 Next thing, please read and edit the PR description below the following way:
 
- - If a statement is between `<` `>` symbols, replace it with your content according to instructions in the statement.
+ - If a statement is between `<` `>` symbols, replace it with your content according to the instructions in the statement.
  - If a slash `/` is between two statements, choose to fill only one or the other.
  - To reference a JIRA issue, use the issue key wrapped by `[ ]` brackets.
  - To mention someone, use at `@` symbol.
@@ -55,7 +55,7 @@ You can now safely **delete all between two horizontal lines**, so the instructi
 
 <Depends on #(PR id)>/<There are no dependencies on other PR>
 
-## How Has This Been Tested?
+## How Has Been This Tested?
 
 <Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration.>
 
