@@ -484,12 +484,12 @@
         <id>t2</id>
         <x>460</x>
         <y>260</y>
+        <label></label>
         <layout type="flow">
             <cols>3</cols>
             <offset>0</offset>
             <fieldAlignment>bottom</fieldAlignment>
         </layout>
-        <label></label>
     </transition>
     <transition>
         <id>t3</id>

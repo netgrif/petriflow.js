@@ -34,7 +34,8 @@ import {
     Transaction,
     Transition,
     TransitionEvent,
-    TransitionEventType, TransitionLayout,
+    TransitionEventType,
+    TransitionLayout,
     UserRef,
     Validation
 } from '../model';
@@ -374,11 +375,13 @@ export class ImportService {
             if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode?.isSameNode(xmlTrans)) {
                 if(!trans.layout)
                     trans.layout = new TransitionLayout();
-                trans.layout.cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols') ?? 0;
-                trans.layout.rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows') ?? 0;
+                trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
+                if (trans.layout.type !== LayoutType.LEGACY) {
+                    trans.layout.cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols') ?? 0;
+                    trans.layout.rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows') ?? 0;
+                }
                 trans.layout.offset = this.importUtils.parseNumberValue(xmlLayout.item(0), 'offset') ?? 0;
                 trans.layout.alignment = this.importUtils.tagValue(xmlLayout.item(0), 'fieldAlignment') as Alignment;
-                trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
             }
         } catch (e) {
             result.addError('Importing transition layout failed', e as Error);

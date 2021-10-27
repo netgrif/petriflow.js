@@ -1,30 +1,24 @@
 import {Alignment} from './alignment.enum';
 
 export abstract class Layout {
-    private _rows: number;
-    private _cols: number;
+    private _rows?: number;
+    private _cols?: number;
     private _offset?: number;
     private _alignment?: Alignment;
 
-
-    constructor(rows = 0, cols = 0) {
-        this._rows = rows;
-        this._cols = cols;
-    }
-
-    get rows(): number {
+    get rows(): number | undefined {
         return this._rows;
     }
 
-    set rows(value: number) {
+    set rows(value: number | undefined) {
         this._rows = value;
     }
 
-    get cols(): number {
+    get cols(): number | undefined {
         return this._cols;
     }
 
-    set cols(value: number) {
+    set cols(value: number | undefined) {
         this._cols = value;
     }
 
