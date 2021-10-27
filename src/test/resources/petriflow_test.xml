@@ -828,6 +828,7 @@
             <offset>0</offset>
         </layout>
         <label>delay trigger</label>
+        <!-- Role 'a' does not exist, should not import -->
         <roleRef>
             <id>a</id>
             <logic>
@@ -850,6 +851,24 @@
         <id>t9_datarefs_without_group</id>
         <x>860</x>
         <y>100</y>
+        <label/>
+        <roleRef>
+            <id>newRole_1</id>
+            <logic>
+                <perform>false</perform>
+                <view>true</view>
+                <delegate>false</delegate>
+                <cancel>true</cancel>
+                <assigned>true</assigned>
+            </logic>
+        </roleRef>
+        <roleRef>
+            <id>newRole_2</id>
+            <logic>
+                <cancel>false</cancel>
+                <assigned>true</assigned>
+            </logic>
+        </roleRef>
         <dataRef>
             <id>newVariable_1</id>
             <logic>
