@@ -253,8 +253,8 @@
         <title>title</title>
         <options>
             <option key="key1" name="newVariable_4_option_1">value1</option>
-            <option key="key2" name="newVariable_4_option_1">value2</option>
-            <option key="key3" name="newVariable_4_option_1">value3</option>
+            <option key="key2" name="newVariable_4_option_2">value2</option>
+            <option key="key3" name="newVariable_4_option_3">value3</option>
         </options>
         <component>
             <name>icon</name>
