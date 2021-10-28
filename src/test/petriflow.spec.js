@@ -444,6 +444,8 @@ describe('Petriflow integration tests', () => {
         const transitionT3 = model.getTransition('t3');
         expect(transitionT3.layout.type).toEqual(LayoutType.LEGACY);
         expect(transitionT3.layout.alignment).toEqual(Alignment.TOP);
+        expect(transitionT3.layout.rows).toBeUndefined();
+        expect(transitionT3.layout.cols).toBeUndefined();
         const transitionT4 = model.getTransition('t4');
         expect(transitionT4.layout.type).toEqual(LayoutType.LEGACY);
         expect(transitionT4.layout.alignment).toEqual(Alignment.BOTTOM);

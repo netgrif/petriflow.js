@@ -417,8 +417,8 @@ export class ExportService {
             const exportLayout = this.xmlConstructor.createElement('layout');
             this.exportUtils.exportTag(exportLayout, 'x', layout.x?.toString());
             this.exportUtils.exportTag(exportLayout, 'y', layout.y?.toString());
-            this.exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString());
-            this.exportUtils.exportTag(exportLayout, 'cols', layout.cols?.toString());
+            this.exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString() ?? '');
+            this.exportUtils.exportTag(exportLayout, 'cols', layout.cols?.toString() ?? '');
             this.exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString() ?? '');
             this.exportUtils.exportTag(exportLayout, 'template', layout.template);
             this.exportUtils.exportTag(exportLayout, 'appearance', layout.appearance);
@@ -440,8 +440,8 @@ export class ExportService {
     }
 
     private exportLayout(exportLayout: Element, layout: Layout): void {
-        this.exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString());
-        this.exportUtils.exportTag(exportLayout, 'cols', layout.cols?.toString());
+        this.exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString() ?? '');
+        this.exportUtils.exportTag(exportLayout, 'cols', layout.cols?.toString() ?? '');
         this.exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString() ?? '');
     }
 
