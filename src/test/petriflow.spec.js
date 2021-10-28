@@ -73,13 +73,16 @@ describe('Petriflow integration tests', () => {
         exportService = new ExportService();
     });
 
-    function assertPlace(place, id, x, y, label, marking, isStatic) {
+    function assertPlace(place, id, x, y, label, marking, isStatic, i18nName) {
         expect(place.id).toEqual(id);
         expect(place.x).toEqual(x);
         expect(place.y).toEqual(y);
         if (label && label !== '') {
             expect(place.label).not.toBeUndefined();
             expect(place.label.value).toEqual(label);
+            if (i18nName && i18nName !== '') {
+                expect(place.label.name).toEqual(i18nName);
+            }
         }
         expect(place.marking).toEqual(marking);
         expect(place.static).toEqual(isStatic);
@@ -252,8 +255,10 @@ describe('Petriflow integration tests', () => {
         expect(textField.getValidations().length).toEqual(2);
         expect(textField.getValidations()[0].expression.expression).toEqual('inrange 1,2000');
         expect(textField.getValidations()[0].message.value).toEqual('invalid text');
+        expect(textField.getValidations()[0].message.name).toBeUndefined();
         expect(textField.getValidations()[1].expression.expression).toEqual('email');
         expect(textField.getValidations()[1].message.value).toEqual('invalid email');
+        expect(textField.getValidations()[1].message.name).toEqual('newVariable_2_valid_email');
         const textFieldComponent = textField.component;
         expect(textFieldComponent).not.toBeUndefined();
         expect(textFieldComponent.name).toEqual('area');
@@ -263,12 +268,15 @@ describe('Petriflow integration tests', () => {
         expect(enumerationField.options.find(o => o.key === 'option1')).not.toBeUndefined();
         expect(enumerationField.options.find(o => o.key === 'option1').value).not.toBeUndefined();
         expect(enumerationField.options.find(o => o.key === 'option1').value.value).toEqual('option1');
+        expect(enumerationField.options.find(o => o.key === 'option1').value.name).toEqual('newVariable_3_value1');
         expect(enumerationField.options.find(o => o.key === 'option2')).not.toBeUndefined();
         expect(enumerationField.options.find(o => o.key === 'option2').value).not.toBeUndefined();
         expect(enumerationField.options.find(o => o.key === 'option2').value.value).toEqual('option2');
+        expect(enumerationField.options.find(o => o.key === 'option2').value.name).toEqual('newVariable_3_value2');
         expect(enumerationField.options.find(o => o.key === 'option3')).not.toBeUndefined();
         expect(enumerationField.options.find(o => o.key === 'option3').value).not.toBeUndefined();
         expect(enumerationField.options.find(o => o.key === 'option3').value.value).toEqual('option3');
+        expect(enumerationField.options.find(o => o.key === 'option3').value.name).toEqual('newVariable_3_value3');
         expect(enumerationField.component).not.toBeUndefined();
         expect(enumerationField.component.name).toEqual('autocomplete');
         const enumerationAutocompleteField = model.getData('newVariable_3_view_autocomplete');
@@ -286,12 +294,15 @@ describe('Petriflow integration tests', () => {
         expect(enumerationMapField.options.find(o => o.key === 'key1')).not.toBeUndefined();
         expect(enumerationMapField.options.find(o => o.key === 'key1').value).not.toBeUndefined();
         expect(enumerationMapField.options.find(o => o.key === 'key1').value.value).toEqual('value1');
+        expect(enumerationMapField.options.find(o => o.key === 'key1').value.name).toEqual('newVariable_4_option_1');
         expect(enumerationMapField.options.find(o => o.key === 'key2')).not.toBeUndefined();
         expect(enumerationMapField.options.find(o => o.key === 'key2').value).not.toBeUndefined();
         expect(enumerationMapField.options.find(o => o.key === 'key2').value.value).toEqual('value2');
+        expect(enumerationMapField.options.find(o => o.key === 'key2').value.name).toEqual('newVariable_4_option_2');
         expect(enumerationMapField.options.find(o => o.key === 'key3')).not.toBeUndefined();
         expect(enumerationMapField.options.find(o => o.key === 'key3').value).not.toBeUndefined();
         expect(enumerationMapField.options.find(o => o.key === 'key3').value.value).toEqual('value3');
+        expect(enumerationMapField.options.find(o => o.key === 'key3').value.name).toEqual('newVariable_4_option_3');
         expect(enumerationMapField.component).not.toBeUndefined();
         expect(enumerationMapField.component.name).toEqual('icon');
         expect(enumerationMapField.component.properties.length).toEqual(2);
@@ -619,7 +630,7 @@ describe('Petriflow integration tests', () => {
         log('Model transitions correct');
 
         expect(model.getPlaces().length).toEqual(MODEL_PLACES_LENGTH);
-        assertPlace(model.getPlace('p1'), 'p1', 300, 180, 'place 1', 0, false);
+        assertPlace(model.getPlace('p1'), 'p1', 300, 180, 'place 1', 0, false, 'p1_label');
         assertPlace(model.getPlace('p2'), 'p2', 380, 100, '', 3, false);
         assertPlace(model.getPlace('p3'), 'p3', 620, 180, '', 0, false);
         assertPlace(model.getPlace('p4'), 'p4', 300, 260, '', 2, false);
@@ -657,6 +668,7 @@ describe('Petriflow integration tests', () => {
         expect(modelResult.warnings.length).toEqual(warnings);
         expect(modelResult.info.length).toEqual(info);
         const model = modelResult.model;
+        assertCorrectImport(model);
         const cloned = model.clone();
         assertCorrectImport(cloned);
         log('Import successful');
@@ -675,9 +687,9 @@ describe('Petriflow integration tests', () => {
     test('should import & export', () => {
         let file = fs.readFileSync(TEST_FILE_PATH).toString();
         debug = false;
-        const model1 = importAndExport(file, 4, 16, 9);
+        const model1 = importAndExport(file, 4, 20, 9);
         expect(model1).toBeDefined();
-        const model2 = importAndExport(model1, 0, 16, 0);
+        const model2 = importAndExport(model1, 0, 20, 0);
         expect(model2).toBeDefined();
         expect(model1).toEqual(model2);
     });
