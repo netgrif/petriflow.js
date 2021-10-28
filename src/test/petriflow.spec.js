@@ -110,6 +110,14 @@ describe('Petriflow integration tests', () => {
         });
     }
 
+    function assertRoleRefLogic(roleRef, perform, delegate, cancel, assigned, view) {
+        expect(roleRef.logic.perform).toEqual(perform);
+        expect(roleRef.logic.delegate).toEqual(delegate);
+        expect(roleRef.logic.cancel).toEqual(cancel);
+        expect(roleRef.logic.assigned).toEqual(assigned);
+        expect(roleRef.logic.view).toEqual(view);
+    }
+
     function assertCorrectImport(model) {
         expect(model.id).toEqual(MODEL_ID);
         expect(model.initials).toEqual(MODEL_INITIALS);
@@ -591,6 +599,8 @@ describe('Petriflow integration tests', () => {
         expect(transitionT7AssignedUser.cancel).toEqual(false);
         expect(transitionT7AssignedUser.reassign).toBeUndefined();
         const transitionT8 = model.getTransition('t8');
+        // TODO: check references after import
+        // expect(transitionWithoutDataGroup.roleRefs.length).toEqual(0);
         expect(transitionT8.triggers.length === 1);
         const transitionT8AutoTrigger = transitionT8.triggers[0];
         expect(transitionT8AutoTrigger.type).toEqual(TriggerType.TIME);
@@ -601,6 +611,11 @@ describe('Petriflow integration tests', () => {
         const transitionWithoutDataGroup = model.getTransition('t9_datarefs_without_group');
         expect(transitionWithoutDataGroup.dataGroups.length).toEqual(1);
         expect(transitionWithoutDataGroup.dataGroups[0].getDataRefs().length).toEqual(3);
+        expect(transitionWithoutDataGroup.roleRefs.length).toEqual(2);
+        const transitionT9RoleRef1 = transitionWithoutDataGroup.roleRefs.find(r => r.id === ROLE_1_ID);
+        assertRoleRefLogic(transitionT9RoleRef1, false, false, true, true, true);
+        const transitionT9RoleRef2 = transitionWithoutDataGroup.roleRefs.find(r => r.id === ROLE_2_ID);
+        assertRoleRefLogic(transitionT9RoleRef2, undefined, undefined, false, true, undefined);
         log('Model transitions correct');
 
         expect(model.getPlaces().length).toEqual(MODEL_PLACES_LENGTH);

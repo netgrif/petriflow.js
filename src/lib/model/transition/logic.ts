@@ -47,11 +47,11 @@ export class Logic {
 
     public clone(): Logic {
         const cloned = new Logic();
+        cloned.perform = this._perform;
         cloned.delegate = this._delegate;
         cloned.cancel = this._cancel;
-        cloned.view = this._view;
-        cloned.cancel = this._cancel;
         cloned.assigned = this._assigned;
+        cloned.view = this._view;
         return cloned;
     }
 }
