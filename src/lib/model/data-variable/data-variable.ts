@@ -1,15 +1,12 @@
 import {I18nString} from '../i18n/i18n-string';
-import {Action} from '../petrinet/action';
-import {EventPhase} from '../petrinet/event-phase.enum';
 import {Component} from './component';
-import {DataEvent} from './data-event';
-import {DataEventType} from './data-event-type.enum';
+import {DataEventSource} from './data-event-source';
 import {DataType} from './data-type.enum';
 import {Expression} from './expression';
 import {Option} from './option';
 import {Validation} from './validation';
 
-export class DataVariable {
+export class DataVariable extends DataEventSource {
     private _id: string;
     private _title: I18nString;
     private _placeholder: I18nString;
@@ -25,11 +22,11 @@ export class DataVariable {
     private _encryption?: string;
     private _remote?: boolean;
     private _actionRef: Array<string>;
-    private _events: Map<DataEventType, DataEvent>;
     private _length?: number;
     private _allowedNets: Array<string>;
 
     constructor(id: string, type: DataType) {
+        super();
         this._id = id;
         this._title = new I18nString('');
         this._placeholder = new I18nString('');
@@ -40,7 +37,6 @@ export class DataVariable {
         this._inits = [];
         this._immediate = false;
         this._actionRef = [];
-        this._events = new Map<DataEventType, DataEvent>();
         this._allowedNets = [];
     }
 
@@ -166,25 +162,6 @@ export class DataVariable {
         this._actionRef = value;
     }
 
-    getEvents(): Array<DataEvent> {
-        return Array.from(this._events.values());
-    }
-
-    getEvent(type: DataEventType): DataEvent | undefined {
-        return this._events.get(type);
-    }
-
-    addEvent(value: DataEvent) {
-        if (this._events.has(value.type)) {
-            throw new Error(`Duplicate event of type ${value.type}`);
-        }
-        this._events.set(value.type, value);
-    }
-
-    removeEvent(type: DataEventType) {
-        this._events.delete(type);
-    }
-
     get length(): number | undefined {
         return this._length;
     }
@@ -199,27 +176,6 @@ export class DataVariable {
 
     set allowedNets(value: Array<string>) {
         this._allowedNets = value;
-    }
-
-    public mergeEvent(event: DataEvent) {
-        if (this._events.has(event.type)) {
-            const oldEvent = this._events.get(event.type);
-            if (!oldEvent) return;
-            oldEvent.preActions.push(...event.preActions);
-            oldEvent.postActions.push(...event.postActions);
-        } else {
-            this._events.set(event.type, event);
-        }
-    }
-
-    public addAction(action: Action, type: DataEventType, phase?: EventPhase): void {
-        if (!this._events.has(type)) {
-            this._events.set(type, new DataEvent(type, ''));
-        }
-        if (!phase) {
-            phase = (type === DataEventType.GET ? EventPhase.PRE : EventPhase.POST);
-        }
-        this._events.get(type)?.addAction(action, phase);
     }
 
     public clone(): DataVariable {
@@ -237,9 +193,7 @@ export class DataVariable {
         data._type = this._type;
         data._remote = this._remote;
         data._actionRef = [...this._actionRef];
-        this._events.forEach((event, type) => {
-            data._events.set(type, event.clone());
-        });
+        this.getEvents().forEach(event => data.addEvent(event.clone()));
         data._length = this._length;
         data._allowedNets = [...this._allowedNets];
         data._optionsInit = this._optionsInit?.clone();
