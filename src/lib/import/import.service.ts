@@ -34,7 +34,8 @@ import {
     Transaction,
     Transition,
     TransitionEvent,
-    TransitionEventType, TransitionLayout,
+    TransitionEventType,
+    TransitionLayout,
     UserRef,
     Validation
 } from '../model';
@@ -214,7 +215,9 @@ export class ImportService {
                 if (val.childNodes[0] !== undefined) {
                     const option = new Option();
                     const nodeValue = !val.childNodes[0].nodeValue ? '' : val.childNodes[0].nodeValue;
+                    const i18nName = val.getAttribute('name');
                     option.value = new I18nWithDynamic(nodeValue);
+                    option.value.name = !i18nName ? undefined : i18nName;
                     option.key = nodeValue;
                     data.options.push(option);
                 }
@@ -374,11 +377,13 @@ export class ImportService {
             if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode?.isSameNode(xmlTrans)) {
                 if(!trans.layout)
                     trans.layout = new TransitionLayout();
-                trans.layout.cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols') ?? 0;
-                trans.layout.rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows') ?? 0;
+                trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
+                if (trans.layout.type !== LayoutType.LEGACY) {
+                    trans.layout.cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols') ?? 0;
+                    trans.layout.rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows') ?? 0;
+                }
                 trans.layout.offset = this.importUtils.parseNumberValue(xmlLayout.item(0), 'offset') ?? 0;
                 trans.layout.alignment = this.importUtils.tagValue(xmlLayout.item(0), 'fieldAlignment') as Alignment;
-                trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
             }
         } catch (e) {
             result.addError('Importing transition layout failed', e as Error);
@@ -515,8 +520,7 @@ export class ImportService {
         place.marking = this.importUtils.parseNumberValue(xmlPlace, 'tokens') ?? 0;
         if (xmlPlace.getElementsByTagName('label').length > 0 &&
             xmlPlace.getElementsByTagName('label')[0].childNodes.length !== 0) {
-            const label = xmlPlace.getElementsByTagName('label')[0]?.childNodes[0]?.nodeValue
-            place.label = new I18nString(label ?? '');
+            place.label = this.importUtils.parseI18n(xmlPlace, 'label');
         }
     }
 

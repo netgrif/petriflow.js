@@ -253,8 +253,8 @@
         <title>title</title>
         <options>
             <option key="key1" name="newVariable_4_option_1">value1</option>
-            <option key="key2" name="newVariable_4_option_1">value2</option>
-            <option key="key3" name="newVariable_4_option_1">value3</option>
+            <option key="key2" name="newVariable_4_option_2">value2</option>
+            <option key="key3" name="newVariable_4_option_3">value3</option>
         </options>
         <component>
             <name>icon</name>
@@ -484,12 +484,12 @@
         <id>t2</id>
         <x>460</x>
         <y>260</y>
+        <label></label>
         <layout type="flow">
             <cols>3</cols>
             <offset>0</offset>
             <fieldAlignment>bottom</fieldAlignment>
         </layout>
-        <label></label>
     </transition>
     <transition>
         <id>t3</id>
@@ -828,6 +828,7 @@
             <offset>0</offset>
         </layout>
         <label>delay trigger</label>
+        <!-- Role 'a' does not exist, should not import -->
         <roleRef>
             <id>a</id>
             <logic>
@@ -850,6 +851,24 @@
         <id>t9_datarefs_without_group</id>
         <x>860</x>
         <y>100</y>
+        <label/>
+        <roleRef>
+            <id>newRole_1</id>
+            <logic>
+                <perform>false</perform>
+                <view>true</view>
+                <delegate>false</delegate>
+                <cancel>true</cancel>
+                <assigned>true</assigned>
+            </logic>
+        </roleRef>
+        <roleRef>
+            <id>newRole_2</id>
+            <logic>
+                <cancel>false</cancel>
+                <assigned>true</assigned>
+            </logic>
+        </roleRef>
         <dataRef>
             <id>newVariable_1</id>
             <logic>
