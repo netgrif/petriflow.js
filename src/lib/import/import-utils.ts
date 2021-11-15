@@ -31,6 +31,8 @@ import {
     TriggerType,
     UserRef
 } from '../model';
+import {FunctionScope} from '../model/petrinet/function-scope.enum';
+import {PetriflowFunction} from '../model/petrinet/petriflow-function';
 
 export class ImportUtils {
 
@@ -86,20 +88,32 @@ export class ImportUtils {
 
     public parseAction(actionTag: Element): Action {
         const actionId = actionTag.getAttribute('id') ?? 'action_' + this.getNextActionId();
-        let actionDefinition = '';
-        for (const node of Array.from(actionTag.childNodes)) {
+        const definition = this.parseDefinition(actionTag);
+        return new Action(actionId, definition.trim());
+    }
+
+    parseFunction(xmlFunction: Element) {
+        const name = this.tagAttribute(xmlFunction, 'name');
+        const scope = this.tagAttribute(xmlFunction, 'scope') as FunctionScope;
+        const definition = this.parseDefinition(xmlFunction);
+        return new PetriflowFunction(name, scope, definition);
+    }
+
+    public parseDefinition(tag: Element) {
+        let definition = '';
+        for (const node of Array.from(tag.childNodes)) {
             if (node.nodeName === '#comment') {
                 if (!node.nodeValue || node.nodeValue.includes('@formatter')) {
                     continue;
                 }
-                actionDefinition += '<!--' + node.nodeValue + '-->';
+                definition += '<!--' + node.nodeValue + '-->';
             } else if (node.nodeName === '#cdata-section') {
-                actionDefinition += '<![CDATA[' + node.nodeValue + ']]>';
+                definition += '<![CDATA[' + node.nodeValue + ']]>';
             } else {
-                actionDefinition += node.nodeValue?.trim();
+                definition += node.nodeValue?.trim();
             }
         }
-        return new Action(actionId, actionDefinition.trim());
+        return definition;
     }
 
     public parseEncryption(xmlTag: Element): string | undefined {

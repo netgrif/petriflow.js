@@ -112,6 +112,17 @@
         <id>newRole_4</id>
         <title>duplicit_role_4</title>
     </role>
+    <!-- FUNCTIONS -->
+    <function scope="namespace" name="sum">
+        { Double x, Double y ->
+        return x + y
+        }
+    </function>
+    <function scope="process" name="calc">
+        { monthly, loan, period ->
+        change monthly value { (loan + loan * 0.02 * period) / (period * 12) }
+        }
+    </function>
     <!-- PROCESS ROLE REFS -->
     <roleRef>
         <id>newRole_1</id>

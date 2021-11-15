@@ -5,7 +5,8 @@ import {
     Expression,
     I18nString,
     I18nWithDynamic,
-    Logic
+    Logic,
+    PetriflowFunction
 } from '../model';
 
 export class ExportUtils {
@@ -85,6 +86,16 @@ export class ExportUtils {
         exportAction.insertAdjacentText('beforeend', this.escapeAction(action.definition));
         exportAction.insertAdjacentText('beforeend', '<!-- @formatter:on -->');
         element.appendChild(exportAction);
+    }
+
+    public exportFunction(element: Element, _function: PetriflowFunction): void {
+        const xmlFunction = this.xmlConstructor.createElement('function');
+        xmlFunction.setAttribute('name', _function.name);
+        xmlFunction.setAttribute('scope', _function.scope);
+        xmlFunction.insertAdjacentText('beforeend', '<!-- @formatter:off -->');
+        xmlFunction.insertAdjacentText('beforeend', this.escapeAction(_function.definition));
+        xmlFunction.insertAdjacentText('beforeend', '<!-- @formatter:on -->');
+        element.appendChild(xmlFunction);
     }
 
     public escapeAction(action: string): string {
