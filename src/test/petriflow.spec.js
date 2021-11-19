@@ -113,11 +113,11 @@ describe('Petriflow integration tests', () => {
         });
     }
 
-    function assertRoleRefLogic(roleRef, perform, delegate, cancel, assigned, view) {
+    function assertRoleRefLogic(roleRef, perform, delegate, cancel, assign, view) {
         expect(roleRef.logic.perform).toEqual(perform);
         expect(roleRef.logic.delegate).toEqual(delegate);
         expect(roleRef.logic.cancel).toEqual(cancel);
-        expect(roleRef.logic.assigned).toEqual(assigned);
+        expect(roleRef.logic.assign).toEqual(assign);
         expect(roleRef.logic.view).toEqual(view);
     }
 
