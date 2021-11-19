@@ -163,6 +163,12 @@
             <create>false</create>
         </caseLogic>
     </usersRef>
+    <userRef>
+        <id>newVariable_18</id>
+        <caseLogic>
+            <delete>true</delete>
+        </caseLogic>
+    </userRef>
     <!-- DATA -->
     <data type="number">
         <id>newVariable_1</id>
@@ -332,6 +338,10 @@
     </data>
     <data type="button">
         <id>newVariable_17</id>
+        <title>title</title>
+    </data>
+    <data type="userList">
+        <id>newVariable_18</id>
         <title>title</title>
     </data>
     <!-- I18NS -->
@@ -816,6 +826,13 @@
                 <view>true</view>
             </logic>
         </usersRef>
+        <userRef>
+            <id>newVariable_18</id>
+            <logic>
+                <delegate>false</delegate>
+                <view>true</view>
+            </logic>
+        </userRef>
         <assignedUser>
             <cancel>false</cancel>
         </assignedUser>
