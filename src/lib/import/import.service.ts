@@ -321,6 +321,13 @@ export class ImportService {
 
     private importTransitionUserRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
         try {
+            for (const xmlUserRef of Array.from(xmlTrans.getElementsByTagName('userRef'))) {
+                const xmlUserRefLogic = xmlUserRef.getElementsByTagName('logic')[0];
+                const userRef = new UserRef(this.importUtils.tagValue(xmlUserRef, 'id'));
+                this.importUtils.resolveLogic(xmlUserRefLogic, userRef);
+                trans.userRefs.push(userRef);
+            }
+            /* TODO: this is deprecated and will be removed in future versions */
             for (const xmlUserRef of Array.from(xmlTrans.getElementsByTagName('usersRef'))) {
                 const xmlUserRefLogic = xmlUserRef.getElementsByTagName('logic')[0];
                 const userRef = new UserRef(this.importUtils.tagValue(xmlUserRef, 'id'));
