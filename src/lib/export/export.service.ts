@@ -182,7 +182,7 @@ export class ExportService {
 
     public exportTransitionRef(element: Element, ref: RoleRef | UserRef): void {
         if (ref.logic.perform !== undefined ||
-            ref.logic.assigned !== undefined ||
+            ref.logic.assign !== undefined ||
             ref.logic.cancel !== undefined ||
             ref.logic.delegate !== undefined ||
             ref.logic.view !== undefined) {
