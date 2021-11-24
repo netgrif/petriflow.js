@@ -56,6 +56,7 @@ const MODEL_USERREFS_LENGTH = 2;
 const ROLE_1_ID = 'newRole_1';
 const ROLE_2_ID = 'newRole_2';
 const DATA_USERLIST_ID = 'newVariable_15';
+const DATA_USERLIST_2_ID = 'newVariable_18';
 const ROLE_3_ID = 'newRole_3';
 const ROLE_4_ID = 'newRole_4';
 const ACTION_DEFINITION_ESCAPED = 'if (a < b && c) d >> e';
@@ -217,6 +218,10 @@ describe('Petriflow integration tests', () => {
         expect(userRef1.caseLogic.delete).toEqual(true);
         expect(userRef1.caseLogic.create).toEqual(false);
         expect(userRef1.caseLogic.view).toBeUndefined();
+        const userRef2 = model.getUserRef(DATA_USERLIST_2_ID);
+        expect(userRef2.caseLogic.delete).toEqual(true);
+        expect(userRef2.caseLogic.create).toEqual(false);
+        expect(userRef2.caseLogic.view).toBeUndefined();
         log('Model user refs correct');
 
         expect(model.getDataSet().length).toEqual(MODEL_DATA_LENGTH);
@@ -608,6 +613,12 @@ describe('Petriflow integration tests', () => {
         expect(transitionT7UserRef.logic.delegate).toEqual(false);
         expect(transitionT7UserRef.logic.perform).toBeUndefined();
         expect(transitionT7UserRef.logic.view).toEqual(true);
+        const transitionT7UserRef2 = transitionT7.userRefs[1];
+        expect(transitionT7UserRef2.id).toEqual(DATA_USERLIST_2_ID);
+        expect(transitionT7UserRef2.logic.cancel).toEqual(true);
+        expect(transitionT7UserRef2.logic.delegate).toEqual(false);
+        expect(transitionT7UserRef2.logic.perform).toBeUndefined();
+        expect(transitionT7UserRef2.logic.view).toEqual(true);
         const transitionT7AssignedUser = transitionT7.assignedUser;
         expect(transitionT7AssignedUser.cancel).toEqual(false);
         expect(transitionT7AssignedUser.reassign).toBeUndefined();

@@ -167,6 +167,7 @@
         <id>newVariable_18</id>
         <caseLogic>
             <delete>true</delete>
+            <create>false</create>
         </caseLogic>
     </userRef>
     <!-- DATA -->
@@ -829,6 +830,7 @@
         <userRef>
             <id>newVariable_18</id>
             <logic>
+                <cancel>true</cancel>
                 <delegate>false</delegate>
                 <view>true</view>
             </logic>
