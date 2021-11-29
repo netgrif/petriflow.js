@@ -23,6 +23,7 @@ export class PetriNet {
     private _title: I18nString;
     private _icon: string;
     private _defaultRole: boolean;
+    private _anonymousRole: boolean;
     private _transitionRole: boolean;
     private _caseName: I18nWithDynamic;
     private _roleRefs: Map<string, ProcessRoleRef>;
@@ -45,6 +46,7 @@ export class PetriNet {
         this._title = new I18nString('New Model');
         this._icon = 'device_hub';
         this._defaultRole = true;
+        this._anonymousRole = true;
         this._transitionRole = false;
         this._caseName = new I18nWithDynamic('');
         this._transitions = new Map<string, Transition>();
@@ -107,6 +109,14 @@ export class PetriNet {
 
     set defaultRole(value: boolean) {
         this._defaultRole = value;
+    }
+
+    get anonymousRole(): boolean {
+        return this._anonymousRole;
+    }
+
+    set anonymousRole(value: boolean) {
+        this._anonymousRole = value;
     }
 
     get transitionRole(): boolean {
@@ -370,6 +380,7 @@ export class PetriNet {
         model._title = this._title.clone();
         model._icon = this._icon;
         model._defaultRole = this._defaultRole;
+        model._anonymousRole = this._anonymousRole;
         model._transitionRole = this._transitionRole;
         model._caseName = this._caseName.clone();
         this._transactions.forEach(t => model.addTransaction(t.clone()));

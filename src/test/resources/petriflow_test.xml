@@ -5,6 +5,7 @@
     <title name="title">Petriflow Test Model</title>
     <icon>home</icon>
     <defaultRole>true</defaultRole>
+    <anonymousRole>true</anonymousRole>
     <transitionRole>false</transitionRole>
     <caseName dynamic="true">${new Date() as String}</caseName>
     <processEvents>
