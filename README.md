@@ -2,7 +2,7 @@
 
 [![GitHub](https://img.shields.io/github/license/netgrif/petriflow.js)](https://www.apache.org/licenses/LICENSE-2.0)
 [![npm dev dependency version (scoped)](https://img.shields.io/npm/dependency-version/@netgrif/petriflow/dev/typescript?label=Typescript)](https://www.typescriptlang.org/)
-[![Petriflow 1.0.0](https://img.shields.io/badge/Petriflow-1.0.0-0aa8ff)](https://petriflow.com)
+[![Petriflow 1.0.1](https://img.shields.io/badge/Petriflow-1.0.1-0aa8ff)](https://petriflow.com)
 [![npm (scoped)](https://img.shields.io/npm/v/@netgrif/petriflow)](https://www.npmjs.com/package/@netgrif/petriflow)
 [![npm](https://img.shields.io/npm/dt/@netgrif/petriflow)](https://www.npmjs.com/package/@netgrif/petriflow)
 [![build](https://github.com/netgrif/petriflow.js/actions/workflows/master-build.yml/badge.svg)](https://github.com/netgrif/petriflow.js/actions/workflows/release-build.yml)
