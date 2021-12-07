@@ -108,6 +108,7 @@ export class ExportService {
         this.exportUtils.exportTag(doc, 'title', model.title, true);
         this.exportUtils.exportTag(doc, 'icon', model.icon);
         this.exportUtils.exportTag(doc, 'defaultRole', model.defaultRole !== undefined ? (model.defaultRole.toString()) : '');
+        this.exportUtils.exportTag(doc, 'anonymousRole', model.anonymousRole !== undefined ? (model.anonymousRole.toString()) : '');
         this.exportUtils.exportTag(doc, 'transitionRole', model.transitionRole !== undefined ? (model.transitionRole.toString()) : '');
         this.exportUtils.exportTag(doc, 'caseName', model.caseName);
     }

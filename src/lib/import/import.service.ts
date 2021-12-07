@@ -47,6 +47,7 @@ export class ImportService {
     /* cspell:disable-next-line */
     private static readonly PARSE_ERROR_LINE_EXTRACTION_REGEX = '(?:L|l)ine.*?(\\d+).*?(?:C|c)olumn.*?(\\d+)';
     private static readonly DEFAULT_ROLE_DEFAULT_VALUE = false;
+    private static readonly ANONYMOUS_ROLE_DEFAULT_VALUE = false;
     private static readonly TRANSITION_ROLE_DEFAULT_VALUE = false;
 
     constructor(protected importUtils: ImportUtils = new ImportUtils()) {
@@ -114,6 +115,7 @@ export class ImportService {
             modelResult.model.initials = this.importUtils.tagValue(xmlDoc, 'initials');
             modelResult.model.icon = this.importUtils.tagValue(xmlDoc, 'icon');
             modelResult.model.defaultRole = this.importUtils.tagValue(xmlDoc, 'defaultRole') === '' ? ImportService.DEFAULT_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'defaultRole') === 'true';
+            modelResult.model.anonymousRole = this.importUtils.tagValue(xmlDoc, 'anonymousRole') === '' ? ImportService.ANONYMOUS_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'anonymousRole') === 'true';
             modelResult.model.transitionRole = this.importUtils.tagValue(xmlDoc, 'transitionRole') === '' ? ImportService.TRANSITION_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'transitionRole') === 'true';
             modelResult.model.title = this.importUtils.parseI18n(xmlDoc, 'title');
             modelResult.model.caseName = this.importUtils.parseI18nWithDynamic(xmlDoc, 'caseName');
