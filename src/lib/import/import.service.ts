@@ -321,7 +321,9 @@ export class ImportService {
 
     private importTransitionUserRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
         try {
-            for (const xmlUserRef of Array.from(xmlTrans.getElementsByTagName('usersRef'))) {
+            /* @deprecated 'Array.from(xmlTrans.getElementsByTagName('usersRef'))' is deprecated and will be removed in future versions. */
+            const userRefs = Array.from(xmlTrans.getElementsByTagName('usersRef')).concat(Array.from(xmlTrans.getElementsByTagName('userRef')));
+            for (const xmlUserRef of userRefs) {
                 const xmlUserRefLogic = xmlUserRef.getElementsByTagName('logic')[0];
                 const userRef = new UserRef(this.importUtils.tagValue(xmlUserRef, 'id'));
                 this.importUtils.resolveLogic(xmlUserRefLogic, userRef);
@@ -483,7 +485,9 @@ export class ImportService {
                 modelResult.addError('Error happened during the importing process role refs [' + this.importUtils.tagValue(xmlRoleRef, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
-        for (const xmlUserRef of Array.from(xmlDoc.getElementsByTagName('usersRef'))) {
+        /* 'Array.from(xmlDoc.getElementsByTagName('usersRef'))' is deprecated and will be removed in future versions. */
+        const userRefs = Array.from(xmlDoc.getElementsByTagName('usersRef')).concat(Array.from(xmlDoc.getElementsByTagName('userRef')));
+        for (const xmlUserRef of userRefs) {
             try {
                 const xmlUserRefLogic = xmlUserRef.getElementsByTagName('caseLogic')[0];
                 if (xmlUserRefLogic !== undefined) {

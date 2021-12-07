@@ -2,7 +2,7 @@ export class Logic {
     private _perform?: boolean;
     private _delegate?: boolean;
     private _cancel?: boolean;
-    private _assigned?: boolean;
+    private _assign?: boolean;
     private _view?: boolean;
 
     get perform(): boolean | undefined {
@@ -29,12 +29,12 @@ export class Logic {
         this._cancel = value;
     }
 
-    get assigned(): boolean | undefined {
-        return this._assigned;
+    get assign(): boolean | undefined {
+        return this._assign;
     }
 
-    set assigned(value: boolean | undefined) {
-        this._assigned = value;
+    set assign(value: boolean | undefined) {
+        this._assign = value;
     }
 
     get view(): boolean | undefined {
@@ -50,7 +50,7 @@ export class Logic {
         cloned.perform = this._perform;
         cloned.delegate = this._delegate;
         cloned.cancel = this._cancel;
-        cloned.assigned = this._assigned;
+        cloned.assign = this._assign;
         cloned.view = this._view;
         return cloned;
     }

@@ -173,7 +173,7 @@ export class ExportService {
         if (ref.caseLogic.create !== undefined ||
             ref.caseLogic.delete !== undefined ||
             ref.caseLogic.view !== undefined) {
-            const processRef = this.xmlConstructor.createElement(ref instanceof ProcessRoleRef ? 'roleRef' : 'usersRef');
+            const processRef = this.xmlConstructor.createElement(ref instanceof ProcessRoleRef ? 'roleRef' : 'userRef');
             this.exportUtils.exportTag(processRef, 'id', ref.id, true);
             this.exportUtils.exportCaseLogic(processRef, ref.caseLogic, 'caseLogic');
             element.appendChild(processRef);
@@ -182,11 +182,11 @@ export class ExportService {
 
     public exportTransitionRef(element: Element, ref: RoleRef | UserRef): void {
         if (ref.logic.perform !== undefined ||
-            ref.logic.assigned !== undefined ||
+            ref.logic.assign !== undefined ||
             ref.logic.cancel !== undefined ||
             ref.logic.delegate !== undefined ||
             ref.logic.view !== undefined) {
-            const transRef = this.xmlConstructor.createElement(ref instanceof RoleRef ? 'roleRef' : 'usersRef');
+            const transRef = this.xmlConstructor.createElement(ref instanceof RoleRef ? 'roleRef' : 'userRef');
             this.exportUtils.exportTag(transRef, 'id', ref.id, true);
             this.exportUtils.exportLogic(transRef, ref.logic, 'logic');
             element.appendChild(transRef);
