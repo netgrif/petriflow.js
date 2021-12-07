@@ -154,12 +154,12 @@ export class ImportService {
             try {
                 modelResult.model.addFunction(this.importUtils.parseFunction(xmlFunction));
             } catch (e: unknown) {
-                modelResult.addError('Error happened during the function import: ' + (e as Error).toString(), e as Error);
+                modelResult.addError('An error has occurred during the function import: ' + (e as Error).toString(), e as Error);
             }
         }
     }
 
-    public importEvents(modelResult: PetriNetResult, xmlDoc: Document): void { // TODO: refactor to two methods
+    public importEvents(modelResult: PetriNetResult, xmlDoc: Document): void { // TODO: refactor into two methods
         for (const xmlEvent of Array.from(xmlDoc.getElementsByTagName('processEvents'))) {
             for (const xmlBasicEvent of Array.from(xmlEvent.getElementsByTagName('event'))) {
                 try {
