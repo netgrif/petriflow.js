@@ -90,6 +90,7 @@ export class ExportService {
         this.exportModel(doc, model);
         this.exportTransactions(doc, model);
         this.exportRoles(doc, model);
+        this.exportFunctions(doc, model);
         this.exportProcessRefs(doc, model);
         this.exportProcessEvents(doc, model);
         this.exportData(doc, model);
@@ -129,6 +130,12 @@ export class ExportService {
                 this.exportEvent(role, event);
             });
             doc.appendChild(role);
+        });
+    }
+
+    public exportFunctions(doc: Element, model: PetriNet): void {
+        model.functions.forEach(_function => {
+            this.exportUtils.exportFunction(doc, _function);
         });
     }
 

@@ -91,6 +91,7 @@ export class ImportService {
 
         this.importModel(result, xmlDoc);
         this.importRoles(result, xmlDoc);
+        this.importFunctions(result, xmlDoc);
         this.importEvents(result, xmlDoc);
         this.importData(result, xmlDoc);
         this.importTransitions(result, xmlDoc);
@@ -148,7 +149,17 @@ export class ImportService {
         model.addRole(role);
     }
 
-    public importEvents(modelResult: PetriNetResult, xmlDoc: Document): void { // TODO: refactor to two methods
+    public importFunctions(modelResult: PetriNetResult, xmlDoc: Document): void {
+        for (const xmlFunction of Array.from(xmlDoc.getElementsByTagName('function'))) {
+            try {
+                modelResult.model.addFunction(this.importUtils.parseFunction(xmlFunction));
+            } catch (e: unknown) {
+                modelResult.addError('An error has occurred during the function import: ' + (e as Error).toString(), e as Error);
+            }
+        }
+    }
+
+    public importEvents(modelResult: PetriNetResult, xmlDoc: Document): void { // TODO: refactor into two methods
         for (const xmlEvent of Array.from(xmlDoc.getElementsByTagName('processEvents'))) {
             for (const xmlBasicEvent of Array.from(xmlEvent.getElementsByTagName('event'))) {
                 try {
@@ -377,7 +388,7 @@ export class ImportService {
         try {
             const xmlLayout = xmlTrans.getElementsByTagName('layout');
             if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode?.isSameNode(xmlTrans)) {
-                if(!trans.layout)
+                if (!trans.layout)
                     trans.layout = new TransitionLayout();
                 trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
                 if (trans.layout.type !== LayoutType.LEGACY) {

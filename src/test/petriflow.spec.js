@@ -9,6 +9,7 @@ const {
     DataRefBehavior,
     DataType,
     FinishPolicy,
+    FunctionScope,
     IconType,
     ImportService,
     ExportService,
@@ -197,6 +198,22 @@ describe('Petriflow integration tests', () => {
         expect(role4.title.value).toEqual(ROLE_TITLE_VALUE);
         expect(role4.title.name).toEqual('role_4_title');
         log('Model roles correct');
+
+        expect(model.functions).toBeDefined();
+        expect(model.functions.length).toEqual(2);
+        const namespaceFunction = model.functions[0];
+        expect(namespaceFunction.name).toEqual('sum');
+        expect(namespaceFunction.scope).toEqual(FunctionScope.NAMESPACE);
+        expect(namespaceFunction.definition).toContain('{ Double x, Double y ->');
+        expect(namespaceFunction.definition).toContain('return x + y');
+        expect(namespaceFunction.definition).toContain('}');
+        const processFunction = model.functions[1];
+        expect(processFunction.name).toEqual('calc');
+        expect(processFunction.scope).toEqual(FunctionScope.PROCESS);
+        expect(processFunction.definition).toContain('{ monthly, loan, period ->');
+        expect(processFunction.definition).toContain('change monthly value { (loan + loan * 0.02 * period) / (period * 12) }');
+        expect(processFunction.definition).toContain('}');
+        log('Model functions correct');
 
         expect(model.getRoleRefs().length).toEqual(3);
         const roleRef1 = model.getRoleRef(ROLE_1_ID);
