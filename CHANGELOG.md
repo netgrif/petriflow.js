@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.3.0](https://github.com/netgrif/petriflow.js/releases/tag/v1.3.0) (2021-12-07)
+
+### Changed
+- [PF-11] Update TS library
+- [PF-13] Clean up petriflow schema
+- [PF-16] Anonym role
+
+### Fixes
+- [PF-14] Data validation getter/setter
+
 ## [1.2.0](https://github.com/netgrif/petriflow.js/releases/tag/v1.2.0) (2021-11-03)
 
 ### Fixed 
