@@ -141,8 +141,8 @@ export class ExportUtils {
         if (logic.cancel !== undefined) {
             this.exportTag(exportLogic, 'cancel', logic.cancel.toString());
         }
-        if (logic.assigned !== undefined) {
-            this.exportTag(exportLogic, 'assigned', logic.assigned.toString());
+        if (logic.assign !== undefined) {
+            this.exportTag(exportLogic, 'assign', logic.assign.toString());
         }
         if (logic.delegate !== undefined) {
             this.exportTag(exportLogic, 'delegate', logic.delegate.toString());

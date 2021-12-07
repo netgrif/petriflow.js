@@ -249,7 +249,7 @@ export class ImportService {
         if (valid !== '') {
             const validation = new Validation();
             validation.expression = new Expression(valid, xmlData.getElementsByTagName('valid')?.item(0)?.getAttribute('dynamic') === 'true');
-            data.addValidation(validation);
+            data.validations.push(validation);
             result.addInfo(`Tags <valid> of field ${data.id} changed to validations`);
         }
         if (xmlData.getElementsByTagName('validations').length > 0) {
@@ -257,7 +257,7 @@ export class ImportService {
                 const validation = new Validation();
                 validation.expression = new Expression(this.importUtils.tagValue((val as HTMLDataElement), 'expression'), val.getAttribute('dynamic') === 'true');
                 validation.message = this.importUtils.parseI18n((val as HTMLDataElement), 'message');
-                data.addValidation(validation);
+                data.validations.push(validation);
             }
         }
         for (const actionRef of Array.from(xmlData.getElementsByTagName('actionRef'))) {
@@ -332,7 +332,9 @@ export class ImportService {
 
     private importTransitionUserRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
         try {
-            for (const xmlUserRef of Array.from(xmlTrans.getElementsByTagName('usersRef'))) {
+            /* @deprecated 'Array.from(xmlTrans.getElementsByTagName('usersRef'))' is deprecated and will be removed in future versions. */
+            const userRefs = Array.from(xmlTrans.getElementsByTagName('usersRef')).concat(Array.from(xmlTrans.getElementsByTagName('userRef')));
+            for (const xmlUserRef of userRefs) {
                 const xmlUserRefLogic = xmlUserRef.getElementsByTagName('logic')[0];
                 const userRef = new UserRef(this.importUtils.tagValue(xmlUserRef, 'id'));
                 this.importUtils.resolveLogic(xmlUserRefLogic, userRef);
@@ -494,7 +496,9 @@ export class ImportService {
                 modelResult.addError('Error happened during the importing process role refs [' + this.importUtils.tagValue(xmlRoleRef, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
-        for (const xmlUserRef of Array.from(xmlDoc.getElementsByTagName('usersRef'))) {
+        /* 'Array.from(xmlDoc.getElementsByTagName('usersRef'))' is deprecated and will be removed in future versions. */
+        const userRefs = Array.from(xmlDoc.getElementsByTagName('usersRef')).concat(Array.from(xmlDoc.getElementsByTagName('userRef')));
+        for (const xmlUserRef of userRefs) {
             try {
                 const xmlUserRefLogic = xmlUserRef.getElementsByTagName('caseLogic')[0];
                 if (xmlUserRefLogic !== undefined) {
@@ -652,7 +656,7 @@ export class ImportService {
                 d.options.forEach(o => {
                     ImportService.checkI18n(o.value, i18ns, modelResult);
                 });
-                d.getValidations()?.forEach(v => {
+                d.validations?.forEach(v => {
                     ImportService.checkI18n(v.message, i18ns, modelResult);
                 });
             });

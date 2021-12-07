@@ -88,14 +88,12 @@ export class DataVariable extends DataEventSource {
         this._optionsInit = value;
     }
 
-    getValidations(): Array<Validation> | undefined {
+    get validations(): Array<Validation> {
         return this._validations;
     }
 
-    addValidation(value: Validation) {
-        if (!this._validations)
-            this._validations = [];
-        this._validations.push(value);
+    set validations(value: Array<Validation>) {
+        this._validations = value;
     }
 
     get init(): Expression | undefined {
@@ -179,24 +177,24 @@ export class DataVariable extends DataEventSource {
     }
 
     public clone(): DataVariable {
-        const data = new DataVariable(this._id, this._type);
-        data._title = this._title.clone();
-        data._placeholder = this._placeholder.clone();
-        data._desc = this._desc.clone();
-        data._options = this._options?.map(o => o.clone());
-        this._validations.forEach(v => data.addValidation(v.clone()));
-        data._inits = this._inits?.map(i => i.clone());
-        data._init = this._init?.clone();
-        data._component = this._component?.clone();
-        data._immediate = this._immediate;
-        data._encryption = this._encryption;
-        data._type = this._type;
-        data._remote = this._remote;
-        data._actionRef = [...this._actionRef];
-        this.getEvents().forEach(event => data.addEvent(event.clone()));
-        data._length = this._length;
-        data._allowedNets = [...this._allowedNets];
-        data._optionsInit = this._optionsInit?.clone();
-        return data;
+        const cloned = new DataVariable(this._id, this._type);
+        cloned._title = this._title.clone();
+        cloned._placeholder = this._placeholder.clone();
+        cloned._desc = this._desc.clone();
+        cloned._options = this._options?.map(o => o.clone());
+        cloned._validations = this._validations?.map(v => v.clone());
+        cloned._inits = this._inits?.map(i => i.clone());
+        cloned._init = this._init?.clone();
+        cloned._component = this._component?.clone();
+        cloned._immediate = this._immediate;
+        cloned._encryption = this._encryption;
+        cloned._type = this._type;
+        cloned._remote = this._remote;
+        cloned._actionRef = [...this._actionRef];
+        this.getEvents().forEach(event => cloned.addEvent(event.clone()));
+        cloned._length = this._length;
+        cloned._allowedNets = [...this._allowedNets];
+        cloned._optionsInit = this._optionsInit?.clone();
+        return cloned;
     }
 }
