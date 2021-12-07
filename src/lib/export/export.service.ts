@@ -222,12 +222,12 @@ export class ExportService {
                 this.exportUtils.exportExpression(options, 'init', data.optionsInit);
                 exportData.appendChild(options);
             }
-            if (!!data.getValidations() && (data.getValidations()?.length ?? 0) > 0) {
+            if (!!data.validations && (data.validations?.length ?? 0) > 0) {
                 const validations = this.xmlConstructor.createElement('validations');
-                data.getValidations()?.forEach(item => {
+                data.validations?.forEach(validation => {
                     const valid = this.xmlConstructor.createElement('validation');
-                    this.exportUtils.exportExpression(valid, 'expression', item.expression);
-                    this.exportUtils.exportTag(valid, 'message', item.message);
+                    this.exportUtils.exportExpression(valid, 'expression', validation.expression);
+                    this.exportUtils.exportTag(valid, 'message', validation.message);
                     validations.appendChild(valid);
                 });
                 exportData.appendChild(validations);

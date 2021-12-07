@@ -238,7 +238,7 @@ export class ImportService {
         if (valid !== '') {
             const validation = new Validation();
             validation.expression = new Expression(valid, xmlData.getElementsByTagName('valid')?.item(0)?.getAttribute('dynamic') === 'true');
-            data.addValidation(validation);
+            data.validations.push(validation);
             result.addInfo(`Tags <valid> of field ${data.id} changed to validations`);
         }
         if (xmlData.getElementsByTagName('validations').length > 0) {
@@ -246,7 +246,7 @@ export class ImportService {
                 const validation = new Validation();
                 validation.expression = new Expression(this.importUtils.tagValue((val as HTMLDataElement), 'expression'), val.getAttribute('dynamic') === 'true');
                 validation.message = this.importUtils.parseI18n((val as HTMLDataElement), 'message');
-                data.addValidation(validation);
+                data.validations.push(validation);
             }
         }
         for (const actionRef of Array.from(xmlData.getElementsByTagName('actionRef'))) {
@@ -641,7 +641,7 @@ export class ImportService {
                 d.options.forEach(o => {
                     ImportService.checkI18n(o.value, i18ns, modelResult);
                 });
-                d.getValidations()?.forEach(v => {
+                d.validations?.forEach(v => {
                     ImportService.checkI18n(v.message, i18ns, modelResult);
                 });
             });
