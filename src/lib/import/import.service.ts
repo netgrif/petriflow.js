@@ -47,6 +47,7 @@ export class ImportService {
     /* cspell:disable-next-line */
     private static readonly PARSE_ERROR_LINE_EXTRACTION_REGEX = '(?:L|l)ine.*?(\\d+).*?(?:C|c)olumn.*?(\\d+)';
     private static readonly DEFAULT_ROLE_DEFAULT_VALUE = false;
+    private static readonly ANONYMOUS_ROLE_DEFAULT_VALUE = false;
     private static readonly TRANSITION_ROLE_DEFAULT_VALUE = false;
 
     constructor(protected importUtils: ImportUtils = new ImportUtils()) {
@@ -91,6 +92,7 @@ export class ImportService {
 
         this.importModel(result, xmlDoc);
         this.importRoles(result, xmlDoc);
+        this.importFunctions(result, xmlDoc);
         this.importEvents(result, xmlDoc);
         this.importData(result, xmlDoc);
         this.importTransitions(result, xmlDoc);
@@ -113,6 +115,7 @@ export class ImportService {
             modelResult.model.initials = this.importUtils.tagValue(xmlDoc, 'initials');
             modelResult.model.icon = this.importUtils.tagValue(xmlDoc, 'icon');
             modelResult.model.defaultRole = this.importUtils.tagValue(xmlDoc, 'defaultRole') === '' ? ImportService.DEFAULT_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'defaultRole') === 'true';
+            modelResult.model.anonymousRole = this.importUtils.tagValue(xmlDoc, 'anonymousRole') === '' ? ImportService.ANONYMOUS_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'anonymousRole') === 'true';
             modelResult.model.transitionRole = this.importUtils.tagValue(xmlDoc, 'transitionRole') === '' ? ImportService.TRANSITION_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'transitionRole') === 'true';
             modelResult.model.title = this.importUtils.parseI18n(xmlDoc, 'title');
             modelResult.model.caseName = this.importUtils.parseI18nWithDynamic(xmlDoc, 'caseName');
@@ -148,7 +151,17 @@ export class ImportService {
         model.addRole(role);
     }
 
-    public importEvents(modelResult: PetriNetResult, xmlDoc: Document): void { // TODO: refactor to two methods
+    public importFunctions(modelResult: PetriNetResult, xmlDoc: Document): void {
+        for (const xmlFunction of Array.from(xmlDoc.getElementsByTagName('function'))) {
+            try {
+                modelResult.model.addFunction(this.importUtils.parseFunction(xmlFunction));
+            } catch (e: unknown) {
+                modelResult.addError('An error has occurred during the function import: ' + (e as Error).toString(), e as Error);
+            }
+        }
+    }
+
+    public importEvents(modelResult: PetriNetResult, xmlDoc: Document): void { // TODO: refactor into two methods
         for (const xmlEvent of Array.from(xmlDoc.getElementsByTagName('processEvents'))) {
             for (const xmlBasicEvent of Array.from(xmlEvent.getElementsByTagName('event'))) {
                 try {
@@ -238,7 +251,7 @@ export class ImportService {
         if (valid !== '') {
             const validation = new Validation();
             validation.expression = new Expression(valid, xmlData.getElementsByTagName('valid')?.item(0)?.getAttribute('dynamic') === 'true');
-            data.addValidation(validation);
+            data.validations.push(validation);
             result.addInfo(`Tags <valid> of field ${data.id} changed to validations`);
         }
         if (xmlData.getElementsByTagName('validations').length > 0) {
@@ -246,7 +259,7 @@ export class ImportService {
                 const validation = new Validation();
                 validation.expression = new Expression(this.importUtils.tagValue((val as HTMLDataElement), 'expression'), val.getAttribute('dynamic') === 'true');
                 validation.message = this.importUtils.parseI18n((val as HTMLDataElement), 'message');
-                data.addValidation(validation);
+                data.validations.push(validation);
             }
         }
         for (const actionRef of Array.from(xmlData.getElementsByTagName('actionRef'))) {
@@ -321,7 +334,9 @@ export class ImportService {
 
     private importTransitionUserRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
         try {
-            for (const xmlUserRef of Array.from(xmlTrans.getElementsByTagName('usersRef'))) {
+            /* @deprecated 'Array.from(xmlTrans.getElementsByTagName('usersRef'))' is deprecated and will be removed in future versions. */
+            const userRefs = Array.from(xmlTrans.getElementsByTagName('usersRef')).concat(Array.from(xmlTrans.getElementsByTagName('userRef')));
+            for (const xmlUserRef of userRefs) {
                 const xmlUserRefLogic = xmlUserRef.getElementsByTagName('logic')[0];
                 const userRef = new UserRef(this.importUtils.tagValue(xmlUserRef, 'id'));
                 this.importUtils.resolveLogic(xmlUserRefLogic, userRef);
@@ -375,7 +390,7 @@ export class ImportService {
         try {
             const xmlLayout = xmlTrans.getElementsByTagName('layout');
             if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode?.isSameNode(xmlTrans)) {
-                if(!trans.layout)
+                if (!trans.layout)
                     trans.layout = new TransitionLayout();
                 trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
                 if (trans.layout.type !== LayoutType.LEGACY) {
@@ -483,7 +498,9 @@ export class ImportService {
                 modelResult.addError('Error happened during the importing process role refs [' + this.importUtils.tagValue(xmlRoleRef, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
-        for (const xmlUserRef of Array.from(xmlDoc.getElementsByTagName('usersRef'))) {
+        /* 'Array.from(xmlDoc.getElementsByTagName('usersRef'))' is deprecated and will be removed in future versions. */
+        const userRefs = Array.from(xmlDoc.getElementsByTagName('usersRef')).concat(Array.from(xmlDoc.getElementsByTagName('userRef')));
+        for (const xmlUserRef of userRefs) {
             try {
                 const xmlUserRefLogic = xmlUserRef.getElementsByTagName('caseLogic')[0];
                 if (xmlUserRefLogic !== undefined) {
@@ -641,7 +658,7 @@ export class ImportService {
                 d.options.forEach(o => {
                     ImportService.checkI18n(o.value, i18ns, modelResult);
                 });
-                d.getValidations()?.forEach(v => {
+                d.validations?.forEach(v => {
                     ImportService.checkI18n(v.message, i18ns, modelResult);
                 });
             });

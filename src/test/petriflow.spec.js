@@ -9,6 +9,7 @@ const {
     DataRefBehavior,
     DataType,
     FinishPolicy,
+    FunctionScope,
     IconType,
     ImportService,
     ExportService,
@@ -33,7 +34,8 @@ const MODEL_TITLE_NAME = 'title';
 const MODEL_ICON = 'home';
 const MODEL_DEFAULT_CASE_NAME_VALUE = '${new Date() as String}';
 const MODEL_TRANSITION_ROLE = false;
-const MODE_DEFAULT_ROLE = true;
+const MODEL_DEFAULT_ROLE = true;
+const MODEL_ANONYMOUS_ROLE = true;
 const PROCESS_EVENTS_LENGTH = 1;
 const PROCESS_EVENTS_UPLOAD_ID = 'process_upload';
 const PROCESS_EVENTS_UPLOAD_PRE_LENGTH = 1;
@@ -51,11 +53,12 @@ const MODEL_ROLES_LENGTH = 4;
 const MODEL_TRANSITIONS_LENGTH = 9;
 const MODEL_PLACES_LENGTH = 10;
 const MODEL_ARCS_LENGTH = 16;
-const MODEL_DATA_LENGTH = 19;
-const MODEL_USERREFS_LENGTH = 1;
+const MODEL_DATA_LENGTH = 20;
+const MODEL_USERREFS_LENGTH = 2;
 const ROLE_1_ID = 'newRole_1';
 const ROLE_2_ID = 'newRole_2';
 const DATA_USERLIST_ID = 'newVariable_15';
+const DATA_USERLIST_2_ID = 'newVariable_18';
 const ROLE_3_ID = 'newRole_3';
 const ROLE_4_ID = 'newRole_4';
 const ACTION_DEFINITION_ESCAPED = 'if (a < b && c) d >> e';
@@ -113,11 +116,11 @@ describe('Petriflow integration tests', () => {
         });
     }
 
-    function assertRoleRefLogic(roleRef, perform, delegate, cancel, assigned, view) {
+    function assertRoleRefLogic(roleRef, perform, delegate, cancel, assign, view) {
         expect(roleRef.logic.perform).toEqual(perform);
         expect(roleRef.logic.delegate).toEqual(delegate);
         expect(roleRef.logic.cancel).toEqual(cancel);
-        expect(roleRef.logic.assigned).toEqual(assigned);
+        expect(roleRef.logic.assign).toEqual(assign);
         expect(roleRef.logic.view).toEqual(view);
     }
 
@@ -128,7 +131,8 @@ describe('Petriflow integration tests', () => {
         expect(model.title.value).toEqual(MODEL_TITLE_VALUE);
         expect(model.title.name).toEqual(MODEL_TITLE_NAME);
         expect(model.icon).toEqual(MODEL_ICON);
-        expect(model.defaultRole).toEqual(MODE_DEFAULT_ROLE);
+        expect(model.defaultRole).toEqual(MODEL_DEFAULT_ROLE);
+        expect(model.anonymousRole).toEqual(MODEL_ANONYMOUS_ROLE);
         expect(model.transitionRole).toEqual(MODEL_TRANSITION_ROLE);
         expect(model.caseName).not.toBeUndefined();
         expect(model.caseName.value).toEqual(MODEL_DEFAULT_CASE_NAME_VALUE);
@@ -197,6 +201,22 @@ describe('Petriflow integration tests', () => {
         expect(role4.title.name).toEqual('role_4_title');
         log('Model roles correct');
 
+        expect(model.functions).toBeDefined();
+        expect(model.functions.length).toEqual(2);
+        const namespaceFunction = model.functions[0];
+        expect(namespaceFunction.name).toEqual('sum');
+        expect(namespaceFunction.scope).toEqual(FunctionScope.NAMESPACE);
+        expect(namespaceFunction.definition).toContain('{ Double x, Double y ->');
+        expect(namespaceFunction.definition).toContain('return x + y');
+        expect(namespaceFunction.definition).toContain('}');
+        const processFunction = model.functions[1];
+        expect(processFunction.name).toEqual('calc');
+        expect(processFunction.scope).toEqual(FunctionScope.PROCESS);
+        expect(processFunction.definition).toContain('{ monthly, loan, period ->');
+        expect(processFunction.definition).toContain('change monthly value { (loan + loan * 0.02 * period) / (period * 12) }');
+        expect(processFunction.definition).toContain('}');
+        log('Model functions correct');
+
         expect(model.getRoleRefs().length).toEqual(3);
         const roleRef1 = model.getRoleRef(ROLE_1_ID);
         expect(roleRef1.caseLogic.delete).toEqual(true);
@@ -217,6 +237,10 @@ describe('Petriflow integration tests', () => {
         expect(userRef1.caseLogic.delete).toEqual(true);
         expect(userRef1.caseLogic.create).toEqual(false);
         expect(userRef1.caseLogic.view).toBeUndefined();
+        const userRef2 = model.getUserRef(DATA_USERLIST_2_ID);
+        expect(userRef2.caseLogic.delete).toEqual(true);
+        expect(userRef2.caseLogic.create).toEqual(false);
+        expect(userRef2.caseLogic.view).toBeUndefined();
         log('Model user refs correct');
 
         expect(model.getDataSet().length).toEqual(MODEL_DATA_LENGTH);
@@ -225,8 +249,8 @@ describe('Petriflow integration tests', () => {
         expect(numberField.title.value).toEqual('title');
         expect(numberField.init.expression).toEqual('5');
         expect(numberField.init.dynamic).toEqual(false);
-        expect(numberField.getValidations().length).toEqual(1);
-        const numberFieldValidation = numberField.getValidations()[0];
+        expect(numberField.validations.length).toEqual(1);
+        const numberFieldValidation = numberField.validations[0];
         expect(numberFieldValidation.expression.expression).toEqual('inrange 1,10');
         expect(numberFieldValidation.expression.dynamic).toEqual(false);
         const numberFieldGetEvent = numberField.getEvent(DataEventType.GET);
@@ -252,13 +276,13 @@ describe('Petriflow integration tests', () => {
         expect(textField.desc.name).toEqual('newVariable_2_desc');
         expect(textField.desc.value).toEqual('newVariable_2_desc_value');
         expect(textField.encryption).toEqual('SHA2');
-        expect(textField.getValidations().length).toEqual(2);
-        expect(textField.getValidations()[0].expression.expression).toEqual('inrange 1,2000');
-        expect(textField.getValidations()[0].message.value).toEqual('invalid text');
-        expect(textField.getValidations()[0].message.name).toBeUndefined();
-        expect(textField.getValidations()[1].expression.expression).toEqual('email');
-        expect(textField.getValidations()[1].message.value).toEqual('invalid email');
-        expect(textField.getValidations()[1].message.name).toEqual('newVariable_2_valid_email');
+        expect(textField.validations.length).toEqual(2);
+        expect(textField.validations[0].expression.expression).toEqual('inrange 1,2000');
+        expect(textField.validations[0].message.value).toEqual('invalid text');
+        expect(textField.validations[0].message.name).toBeUndefined();
+        expect(textField.validations[1].expression.expression).toEqual('email');
+        expect(textField.validations[1].message.value).toEqual('invalid email');
+        expect(textField.validations[1].message.name).toEqual('newVariable_2_valid_email');
         const textFieldComponent = textField.component;
         expect(textFieldComponent).not.toBeUndefined();
         expect(textFieldComponent.name).toEqual('area');
@@ -608,6 +632,12 @@ describe('Petriflow integration tests', () => {
         expect(transitionT7UserRef.logic.delegate).toEqual(false);
         expect(transitionT7UserRef.logic.perform).toBeUndefined();
         expect(transitionT7UserRef.logic.view).toEqual(true);
+        const transitionT7UserRef2 = transitionT7.userRefs[1];
+        expect(transitionT7UserRef2.id).toEqual(DATA_USERLIST_2_ID);
+        expect(transitionT7UserRef2.logic.cancel).toEqual(true);
+        expect(transitionT7UserRef2.logic.delegate).toEqual(false);
+        expect(transitionT7UserRef2.logic.perform).toBeUndefined();
+        expect(transitionT7UserRef2.logic.view).toEqual(true);
         const transitionT7AssignedUser = transitionT7.assignedUser;
         expect(transitionT7AssignedUser.cancel).toEqual(false);
         expect(transitionT7AssignedUser.reassign).toBeUndefined();

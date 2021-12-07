@@ -90,6 +90,7 @@ export class ExportService {
         this.exportModel(doc, model);
         this.exportTransactions(doc, model);
         this.exportRoles(doc, model);
+        this.exportFunctions(doc, model);
         this.exportProcessRefs(doc, model);
         this.exportProcessEvents(doc, model);
         this.exportData(doc, model);
@@ -107,6 +108,7 @@ export class ExportService {
         this.exportUtils.exportTag(doc, 'title', model.title, true);
         this.exportUtils.exportTag(doc, 'icon', model.icon);
         this.exportUtils.exportTag(doc, 'defaultRole', model.defaultRole !== undefined ? (model.defaultRole.toString()) : '');
+        this.exportUtils.exportTag(doc, 'anonymousRole', model.anonymousRole !== undefined ? (model.anonymousRole.toString()) : '');
         this.exportUtils.exportTag(doc, 'transitionRole', model.transitionRole !== undefined ? (model.transitionRole.toString()) : '');
         this.exportUtils.exportTag(doc, 'caseName', model.caseName);
     }
@@ -129,6 +131,12 @@ export class ExportService {
                 this.exportEvent(role, event);
             });
             doc.appendChild(role);
+        });
+    }
+
+    public exportFunctions(doc: Element, model: PetriNet): void {
+        model.functions.forEach(_function => {
+            this.exportUtils.exportFunction(doc, _function);
         });
     }
 
@@ -173,7 +181,7 @@ export class ExportService {
         if (ref.caseLogic.create !== undefined ||
             ref.caseLogic.delete !== undefined ||
             ref.caseLogic.view !== undefined) {
-            const processRef = this.xmlConstructor.createElement(ref instanceof ProcessRoleRef ? 'roleRef' : 'usersRef');
+            const processRef = this.xmlConstructor.createElement(ref instanceof ProcessRoleRef ? 'roleRef' : 'userRef');
             this.exportUtils.exportTag(processRef, 'id', ref.id, true);
             this.exportUtils.exportCaseLogic(processRef, ref.caseLogic, 'caseLogic');
             element.appendChild(processRef);
@@ -182,11 +190,11 @@ export class ExportService {
 
     public exportTransitionRef(element: Element, ref: RoleRef | UserRef): void {
         if (ref.logic.perform !== undefined ||
-            ref.logic.assigned !== undefined ||
+            ref.logic.assign !== undefined ||
             ref.logic.cancel !== undefined ||
             ref.logic.delegate !== undefined ||
             ref.logic.view !== undefined) {
-            const transRef = this.xmlConstructor.createElement(ref instanceof RoleRef ? 'roleRef' : 'usersRef');
+            const transRef = this.xmlConstructor.createElement(ref instanceof RoleRef ? 'roleRef' : 'userRef');
             this.exportUtils.exportTag(transRef, 'id', ref.id, true);
             this.exportUtils.exportLogic(transRef, ref.logic, 'logic');
             element.appendChild(transRef);
@@ -222,12 +230,12 @@ export class ExportService {
                 this.exportUtils.exportExpression(options, 'init', data.optionsInit);
                 exportData.appendChild(options);
             }
-            if (!!data.getValidations() && (data.getValidations()?.length ?? 0) > 0) {
+            if (!!data.validations && (data.validations?.length ?? 0) > 0) {
                 const validations = this.xmlConstructor.createElement('validations');
-                data.getValidations()?.forEach(item => {
+                data.validations?.forEach(validation => {
                     const valid = this.xmlConstructor.createElement('validation');
-                    this.exportUtils.exportExpression(valid, 'expression', item.expression);
-                    this.exportUtils.exportTag(valid, 'message', item.message);
+                    this.exportUtils.exportExpression(valid, 'expression', validation.expression);
+                    this.exportUtils.exportTag(valid, 'message', validation.message);
                     validations.appendChild(valid);
                 });
                 exportData.appendChild(validations);

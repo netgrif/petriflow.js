@@ -5,6 +5,7 @@
     <title name="title">Petriflow Test Model</title>
     <icon>home</icon>
     <defaultRole>true</defaultRole>
+    <anonymousRole>true</anonymousRole>
     <transitionRole>false</transitionRole>
     <caseName dynamic="true">${new Date() as String}</caseName>
     <processEvents>
@@ -112,6 +113,17 @@
         <id>newRole_4</id>
         <title>duplicit_role_4</title>
     </role>
+    <!-- FUNCTIONS -->
+    <function scope="namespace" name="sum">
+        { Double x, Double y ->
+        return x + y
+        }
+    </function>
+    <function scope="process" name="calc">
+        { monthly, loan, period ->
+        change monthly value { (loan + loan * 0.02 * period) / (period * 12) }
+        }
+    </function>
     <!-- PROCESS ROLE REFS -->
     <roleRef>
         <id>newRole_1</id>
@@ -163,6 +175,13 @@
             <create>false</create>
         </caseLogic>
     </usersRef>
+    <userRef>
+        <id>newVariable_18</id>
+        <caseLogic>
+            <delete>true</delete>
+            <create>false</create>
+        </caseLogic>
+    </userRef>
     <!-- DATA -->
     <data type="number">
         <id>newVariable_1</id>
@@ -332,6 +351,10 @@
     </data>
     <data type="button">
         <id>newVariable_17</id>
+        <title>title</title>
+    </data>
+    <data type="userList">
+        <id>newVariable_18</id>
         <title>title</title>
     </data>
     <!-- I18NS -->
@@ -816,6 +839,14 @@
                 <view>true</view>
             </logic>
         </usersRef>
+        <userRef>
+            <id>newVariable_18</id>
+            <logic>
+                <cancel>true</cancel>
+                <delegate>false</delegate>
+                <view>true</view>
+            </logic>
+        </userRef>
         <assignedUser>
             <cancel>false</cancel>
         </assignedUser>

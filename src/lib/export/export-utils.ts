@@ -5,7 +5,8 @@ import {
     Expression,
     I18nString,
     I18nWithDynamic,
-    Logic
+    Logic,
+    PetriflowFunction
 } from '../model';
 
 export class ExportUtils {
@@ -87,6 +88,16 @@ export class ExportUtils {
         element.appendChild(exportAction);
     }
 
+    public exportFunction(element: Element, _function: PetriflowFunction): void {
+        const xmlFunction = this.xmlConstructor.createElement('function');
+        xmlFunction.setAttribute('name', _function.name);
+        xmlFunction.setAttribute('scope', _function.scope);
+        xmlFunction.insertAdjacentText('beforeend', '<!-- @formatter:off -->');
+        xmlFunction.insertAdjacentText('beforeend', this.escapeAction(_function.definition));
+        xmlFunction.insertAdjacentText('beforeend', '<!-- @formatter:on -->');
+        element.appendChild(xmlFunction);
+    }
+
     public escapeAction(action: string): string {
         const cdataSections = action.match(this.CDATA_REGRET);
         const splitCdata = action.split(this.CDATA_REGRET);
@@ -130,8 +141,8 @@ export class ExportUtils {
         if (logic.cancel !== undefined) {
             this.exportTag(exportLogic, 'cancel', logic.cancel.toString());
         }
-        if (logic.assigned !== undefined) {
-            this.exportTag(exportLogic, 'assigned', logic.assigned.toString());
+        if (logic.assign !== undefined) {
+            this.exportTag(exportLogic, 'assign', logic.assign.toString());
         }
         if (logic.delegate !== undefined) {
             this.exportTag(exportLogic, 'delegate', logic.delegate.toString());
