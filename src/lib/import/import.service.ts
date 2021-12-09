@@ -393,9 +393,15 @@ export class ImportService {
                 if (!trans.layout)
                     trans.layout = new TransitionLayout();
                 trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
-                if (trans.layout.type !== LayoutType.LEGACY) {
-                    trans.layout.cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols') ?? 0;
-                    trans.layout.rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows') ?? 0;
+                if (trans.layout.type && trans.layout.type !== LayoutType.LEGACY) {
+                    const cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols');
+                    if (cols && cols > 0) {
+                        trans.layout.cols = cols;
+                    }
+                    const rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows');
+                    if (rows && rows >= 0) {
+                        trans.layout.rows = rows;
+                    }
                 }
                 trans.layout.offset = this.importUtils.parseNumberValue(xmlLayout.item(0), 'offset') ?? 0;
                 trans.layout.alignment = this.importUtils.tagValue(xmlLayout.item(0), 'fieldAlignment') as Alignment;
