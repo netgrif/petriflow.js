@@ -393,7 +393,9 @@ export class ImportService {
                 if (!trans.layout)
                     trans.layout = new TransitionLayout();
                 trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
-                if (trans.layout.type && trans.layout.type !== LayoutType.LEGACY) {
+                if (!trans.layout.type) {
+                    trans.layout.type = LayoutType.LEGACY;
+                } else if (trans.layout.type !== LayoutType.LEGACY) {
                     const cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols');
                     if (cols && cols > 0) {
                         trans.layout.cols = cols;
