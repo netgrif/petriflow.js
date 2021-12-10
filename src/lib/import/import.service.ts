@@ -401,7 +401,7 @@ export class ImportService {
                         trans.layout.cols = cols;
                     }
                     const rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows');
-                    if (rows && rows >= 0) {
+                    if (rows && rows > 0 || rows === 0) {
                         trans.layout.rows = rows;
                     }
                 }
