@@ -307,7 +307,7 @@ export class ImportUtils {
                 dataGroup.cols = cols;
             }
             const rows = this.parseNumberValue(xmlDataGroup, 'rows');
-            if (rows && rows >= 0) {
+            if (rows && rows > 0 || rows === 0) {
                 dataGroup.rows = rows;
             }
         }
