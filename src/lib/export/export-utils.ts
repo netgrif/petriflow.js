@@ -43,7 +43,7 @@ export class ExportUtils {
     }
 
     public escape(value: string): string {
-        return value.replace(/&/g, '&amp;')
+        return value?.replace(/&/g, '&amp;')
             .replace(/<(?!!--)/g, '&lt;')
             .split('').reverse().join('')
             .replace(/>(?!(--))/g, ';tg&')
