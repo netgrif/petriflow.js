@@ -27,8 +27,8 @@ export class Validation {
 
     public clone(): Validation {
         const cloned = new Validation();
-        cloned.expression = this._expression;
-        cloned.message = this._message;
+        cloned.expression = this._expression?.clone();
+        cloned.message = this._message.clone();
         return cloned;
     }
 }
