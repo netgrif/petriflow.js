@@ -21,25 +21,33 @@ export class ExportUtils {
             const tag = this.xmlConstructor.createElement(name);
             if (attributes) {
                 attributes.forEach(item => {
-                    tag.setAttribute(item.key, item.value);
+                    tag.setAttribute(item.key, this.escape(item.value));
                 });
             }
             if (value instanceof I18nString) {
                 if (typeof value.name === 'string' && value.name !== '') {
-                    tag.setAttribute('name', value.name);
+                    tag.setAttribute('name', this.escape(value.name));
                 }
                 if (value instanceof I18nWithDynamic && typeof value.dynamic === 'boolean' && value.dynamic) {
-                    tag.setAttribute('dynamic', value.dynamic.toString());
+                    tag.setAttribute('dynamic', this.escape(value.dynamic.toString()));
                 }
-                tag.innerHTML = value.value;
+                tag.textContent = this.escape(value.value);
             } else {
-                tag.innerHTML = value;
+                tag.textContent = this.escape(value);
             }
             doc.appendChild(tag);
         } else if (force) {
             const tag = this.xmlConstructor.createElement(name);
             doc.appendChild(tag);
         }
+    }
+
+    public escape(value: string): string {
+        return value?.replace(/&/g, '&amp;')
+            .replace(/<(?!!--)/g, '&lt;')
+            .split('').reverse().join('')
+            .replace(/>(?!(--))/g, ';tg&')
+            .split('').reverse().join('');
     }
 
     public exportExpression(doc: Element, name: string, value: Expression | Array<Expression> | undefined) {
@@ -107,11 +115,7 @@ export class ExportUtils {
                 const splitComment = splitCdata[i].split(this.COMMENT_REGRET);
                 for (let j = 0; j < splitComment.length; j++) {
                     if (splitComment[j] !== '') {
-                        splitComment[j] = splitComment[j].replace(/&/g, '&amp;')
-                            .replace(/<(?!!--)/g, '&lt;')
-                            .split('').reverse().join('')
-                            .replace(/>(?!(--))/g, ';tg&')
-                            .split('').reverse().join('');
+                        splitComment[j] = this.escape(splitComment[j]);
                     }
                 }
                 splitCdata[i] = ExportUtils.mergeBack(commentSections, splitComment);
