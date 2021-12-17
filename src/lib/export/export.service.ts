@@ -440,7 +440,7 @@ export class ExportService {
             const exportLayout = this.xmlConstructor.createElement('layout');
             this.exportLayout(exportLayout, layout);
             this.exportUtils.exportTag(exportLayout, 'fieldAlignment', layout.alignment?.toString() ?? '');
-            if (layout.type && layout.type !== LayoutType.GRID) {
+            if (layout.type && layout.type !== LayoutType.LEGACY) {
                 exportLayout.setAttribute('type', layout.type);
             }
             element.appendChild(exportLayout);

@@ -299,10 +299,18 @@ export class ImportUtils {
 
     public parseDataGroup(xmlDataGroup: Element): DataGroup {
         const dataGroup = new DataGroup(this.tagValue(xmlDataGroup, 'id'));
-        dataGroup.cols = this.parseNumberValue(xmlDataGroup, 'cols');
-        dataGroup.rows = this.parseNumberValue(xmlDataGroup, 'rows');
         dataGroup.alignment = this.tagValue(xmlDataGroup, 'alignment') as Alignment;
         dataGroup.layout = this.tagValue(xmlDataGroup, 'layout') as LayoutType;
+        if (dataGroup.layout && dataGroup.layout !== LayoutType.LEGACY) {
+            const cols = this.parseNumberValue(xmlDataGroup, 'cols');
+            if (cols && cols > 0) {
+                dataGroup.cols = cols;
+            }
+            const rows = this.parseNumberValue(xmlDataGroup, 'rows');
+            if (rows && rows > 0 || rows === 0) {
+                dataGroup.rows = rows;
+            }
+        }
         dataGroup.stretch = this.tagValue(xmlDataGroup, 'stretch') === 'true';
         dataGroup.title = this.parseI18n(xmlDataGroup, 'title');
         const xmlDataRefs = Array.from(xmlDataGroup.getElementsByTagName('dataRef'));
