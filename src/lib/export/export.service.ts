@@ -44,12 +44,13 @@ export class ExportService {
         doc.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
         doc.setAttribute('xsi:noNamespaceSchemaLocation', ExportService.PETRIFLOW_SCHEMA_URL);
         this.exportModel(doc, model);
+        this.exportProcessRefs(doc, model);
+        this.exportProcessEvents(doc, model);
         this.exportTransactions(doc, model);
         this.exportRoles(doc, model);
         this.exportFunctions(doc, model);
-        this.exportProcessRefs(doc, model);
-        this.exportProcessEvents(doc, model);
         this.exportData(doc, model);
+        // TODO mapping
         this.exportI18n(doc, model);
         this.exportTransitions(doc, model);
         this.exportPlaces(doc, model);
@@ -453,7 +454,7 @@ export class ExportService {
 
     public exportBreakpoints(exportArc: Element, arc: Arc): void {
         arc.breakpoints.forEach((point) => {
-            const breakPoint = this.xmlConstructor.createElement('breakPoint');
+            const breakPoint = this.xmlConstructor.createElement('breakpoint');
             this.exportUtils.exportTag(breakPoint, 'x', point.x?.toString());
             this.exportUtils.exportTag(breakPoint, 'y', point.y?.toString());
             exportArc.appendChild(breakPoint);

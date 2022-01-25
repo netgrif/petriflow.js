@@ -92,8 +92,8 @@ export class ExportUtils {
 
     public exportFunction(element: Element, _function: PetriflowFunction): void {
         const xmlFunction = this.xmlConstructor.createElement('function');
-        xmlFunction.setAttribute('name', _function.name);
         xmlFunction.setAttribute('scope', _function.scope);
+        xmlFunction.setAttribute('name', _function.name);
         if (!_function.definition.includes('<!-- @formatter:off -->')) {
             xmlFunction.insertAdjacentText('beforeend', '<!-- @formatter:off -->');
             xmlFunction.insertAdjacentText('beforeend', _function.definition);
@@ -126,14 +126,14 @@ export class ExportUtils {
 
     public exportCaseLogic(element: Element, logic: CaseLogic, type: string): void {
         const exportLogic = this.xmlConstructor.createElement(type);
-        if (logic.view !== undefined) {
-            this.exportTag(exportLogic, 'view', logic.view.toString());
+        if (logic.create !== undefined) {
+            this.exportTag(exportLogic, 'create', logic.create.toString());
         }
         if (logic.delete !== undefined) {
             this.exportTag(exportLogic, 'delete', logic.delete.toString());
         }
-        if (logic.create !== undefined) {
-            this.exportTag(exportLogic, 'create', logic.create.toString());
+        if (logic.view !== undefined) {
+            this.exportTag(exportLogic, 'view', logic.view.toString());
         }
         element.appendChild(exportLogic);
     }

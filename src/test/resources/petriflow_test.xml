@@ -8,6 +8,64 @@
     <anonymousRole>true</anonymousRole>
     <transitionRole>false</transitionRole>
     <caseName dynamic="true">${new Date() as String}</caseName>
+    <!-- PROCESS ROLE REFS -->
+    <roleRef>
+        <id>newRole_1</id>
+        <caseLogic>
+            <create>false</create>
+            <delete>true</delete>
+        </caseLogic>
+    </roleRef>
+    <roleRef>
+        <id>newRole_2</id>
+        <caseLogic>
+            <delete>false</delete>
+            <view>false</view>
+        </caseLogic>
+    </roleRef>
+    <roleRef>
+        <id>newRole_3</id>
+        <caseLogic>
+            <create>false</create>
+            <view>true</view>
+        </caseLogic>
+    </roleRef>
+    <roleRef>
+        <id>invalid_role_id</id>
+        <caseLogic>
+            <create>false</create>
+            <view>true</view>
+        </caseLogic>
+    </roleRef>
+    <!-- PROCESS USER REFS -->
+    <usersRef>
+        <id>newVariable_15</id>
+        <caseLogic>
+            <create>false</create>
+            <delete>true</delete>
+        </caseLogic>
+    </usersRef>
+    <usersRef>
+        <id>ivalid_id</id>
+        <caseLogic>
+            <create>false</create>
+            <delete>true</delete>
+        </caseLogic>
+    </usersRef>
+    <usersRef>
+        <id>newVariable_1</id>
+        <caseLogic>
+            <create>false</create>
+            <delete>true</delete>
+        </caseLogic>
+    </usersRef>
+    <userRef>
+        <id>newVariable_18</id>
+        <caseLogic>
+            <delete>true</delete>
+            <create>false</create>
+        </caseLogic>
+    </userRef>
     <processEvents>
         <event type="upload">
             <id>process_upload</id>
@@ -124,70 +182,19 @@
         change monthly value { (loan + loan * 0.02 * period) / (period * 12) }
         }
     </function>
-    <!-- PROCESS ROLE REFS -->
-    <roleRef>
-        <id>newRole_1</id>
-        <caseLogic>
-            <delete>true</delete>
-            <create>false</create>
-        </caseLogic>
-    </roleRef>
-    <roleRef>
-        <id>newRole_2</id>
-        <caseLogic>
-            <delete>false</delete>
-            <view>false</view>
-        </caseLogic>
-    </roleRef>
-    <roleRef>
-        <id>newRole_3</id>
-        <caseLogic>
-            <create>false</create>
-            <view>true</view>
-        </caseLogic>
-    </roleRef>
-    <roleRef>
-        <id>invalid_role_id</id>
-        <caseLogic>
-            <create>false</create>
-            <view>true</view>
-        </caseLogic>
-    </roleRef>
-    <!-- PROCESS USER REFS -->
-    <usersRef>
-        <id>newVariable_15</id>
-        <caseLogic>
-            <delete>true</delete>
-            <create>false</create>
-        </caseLogic>
-    </usersRef>
-    <usersRef>
-        <id>ivalid_id</id>
-        <caseLogic>
-            <delete>true</delete>
-            <create>false</create>
-        </caseLogic>
-    </usersRef>
-    <usersRef>
-        <id>newVariable_1</id>
-        <caseLogic>
-            <delete>true</delete>
-            <create>false</create>
-        </caseLogic>
-    </usersRef>
-    <userRef>
-        <id>newVariable_18</id>
-        <caseLogic>
-            <delete>true</delete>
-            <create>false</create>
-        </caseLogic>
-    </userRef>
     <!-- DATA -->
     <data type="number">
         <id>newVariable_1</id>
         <title>title</title>
         <valid>inrange 1,10</valid>
         <init>5</init>
+        <format>
+            <currency>
+                <code>SK</code>
+                <fractionSize>2</fractionSize>
+                <locale>SK</locale>
+            </currency>
+        </format>
         <event type="set">
             <id>newVariable_1_set</id>
             <actions phase="pre">
@@ -210,13 +217,6 @@
         <action trigger="set">
             test("newVariable_1_set")
         </action>
-        <format>
-            <currency>
-                <code>SK</code>
-                <fractionSize>2</fractionSize>
-                <locale>SK</locale>
-            </currency>
-        </format>
     </data>
     <data type="text" immediate="true">
         <id>newVariable_2</id>
@@ -1114,13 +1114,13 @@
         <sourceId>t2</sourceId>
         <destinationId>p3</destinationId>
         <multiplicity>newVariable_1</multiplicity>
-        <breakPoint>
+        <breakpoint>
             <x>10</x>
             <y>10</y>
-        </breakPoint>
-        <breakPoint>
+        </breakpoint>
+        <breakpoint>
             <x>20</x>
             <y>20</y>
-        </breakPoint>
+        </breakpoint>
     </arc>
 </document>
