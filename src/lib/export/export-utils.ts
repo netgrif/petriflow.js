@@ -80,13 +80,7 @@ export class ExportUtils {
         if (action.id !== undefined && action.id != null) {
             exportAction.setAttribute('id', action.id);
         }
-        if (!action.definition.includes('<!-- @formatter:off -->')) {
-            exportAction.insertAdjacentText('beforeend', '<!-- @formatter:off -->');
-            exportAction.insertAdjacentText('beforeend', action.definition);
-            exportAction.insertAdjacentText('beforeend', '<!-- @formatter:on -->');
-        } else {
-            exportAction.insertAdjacentText('beforeend', action.definition);
-        }
+        exportAction.insertAdjacentText('beforeend', action.definition);
         element.appendChild(exportAction);
     }
 
@@ -94,13 +88,7 @@ export class ExportUtils {
         const xmlFunction = this.xmlConstructor.createElement('function');
         xmlFunction.setAttribute('name', _function.name);
         xmlFunction.setAttribute('scope', _function.scope);
-        if (!_function.definition.includes('<!-- @formatter:off -->')) {
-            xmlFunction.insertAdjacentText('beforeend', '<!-- @formatter:off -->');
-            xmlFunction.insertAdjacentText('beforeend', _function.definition);
-            xmlFunction.insertAdjacentText('beforeend', '<!-- @formatter:on -->');
-        } else {
-            xmlFunction.insertAdjacentText('beforeend', _function.definition);
-        }
+        xmlFunction.insertAdjacentText('beforeend', _function.definition);
         element.appendChild(xmlFunction);
     }
 
