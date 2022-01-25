@@ -587,7 +587,9 @@ export class ImportService {
             Array.from(xmlArc.getElementsByTagName('breakPoint')).forEach((breakpoint) => {
                 const xx = this.importUtils.parseNumberValue(breakpoint, 'x');
                 const yy = this.importUtils.parseNumberValue(breakpoint, 'y');
-                arc.breakpoints.push({x: xx, y: yy} as Breakpoint);
+                if (xx && yy) {
+                    arc.breakpoints.push(new Breakpoint(xx, yy));
+                }
             });
         }
         return arc;

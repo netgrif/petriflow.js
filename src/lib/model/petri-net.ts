@@ -398,8 +398,6 @@ export class PetriNet {
         cloned._anonymousRole = this._anonymousRole;
         cloned._transitionRole = this._transitionRole;
         cloned._caseName = this._caseName?.clone();
-        this._roleRefs.forEach(ref => cloned.addRoleRef(ref.clone()));
-        this._userRefs.forEach(ref => cloned.addUserRef(ref.clone()));
         this._processEvents.forEach(e => cloned.addProcessEvent(e.clone()));
         this._caseEvents.forEach(e => cloned.addCaseEvent(e.clone()));
         this._transactions.forEach(t => cloned.addTransaction(t.clone()));
@@ -411,6 +409,8 @@ export class PetriNet {
         this._transitions.forEach(t => cloned.addTransition(t.clone()));
         this._places.forEach(p => cloned.addPlace(p.clone()));
         this._arcs.forEach(a => cloned.addArc(a.clone()));
+        this._roleRefs.forEach(ref => cloned.addRoleRef(ref.clone()));
+        this._userRefs.forEach(ref => cloned.addUserRef(ref.clone()));
         return cloned;
     }
 }
