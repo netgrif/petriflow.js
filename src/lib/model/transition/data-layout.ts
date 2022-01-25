@@ -53,12 +53,12 @@ export class DataLayout extends Layout {
         const cloned = new DataLayout();
         cloned._x = this._x;
         cloned._y = this._y;
-        cloned.rows = this.rows;
-        cloned.cols = this.cols;
         cloned._template = this._template;
         cloned._appearance = this._appearance;
+        cloned.rows = this.rows;
+        cloned.cols = this.cols;
         cloned.offset = this.offset;
-        cloned.alignment = this?.alignment;
+        cloned.alignment = this.alignment;
         return cloned;
     }
 }

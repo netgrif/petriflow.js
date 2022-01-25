@@ -79,7 +79,7 @@ export class Arc {
         const arc = new Arc(this._source, this._destination, this._type, this._id);
         arc._multiplicity = this._multiplicity;
         arc._reference = this._reference;
-        arc._breakpoints = [...this._breakpoints];
+        arc._breakpoints = this._breakpoints?.map(bp => bp.clone());
         return arc;
     }
 }

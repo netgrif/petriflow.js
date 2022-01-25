@@ -27,7 +27,7 @@ export class UserRef {
 
     public clone(): UserRef {
         const cloned = new UserRef(this._id);
-        cloned.logic = this._logic.clone();
+        cloned.logic = this._logic?.clone();
         return cloned;
     }
 }

@@ -26,6 +26,6 @@ export class Transaction {
     }
 
     public clone(): Transaction {
-        return new Transaction(this._id, this._title);
+        return new Transaction(this._id, this._title?.clone());
     }
 }

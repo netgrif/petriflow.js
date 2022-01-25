@@ -30,8 +30,8 @@ export class TransitionEvent extends Event<TransitionEventType> {
 
     public clone(): TransitionEvent {
         const cloned = new TransitionEvent(this.type, this.id);
-        cloned._message = this._message;
-        cloned._title = this._title;
+        cloned._message = this._message?.clone();
+        cloned._title = this._title?.clone();
         this.preActions.forEach(item => cloned.preActions.push(item.clone()));
         this.postActions.forEach(item => cloned.postActions.push(item.clone()));
         return cloned;

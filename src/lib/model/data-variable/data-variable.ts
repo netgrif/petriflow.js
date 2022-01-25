@@ -178,23 +178,22 @@ export class DataVariable extends DataEventSource {
 
     public clone(): DataVariable {
         const cloned = new DataVariable(this._id, this._type);
-        cloned._title = this._title.clone();
-        cloned._placeholder = this._placeholder.clone();
-        cloned._desc = this._desc.clone();
+        cloned._title = this._title?.clone();
+        cloned._placeholder = this._placeholder?.clone();
+        cloned._desc = this._desc?.clone();
         cloned._options = this._options?.map(o => o.clone());
+        cloned._optionsInit = this._optionsInit?.clone();
         cloned._validations = this._validations?.map(v => v.clone());
-        cloned._inits = this._inits?.map(i => i.clone());
         cloned._init = this._init?.clone();
+        cloned._inits = this._inits?.map(i => i.clone());
         cloned._component = this._component?.clone();
         cloned._immediate = this._immediate;
         cloned._encryption = this._encryption;
-        cloned._type = this._type;
         cloned._remote = this._remote;
         cloned._actionRef = [...this._actionRef];
-        this.getEvents().forEach(event => cloned.addEvent(event.clone()));
         cloned._length = this._length;
         cloned._allowedNets = [...this._allowedNets];
-        cloned._optionsInit = this._optionsInit?.clone();
+        this.getEvents().forEach(event => cloned.addEvent(event.clone()));
         return cloned;
     }
 }

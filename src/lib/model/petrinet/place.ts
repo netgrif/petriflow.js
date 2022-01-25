@@ -66,9 +66,9 @@ export class Place {
     }
 
     public clone(): Place {
-        const place = new Place(this._x, this._y, this._static, this._id);
-        place._label = this._label?.clone();
-        place._marking = this._marking;
-        return place;
+        const cloned = new Place(this._x, this._y, this._static, this._id);
+        cloned._label = this._label?.clone();
+        cloned._marking = this._marking;
+        return cloned;
     }
 }

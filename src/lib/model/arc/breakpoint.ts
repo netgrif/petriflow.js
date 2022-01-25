@@ -22,4 +22,8 @@ export class Breakpoint {
     set y(value: number) {
         this._y = value;
     }
+
+    clone(): Breakpoint {
+        return new Breakpoint(this.x, this.y);
+    }
 }

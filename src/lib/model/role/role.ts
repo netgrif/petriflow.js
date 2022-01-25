@@ -31,7 +31,7 @@ export class Role extends EventSource<RoleEvent, RoleEventType> {
 
     public clone(): Role {
         const cloned = new Role(this._id);
-        cloned._title = this._title.clone();
+        cloned._title = this._title?.clone();
         this.getEvents().forEach(event => cloned.addEvent(event.clone()));
         return cloned;
     }

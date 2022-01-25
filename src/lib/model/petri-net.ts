@@ -388,29 +388,29 @@ export class PetriNet {
     }
 
     public clone(): PetriNet {
-        const model = new PetriNet();
-        model._id = this._id;
-        model._version = this._version;
-        model._initials = this._initials;
-        model._title = this._title.clone();
-        model._icon = this._icon;
-        model._defaultRole = this._defaultRole;
-        model._anonymousRole = this._anonymousRole;
-        model._transitionRole = this._transitionRole;
-        model._caseName = this._caseName.clone();
-        this._transactions.forEach(t => model.addTransaction(t.clone()));
-        this._roles.forEach(r => model.addRole(r.clone()));
-        this._data.forEach(d => model.addData(d.clone()));
-        this._functions.forEach(f => model.addFunction(f.clone()));
-        this._transitions.forEach(t => model.addTransition(t.clone()));
-        this._places.forEach(p => model.addPlace(p.clone()));
-        this._arcs.forEach(a => model.addArc(a.clone()));
-        this._userRefs.forEach(ref => model.addUserRef(ref.clone()));
-        this._i18ns.forEach(i => model.addI18n(i.clone()));
-        this._processEvents.forEach(e => model.addProcessEvent(e.clone()));
-        this._caseEvents.forEach(e => model.addCaseEvent(e.clone()));
-        this._mappings.forEach(m => model.addMapping(m.clone()));
-        this._roleRefs.forEach(ref => model.addRoleRef(ref.clone()));
-        return model;
+        const cloned = new PetriNet();
+        cloned._id = this._id;
+        cloned._version = this._version;
+        cloned._initials = this._initials;
+        cloned._title = this._title?.clone();
+        cloned._icon = this._icon;
+        cloned._defaultRole = this._defaultRole;
+        cloned._anonymousRole = this._anonymousRole;
+        cloned._transitionRole = this._transitionRole;
+        cloned._caseName = this._caseName?.clone();
+        this._roleRefs.forEach(ref => cloned.addRoleRef(ref.clone()));
+        this._userRefs.forEach(ref => cloned.addUserRef(ref.clone()));
+        this._processEvents.forEach(e => cloned.addProcessEvent(e.clone()));
+        this._caseEvents.forEach(e => cloned.addCaseEvent(e.clone()));
+        this._transactions.forEach(t => cloned.addTransaction(t.clone()));
+        this._roles.forEach(r => cloned.addRole(r.clone()));
+        this._functions.forEach(f => cloned.addFunction(f.clone()));
+        this._data.forEach(d => cloned.addData(d.clone()));
+        this._mappings.forEach(m => cloned.addMapping(m.clone()));
+        this._i18ns.forEach(i => cloned.addI18n(i.clone()));
+        this._transitions.forEach(t => cloned.addTransition(t.clone()));
+        this._places.forEach(p => cloned.addPlace(p.clone()));
+        this._arcs.forEach(a => cloned.addArc(a.clone()));
+        return cloned;
     }
 }
