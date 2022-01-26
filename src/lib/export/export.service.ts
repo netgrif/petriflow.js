@@ -36,51 +36,7 @@ export class ExportService {
 
     public exportXml(model: PetriNet): string {
         const xmlText = this.generateXml(model);
-        return this.xmlToString(xmlText).replace('xmlns="http://www.w3.org/1999/xhtml"', '');
-    }
-
-    public xmlToString(inputNode: string | Element, level = 0, singleton = false): string {
-        let node: Element;
-        if (inputNode === undefined || inputNode === null) {
-            return '';
-        } else if (typeof inputNode === 'string') {
-            node = new DOMParser().parseFromString(inputNode, 'text/xml')?.documentElement;
-        } else {
-            node = inputNode;
-        }
-
-        const innerText = (n: Element) => n.textContent === null ? '' : n.textContent;
-        const tabs = Array(level + 1).fill('').join('\t');
-        const newLine = '\n';
-        if (node.nodeType === Node.TEXT_NODE) {
-            return (singleton ? '' : tabs) + innerText(node) + (singleton ? '' : newLine);
-        }
-        if (node.nodeType === Node.CDATA_SECTION_NODE) {
-            return '<![CDATA[' + innerText(node) + ']]>';
-        }
-        if (node.nodeType === Node.COMMENT_NODE) {
-            return '<!--' + innerText(node) + '-->';
-        }
-        if (!node.tagName) {
-            return this.xmlToString(node.firstChild as Element);
-        }
-        let output = tabs + `<${node.tagName}`;
-        for (let i = 0; i < node.attributes.length; i++) {
-            output += ` ${node.attributes.item(i)?.name}="${node.attributes.item(i)?.value}"`;
-        }
-        if (node.childNodes.length === 0) {
-            return output + ' />' + newLine;
-        } else {
-            output += '>';
-        }
-        const onlyOneTextChild = ((node.childNodes.length === 1) && (node.childNodes[0].nodeType === Node.TEXT_NODE));
-        if (!onlyOneTextChild) {
-            output += newLine;
-        }
-        node.childNodes.forEach(child => {
-            output += this.xmlToString(child as Element, level + 1, onlyOneTextChild);
-        });
-        return output + (onlyOneTextChild ? '' : tabs) + `</${node.tagName}>` + newLine;
+        return new XMLSerializer().serializeToString(xmlText);
     }
 
     public generateXml(model: PetriNet): Element {

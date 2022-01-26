@@ -11,8 +11,6 @@ import {
 
 export class ExportUtils {
 
-    private CDATA_REGRET = /<!\[CDATA\[(?:\w|\s)*]]>/g;
-    private COMMENT_REGRET = /<!--(?:.|\n)*?-->/g;
     protected xmlConstructor = document.implementation.createDocument(null, 'document', null);
 
     public exportTag(doc: Element, name: string, value: string | I18nString | I18nWithDynamic, force = false, attributes?: Array<{ key: string, value: string }>): void {
@@ -21,33 +19,25 @@ export class ExportUtils {
             const tag = this.xmlConstructor.createElement(name);
             if (attributes) {
                 attributes.forEach(item => {
-                    tag.setAttribute(item.key, this.escape(item.value));
+                    tag.setAttribute(item.key, item.value);
                 });
             }
             if (value instanceof I18nString) {
                 if (typeof value.name === 'string' && value.name !== '') {
-                    tag.setAttribute('name', this.escape(value.name));
+                    tag.setAttribute('name', value.name);
                 }
                 if (value instanceof I18nWithDynamic && typeof value.dynamic === 'boolean' && value.dynamic) {
-                    tag.setAttribute('dynamic', this.escape(value.dynamic.toString()));
+                    tag.setAttribute('dynamic', value.dynamic.toString());
                 }
-                tag.textContent = this.escape(value.value);
+                tag.innerHTML = value.value;
             } else {
-                tag.textContent = this.escape(value);
+                tag.innerHTML = value;
             }
             doc.appendChild(tag);
         } else if (force) {
             const tag = this.xmlConstructor.createElement(name);
             doc.appendChild(tag);
         }
-    }
-
-    public escape(value: string): string {
-        return value?.replace(/&/g, '&amp;')
-            .replace(/<(?!!--)/g, '&lt;')
-            .split('').reverse().join('')
-            .replace(/>(?!(--))/g, ';tg&')
-            .split('').reverse().join('');
     }
 
     public exportExpression(doc: Element, name: string, value: Expression | Array<Expression> | undefined) {
@@ -90,9 +80,7 @@ export class ExportUtils {
         if (action.id !== undefined && action.id != null) {
             exportAction.setAttribute('id', action.id);
         }
-        exportAction.insertAdjacentText('beforeend', '<!-- @formatter:off -->');
-        exportAction.insertAdjacentText('beforeend', this.escapeAction(action.definition));
-        exportAction.insertAdjacentText('beforeend', '<!-- @formatter:on -->');
+        exportAction.insertAdjacentText('beforeend', action.definition);
         element.appendChild(exportAction);
     }
 
@@ -100,41 +88,8 @@ export class ExportUtils {
         const xmlFunction = this.xmlConstructor.createElement('function');
         xmlFunction.setAttribute('name', _function.name);
         xmlFunction.setAttribute('scope', _function.scope);
-        xmlFunction.insertAdjacentText('beforeend', '<!-- @formatter:off -->');
-        xmlFunction.insertAdjacentText('beforeend', this.escapeAction(_function.definition));
-        xmlFunction.insertAdjacentText('beforeend', '<!-- @formatter:on -->');
+        xmlFunction.insertAdjacentText('beforeend', _function.definition);
         element.appendChild(xmlFunction);
-    }
-
-    public escapeAction(action: string): string {
-        const cdataSections = action.match(this.CDATA_REGRET);
-        const splitCdata = action.split(this.CDATA_REGRET);
-        for (let i = 0; i < splitCdata.length; i++) {
-            if (splitCdata[i].trim() !== '') {
-                const commentSections = splitCdata[i].match(this.COMMENT_REGRET);
-                const splitComment = splitCdata[i].split(this.COMMENT_REGRET);
-                for (let j = 0; j < splitComment.length; j++) {
-                    if (splitComment[j] !== '') {
-                        splitComment[j] = this.escape(splitComment[j]);
-                    }
-                }
-                splitCdata[i] = ExportUtils.mergeBack(commentSections, splitComment);
-            }
-        }
-        return ExportUtils.mergeBack(cdataSections, splitCdata);
-    }
-
-    private static mergeBack(matches: Array<string> | null, splitted: Array<string>): string {
-        if (matches === null) {
-            return splitted.join('');
-        }
-        const merge = [];
-        for (let j = 0; j < matches.length; j++) {
-            merge.push(splitted[j]);
-            merge.push(matches[j]);
-        }
-        merge.push(splitted[splitted.length - 1]);
-        return merge.join('');
     }
 
     public exportLogic(element: Element, logic: Logic, type: string): void {
