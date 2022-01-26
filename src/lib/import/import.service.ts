@@ -583,16 +583,25 @@ export class ImportService {
             this.importUtils.checkVariability(result.model, arc, arcReference);
         }
 
-        if (xmlArc.getElementsByTagName('breakPoint').length > 0) {
-            Array.from(xmlArc.getElementsByTagName('breakPoint')).forEach((breakpoint) => {
-                const xx = this.importUtils.parseNumberValue(breakpoint, 'x');
-                const yy = this.importUtils.parseNumberValue(breakpoint, 'y');
-                if (xx && yy) {
-                    arc.breakpoints.push(new Breakpoint(xx, yy));
-                }
-            });
-        }
+        this.importBreakPoints(xmlArc, arc, result);
         return arc;
+    }
+
+    importBreakPoints(xmlArc: Element, arc: Arc, result: PetriNetResult) {
+        ['breakpoint', 'breakPoint'].forEach(breakPointName => {
+            if (xmlArc.getElementsByTagName(breakPointName).length > 0) {
+                Array.from(xmlArc.getElementsByTagName(breakPointName)).forEach((breakpoint) => {
+                    const xx = this.importUtils.parseNumberValue(breakpoint, 'x');
+                    const yy = this.importUtils.parseNumberValue(breakpoint, 'y');
+                    if (xx && yy) {
+                        arc.breakpoints.push(new Breakpoint(xx, yy));
+                    } else {
+                        const message = `Could not parse breakpoint coordinates [${xx}, ${yy}]`;
+                        result.addError(message, new Error(message));
+                    }
+                });
+            }
+        });
     }
 
     public importI18n(modelResult: PetriNetResult, xmlDoc: Document): void {
