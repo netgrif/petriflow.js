@@ -8,9 +8,9 @@ export class ProcessEvent extends Event<ProcessEventType> {
     }
 
     public clone(): ProcessEvent {
-        const event = new ProcessEvent(this.type, this.id);
-        this.preActions.forEach(a => event.preActions.push(a.clone()));
-        this.postActions.forEach(a => event.postActions.push(a.clone()));
-        return event;
+        const cloned = new ProcessEvent(this.type, this.id);
+        this.preActions.forEach(a => cloned.preActions.push(a.clone()));
+        this.postActions.forEach(a => cloned.postActions.push(a.clone()));
+        return cloned;
     }
 }

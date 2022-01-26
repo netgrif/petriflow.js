@@ -29,11 +29,11 @@ export class RoleEvent extends Event<RoleEventType> {
     }
 
     public clone(): RoleEvent {
-        const event = new RoleEvent(this.type, this.id);
-        event._message = this._message;
-        event._title = this._title;
-        this.preActions.forEach(item => event.preActions.push(item.clone()));
-        this.postActions.forEach(item => event.postActions.push(item.clone()));
-        return event;
+        const cloned = new RoleEvent(this.type, this.id);
+        cloned._title = this._title?.clone();
+        cloned._message = this._message?.clone();
+        this.preActions.forEach(item => cloned.preActions.push(item.clone()));
+        this.postActions.forEach(item => cloned.postActions.push(item.clone()));
+        return cloned;
     }
 }

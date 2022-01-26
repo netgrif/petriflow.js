@@ -29,9 +29,9 @@ export class CaseLogic {
 
     clone(): CaseLogic {
         const cloned = new CaseLogic();
-        cloned.view = this.view;
-        cloned.delete = this.delete;
         cloned.create = this.create;
+        cloned.delete = this.delete;
+        cloned.view = this.view;
         return cloned;
     }
 }

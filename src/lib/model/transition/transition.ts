@@ -180,15 +180,15 @@ export class Transition extends EventSource<TransitionEvent, TransitionEventType
         cloned._icon = this._icon;
         cloned._priority = this._priority;
         cloned._assignPolicy = this._assignPolicy;
-        cloned._dataFocusPolicy = this._dataFocusPolicy;
         cloned._finishPolicy = this._finishPolicy;
+        cloned._dataFocusPolicy = this._dataFocusPolicy;
         cloned._triggers = this._triggers.map(item => item.clone());
         cloned._transactionRef = this._transactionRef;
         cloned._roleRefs = this._roleRefs.map(item => item.clone());
         cloned._userRefs = this._userRefs.map(item => item.clone());
         cloned._dataGroups = this._dataGroups.map(item => item.clone());
+        cloned._assignedUser = this._assignedUser?.clone();
         this.getEvents().forEach(event => cloned.addEvent(event.clone()));
-        cloned._assignedUser = this._assignedUser;
         return cloned;
     }
 }

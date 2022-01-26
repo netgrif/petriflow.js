@@ -33,9 +33,9 @@ export class Option {
     }
 
     public clone(): Option {
-        const opt = new Option();
-        opt._key = this._key;
-        opt._value = this._value?.clone();
-        return opt;
+        const cloned = new Option();
+        cloned._key = this._key;
+        cloned._value = this._value?.clone();
+        return cloned;
     }
 }

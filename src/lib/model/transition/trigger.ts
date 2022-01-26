@@ -34,10 +34,12 @@ export class Trigger {
     }
 
     public clone(): Trigger {
-        const trigger = new Trigger();
-        trigger._type = this._type;
-        trigger._delay = this._delay;
-        trigger._exact = this._exact;
-        return trigger;
+        const cloned = new Trigger();
+        cloned._type = this._type;
+        cloned._delay = this._delay;
+        if (this._exact) {
+            cloned._exact = new Date(this._exact.valueOf());
+        }
+        return cloned;
     }
 }
