@@ -6,6 +6,7 @@ export * from './arc/breakpoint';
 
 export * from './data-variable/component';
 export * from './data-variable/data-event';
+export * from './data-variable/data-event-source';
 export * from './data-variable/data-event-type.enum';
 export * from './data-variable/data-type.enum';
 export * from './data-variable/data-variable';
@@ -26,6 +27,7 @@ export * from './petrinet/case-event-type.enum';
 export * from './petrinet/case-logic';
 export * from './petrinet/event';
 export * from './petrinet/event-phase.enum';
+export * from './petrinet/event-source';
 export * from './petrinet/function-scope.enum';
 export * from './petrinet/mapping';
 export * from './petrinet/petriflow-function';
@@ -34,10 +36,11 @@ export * from './petrinet/process-event';
 export * from './petrinet/process-event-type.enum';
 export * from './petrinet/process-role-ref';
 export * from './petrinet/process-user-ref';
+export * from './petrinet/transaction';
+
 export * from './role/role';
 export * from './role/role-event';
 export * from './role/role-event-type.enum';
-export * from './petrinet/transaction';
 
 export * from './transition/alignment.enum';
 export * from './transition/appearance.enum';

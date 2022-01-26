@@ -69,11 +69,11 @@ export class Mapping {
     }
 
     public clone(): Mapping {
-        const mapping = new Mapping(this._id, this._transitionRef);
-        mapping._roleRef = this._roleRef.map(item => item.clone());
-        mapping._dataRef = this._dataRef.map(item => item.clone());
-        mapping._dataGroup = this._dataGroup.map(item => item.clone());
-        mapping._trigger = this._trigger.map(item => item.clone());
-        return mapping;
+        const cloned = new Mapping(this._id, this._transitionRef);
+        cloned._roleRef = this._roleRef.map(item => item.clone());
+        cloned._dataRef = this._dataRef.map(item => item.clone());
+        cloned._dataGroup = this._dataGroup.map(item => item.clone());
+        cloned._trigger = this._trigger.map(item => item.clone());
+        return cloned;
     }
 }

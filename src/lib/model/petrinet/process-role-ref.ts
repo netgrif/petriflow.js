@@ -26,8 +26,8 @@ export class ProcessRoleRef {
     }
 
     public clone(): ProcessRoleRef {
-        const roleRef = new ProcessRoleRef(this._id);
-        roleRef._caseLogic = this._caseLogic.clone();
-        return roleRef;
+        const cloned = new ProcessRoleRef(this._id);
+        cloned._caseLogic = this._caseLogic?.clone();
+        return cloned;
     }
 }

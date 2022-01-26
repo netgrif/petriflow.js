@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2](https://github.com/netgrif/petriflow.js/releases/tag/v1.3.2) (2022-01-26)
+
+### Fixes
+- [PF-20] Tag order in exported XML
+- [PF-22] CDATA export
+- [PF-23] Not all classes implements clone() properly
+
 
 ## [1.3.1](https://github.com/netgrif/petriflow.js/releases/tag/v1.3.1) (2021-12-17)
 
@@ -17,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - [PF-11] Update TS library
 - [PF-13] Clean up petriflow schema
-- [PF-16] Anonym role
+- [PF-16] Anonymous role
 
 ### Fixes
 - [PF-14] Data validation getter/setter
@@ -40,33 +47,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 First public release of the project.
 
-Full Changelog: [https://github.com/netgrif/petriflow.js/commits/v1.0.0](https://github.com/netgrif/petriflow.js/commits/v1.0.0)
+Full Changelog: [https://github.com/netgrif/petriflow.js/commits/v1.3.2](https://github.com/netgrif/petriflow.js/commits/v1.3.2)
 
 
-[comment]: <> (Template)
+<!-- Template
+## [version](https://github.com/netgrif/petriflow.js/releases/tag/v) (YYYY-MM-dd)
 
-[comment]: <> (## [version]&#40;https://github.com/netgrif/petriflow.js/releases/tag/v&#41; - date)
+### Added
+ - for new features.
 
-[comment]: <> (### Added )
+### Changed
+ - for changes in existing functionality.
 
-[comment]: <> (for new features.)
+### Deprecated
+ - for soon-to-be removed features.
 
-[comment]: <> (### Changed )
+### Removed
+ - for now removed features.
 
-[comment]: <> (for changes in existing functionality.)
+### Fixed
+ - for any bug fixes.
 
-[comment]: <> (### Deprecated )
-
-[comment]: <> (for soon-to-be removed features.)
-
-[comment]: <> (### Removed )
-
-[comment]: <> (for now removed features.)
-
-[comment]: <> (### Fixed )
-
-[comment]: <> (for any bug fixes.)
-
-[comment]: <> (### Security)
-
-[comment]: <> (in case of vulnerabilities.)
+### Security
+ - in case of vulnerabilities.
+-->

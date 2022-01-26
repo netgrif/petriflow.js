@@ -19,8 +19,8 @@ export class TransitionLayout extends Layout {
 
     public clone(): TransitionLayout {
         const cloned = new TransitionLayout();
-        cloned.cols = this.cols;
         cloned.rows = this.rows;
+        cloned.cols = this.cols;
         cloned.offset = this.offset;
         cloned.alignment = this.alignment;
         cloned.type = this._type;

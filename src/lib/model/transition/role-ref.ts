@@ -26,8 +26,8 @@ export class RoleRef {
     }
 
     public clone(): RoleRef {
-        const roleRef = new RoleRef(this._id);
-        roleRef._logic = this._logic.clone();
-        return roleRef;
+        const cloned = new RoleRef(this._id);
+        cloned._logic = this._logic?.clone();
+        return cloned;
     }
 }

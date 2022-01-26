@@ -11,7 +11,6 @@ import {
     Event,
     FinishPolicy,
     IconType,
-    Layout,
     LayoutType,
     PetriNet,
     ProcessEvent,
@@ -36,51 +35,7 @@ export class ExportService {
 
     public exportXml(model: PetriNet): string {
         const xmlText = this.generateXml(model);
-        return this.xmlToString(xmlText).replace('xmlns="http://www.w3.org/1999/xhtml"', '');
-    }
-
-    public xmlToString(inputNode: string | Element, level = 0, singleton = false): string {
-        let node: Element;
-        if (inputNode === undefined || inputNode === null) {
-            return '';
-        } else if (typeof inputNode === 'string') {
-            node = new DOMParser().parseFromString(inputNode, 'text/xml')?.documentElement;
-        } else {
-            node = inputNode;
-        }
-
-        const innerText = (n: Element) => n.textContent === null ? '' : n.textContent;
-        const tabs = Array(level + 1).fill('').join('\t');
-        const newLine = '\n';
-        if (node.nodeType === Node.TEXT_NODE) {
-            return (singleton ? '' : tabs) + innerText(node) + (singleton ? '' : newLine);
-        }
-        if (node.nodeType === Node.CDATA_SECTION_NODE) {
-            return '<![CDATA[' + innerText(node) + ']]>';
-        }
-        if (node.nodeType === Node.COMMENT_NODE) {
-            return '<!--' + innerText(node) + '-->';
-        }
-        if (!node.tagName) {
-            return this.xmlToString(node.firstChild as Element);
-        }
-        let output = tabs + `<${node.tagName}`;
-        for (let i = 0; i < node.attributes.length; i++) {
-            output += ` ${node.attributes.item(i)?.name}="${node.attributes.item(i)?.value}"`;
-        }
-        if (node.childNodes.length === 0) {
-            return output + ' />' + newLine;
-        } else {
-            output += '>';
-        }
-        const onlyOneTextChild = ((node.childNodes.length === 1) && (node.childNodes[0].nodeType === Node.TEXT_NODE));
-        if (!onlyOneTextChild) {
-            output += newLine;
-        }
-        node.childNodes.forEach(child => {
-            output += this.xmlToString(child as Element, level + 1, onlyOneTextChild);
-        });
-        return output + (onlyOneTextChild ? '' : tabs) + `</${node.tagName}>` + newLine;
+        return new XMLSerializer().serializeToString(xmlText);
     }
 
     public generateXml(model: PetriNet): Element {
@@ -88,12 +43,13 @@ export class ExportService {
         doc.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
         doc.setAttribute('xsi:noNamespaceSchemaLocation', ExportService.PETRIFLOW_SCHEMA_URL);
         this.exportModel(doc, model);
+        this.exportProcessRefs(doc, model);
+        this.exportProcessEvents(doc, model);
         this.exportTransactions(doc, model);
         this.exportRoles(doc, model);
         this.exportFunctions(doc, model);
-        this.exportProcessRefs(doc, model);
-        this.exportProcessEvents(doc, model);
         this.exportData(doc, model);
+        // TODO mapping
         this.exportI18n(doc, model);
         this.exportTransitions(doc, model);
         this.exportPlaces(doc, model);
@@ -268,17 +224,18 @@ export class ExportService {
                     }]);
                 }
             }
-            if (data.remote) {
-                this.exportUtils.exportTag(exportData, 'remote', 'true');
-            }
+            data.getEvents().forEach(event => {
+                this.exportEvent(exportData, event);
+            });
             data.actionRef?.forEach(action => {
                 const ref = this.xmlConstructor.createElement('actionRef');
                 this.exportUtils.exportTag(ref, 'id', action);
                 exportData.appendChild(ref);
             });
-            data.getEvents().forEach(event => {
-                this.exportEvent(exportData, event);
-            });
+            // TODO: documentRef
+            if (data.remote) {
+                this.exportUtils.exportTag(exportData, 'remote', 'true');
+            }
             if (data.length !== undefined) {
                 this.exportUtils.exportTag(exportData, 'length', data.length?.toString());
             }
@@ -320,8 +277,8 @@ export class ExportService {
                 this.exportUtils.exportTag(exportTrans, 'priority', `${trans.priority}`);
             }
             this.exportUtils.exportTag(exportTrans, 'assignPolicy', trans.assignPolicy === AssignPolicy.MANUAL ? '' : trans.assignPolicy);
-            this.exportUtils.exportTag(exportTrans, 'finishPolicy', trans.finishPolicy === FinishPolicy.MANUAL ? '' : trans.finishPolicy);
             this.exportUtils.exportTag(exportTrans, 'dataFocusPolicy', trans.dataFocusPolicy === DataFocusPolicy.MANUAL ? '' : trans.dataFocusPolicy);
+            this.exportUtils.exportTag(exportTrans, 'finishPolicy', trans.finishPolicy === FinishPolicy.MANUAL ? '' : trans.finishPolicy);
             trans.triggers.forEach(trigger => {
                 if (trigger.type !== TriggerType.TIME) {
                     const exportTrigger = this.xmlConstructor.createElement('trigger');
@@ -438,8 +395,11 @@ export class ExportService {
     public exportTransitionLayout(element: Element, layout: TransitionLayout): void {
         if (layout !== undefined) {
             const exportLayout = this.xmlConstructor.createElement('layout');
-            this.exportLayout(exportLayout, layout);
+            this.exportUtils.exportTag(exportLayout, 'cols', layout.cols?.toString() ?? '');
+            this.exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString() ?? '');
+            this.exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString() ?? '');
             this.exportUtils.exportTag(exportLayout, 'fieldAlignment', layout.alignment?.toString() ?? '');
+            // TODO: hideEmptyRows, compactDirection
             if (layout.type && layout.type !== LayoutType.LEGACY) {
                 exportLayout.setAttribute('type', layout.type);
             }
@@ -447,21 +407,16 @@ export class ExportService {
         }
     }
 
-    private exportLayout(exportLayout: Element, layout: Layout): void {
-        this.exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString() ?? '');
-        this.exportUtils.exportTag(exportLayout, 'cols', layout.cols?.toString() ?? '');
-        this.exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString() ?? '');
-    }
-
     public exportDataGroup(element: Element, dataGroup: DataGroup): void {
         const exportGroup = this.xmlConstructor.createElement('dataGroup');
         this.exportUtils.exportTag(exportGroup, 'id', dataGroup.id, true);
         this.exportUtils.exportTag(exportGroup, 'cols', dataGroup.cols?.toString() ?? '');
         this.exportUtils.exportTag(exportGroup, 'rows', dataGroup.rows?.toString() ?? '');
-        this.exportUtils.exportTag(exportGroup, 'title', dataGroup.title ?? '');
         this.exportUtils.exportTag(exportGroup, 'layout', dataGroup.layout ?? '');
+        this.exportUtils.exportTag(exportGroup, 'title', dataGroup.title ?? '');
         this.exportUtils.exportTag(exportGroup, 'alignment', dataGroup.alignment ?? '');
         this.exportUtils.exportTag(exportGroup, 'stretch', !dataGroup.stretch ? '' : dataGroup.stretch?.toString());
+        // TODO: hideEmptyRows, compactDirection
         dataGroup.getDataRefs().forEach(dataRef => this.exportDataRef(exportGroup, dataRef));
         element.appendChild(exportGroup);
     }
@@ -486,8 +441,8 @@ export class ExportService {
             this.exportUtils.exportTag(exportArc, 'type', arc.type);
             this.exportUtils.exportTag(exportArc, 'sourceId', arc.source);
             this.exportUtils.exportTag(exportArc, 'destinationId', arc.destination);
-            this.exportUtils.exportTag(exportArc, 'reference', arc.reference ?? '');
             this.exportUtils.exportTag(exportArc, 'multiplicity', arc.multiplicity?.toString());
+            this.exportUtils.exportTag(exportArc, 'reference', arc.reference ?? '');
             if (arc.breakpoints !== undefined) {
                 this.exportBreakpoints(exportArc, arc);
             }
@@ -497,7 +452,7 @@ export class ExportService {
 
     public exportBreakpoints(exportArc: Element, arc: Arc): void {
         arc.breakpoints.forEach((point) => {
-            const breakPoint = this.xmlConstructor.createElement('breakPoint');
+            const breakPoint = this.xmlConstructor.createElement('breakpoint');
             this.exportUtils.exportTag(breakPoint, 'x', point.x?.toString());
             this.exportUtils.exportTag(breakPoint, 'y', point.y?.toString());
             exportArc.appendChild(breakPoint);

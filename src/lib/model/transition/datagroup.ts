@@ -95,16 +95,16 @@ export class DataGroup {
     }
 
     public clone(): DataGroup {
-        const dataGroup = new DataGroup(this._id);
-        dataGroup._title = this._title?.clone();
-        dataGroup._alignment = this._alignment;
-        dataGroup._layout = this._layout;
-        dataGroup._stretch = this._stretch;
-        dataGroup._rows = this._rows;
-        dataGroup._cols = this._cols;
+        const cloned = new DataGroup(this._id);
+        cloned._cols = this._cols;
+        cloned._rows = this._rows;
+        cloned._title = this._title?.clone();
+        cloned._layout = this._layout;
+        cloned._alignment = this._alignment;
+        cloned._stretch = this._stretch;
         this._dataRefs.forEach(item => {
-            dataGroup.addDataRef(item.clone());
+            cloned.addDataRef(item.clone());
         });
-        return dataGroup;
+        return cloned;
     }
 }
