@@ -76,9 +76,18 @@ export class ExportUtils {
     }
 
     public exportAction(element: Element, action: Action): void {
+        if (action.definition === undefined || action.definition.trim().length === 0) {
+            return;
+        }
         const exportAction = this.xmlConstructor.createElement('action');
         if (action.id !== undefined && action.id != null) {
             exportAction.setAttribute('id', action.id);
+        }
+        if (!action.definition.startsWith('\n')) {
+            action.definition = `\n${action.definition}`;
+        }
+        if (!action.definition.endsWith('\n')) {
+            action.definition = `${action.definition}\n`;
         }
         exportAction.insertAdjacentText('beforeend', action.definition);
         element.appendChild(exportAction);

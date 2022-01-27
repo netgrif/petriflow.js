@@ -113,7 +113,23 @@ export class ImportUtils {
                 definition += node.nodeValue?.trim();
             }
         }
-        return definition;
+        return this.removeExcessiveIndents(definition);
+    }
+
+    public removeExcessiveIndents(action: string): string {
+        action = action.trim().replace(/\t/g, '    ');
+        const lines = action.split('\n');
+        let commonIndent = Math.min.apply(lines.map((l, i) => {
+            const indent = l.length - l.trimStart().length;
+            if (i === 0 && indent === 0) {
+                return Infinity;
+            }
+            return indent;
+        }));
+        if (isNaN(commonIndent) || !isFinite(commonIndent)) {
+            commonIndent = 0;
+        }
+        return lines.map(line => line.substring(commonIndent)).join('\n');
     }
 
     public parseEncryption(xmlTag: Element): string | undefined {
