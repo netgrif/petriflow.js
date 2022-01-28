@@ -119,13 +119,7 @@ export class ImportUtils {
     public removeExcessiveIndents(action: string): string {
         action = action.trim().replace(/\t/g, '    ');
         const lines = action.split('\n');
-        let commonIndent = Math.min.apply(lines.map((l, i) => {
-            const indent = l.length - l.trimStart().length;
-            if (i === 0 && indent === 0) {
-                return Infinity;
-            }
-            return indent;
-        }));
+        let commonIndent = Math.min.apply(lines.map(l => l.length - l.trimStart().length));
         if (isNaN(commonIndent) || !isFinite(commonIndent)) {
             commonIndent = 0;
         }
