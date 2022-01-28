@@ -5,11 +5,13 @@ const {
     AssignPolicy,
     Breakpoint,
     CaseEventType,
+    CompactDirection,
     DataEventType,
     DataRefBehavior,
     DataType,
     FinishPolicy,
     FunctionScope,
+    HideEmptyRows,
     IconType,
     ImportService,
     ExportService,
@@ -50,7 +52,7 @@ const CASE_EVENTS_DELETE_PRE_LENGTH = 1;
 const CASE_EVENTS_DELETE_POST_LENGTH = 1;
 const ROLE_TITLE_VALUE = 'title';
 const MODEL_ROLES_LENGTH = 4;
-const MODEL_TRANSITIONS_LENGTH = 9;
+const MODEL_TRANSITIONS_LENGTH = 12;
 const MODEL_PLACES_LENGTH = 10;
 const MODEL_ARCS_LENGTH = 16;
 const MODEL_DATA_LENGTH = 20;
@@ -659,6 +661,33 @@ describe('Petriflow integration tests', () => {
         assertRoleRefLogic(transitionT9RoleRef1, false, false, true, true, true);
         const transitionT9RoleRef2 = transitionWithoutDataGroup.roleRefs.find(r => r.id === ROLE_2_ID);
         assertRoleRefLogic(transitionT9RoleRef2, undefined, undefined, false, true, undefined);
+        const transitionT10 = model.getTransition('t10');
+        expect(transitionT10).toBeDefined();
+        const transitionT10Layout = transitionT10.layout;
+        expect(transitionT10Layout.hideEmptyRows).toEqual(HideEmptyRows.COMPACTED);
+        expect(transitionT10Layout.compactDirection).toEqual(CompactDirection.UP);
+        const transitionT10DataGroup = transitionT10.dataGroups[0];
+        expect(transitionT10DataGroup).toBeDefined();
+        expect(transitionT10DataGroup.hideEmptyRows).toEqual(HideEmptyRows.COMPACTED);
+        expect(transitionT10DataGroup.compactDirection).toEqual(CompactDirection.UP);
+        const transitionT11 = model.getTransition('t11');
+        expect(transitionT11).toBeDefined();
+        const transitionT11Layout = transitionT11.layout;
+        expect(transitionT11Layout.hideEmptyRows).toEqual(HideEmptyRows.ALL);
+        expect(transitionT11Layout.compactDirection).toEqual(CompactDirection.NONE);
+        const transitionT11DataGroup = transitionT11.dataGroups[0];
+        expect(transitionT11DataGroup).toBeDefined();
+        expect(transitionT11DataGroup.hideEmptyRows).toEqual(HideEmptyRows.ALL);
+        expect(transitionT11DataGroup.compactDirection).toEqual(CompactDirection.NONE);
+        const transitionT12 = model.getTransition('t12');
+        expect(transitionT12).toBeDefined();
+        const transitionT12Layout = transitionT12.layout;
+        expect(transitionT12Layout.hideEmptyRows).toEqual(HideEmptyRows.NONE);
+        expect(transitionT12Layout.compactDirection).toEqual(CompactDirection.NONE);
+        const transitionT12DataGroup = transitionT12.dataGroups[0];
+        expect(transitionT12DataGroup).toBeDefined();
+        expect(transitionT12DataGroup.hideEmptyRows).toEqual(HideEmptyRows.NONE);
+        expect(transitionT12DataGroup.compactDirection).toEqual(CompactDirection.UP);
         log('Model transitions correct');
 
         expect(model.getPlaces().length).toEqual(MODEL_PLACES_LENGTH);

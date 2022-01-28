@@ -33,6 +33,8 @@ import {
 } from '../model';
 import {FunctionScope} from '../model/petrinet/function-scope.enum';
 import {PetriflowFunction} from '../model/petrinet/petriflow-function';
+import {HideEmptyRows} from '../model/transition/hide-empty-rows.enum';
+import {CompactDirection} from '../model/transition/compact-direction.enum';
 
 export class ImportUtils {
 
@@ -312,6 +314,8 @@ export class ImportUtils {
             }
         }
         dataGroup.stretch = this.tagValue(xmlDataGroup, 'stretch') === 'true';
+        dataGroup.hideEmptyRows = this.tagValue(xmlDataGroup, 'hideEmptyRows') as HideEmptyRows;
+        dataGroup.compactDirection = this.tagValue(xmlDataGroup, 'compactDirection') as CompactDirection;
         dataGroup.title = this.parseI18n(xmlDataGroup, 'title');
         const xmlDataRefs = Array.from(xmlDataGroup.getElementsByTagName('dataRef'));
         for (let i = 0; i < xmlDataRefs.length; i++) {

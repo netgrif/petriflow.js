@@ -919,6 +919,66 @@
             </logic>
         </dataRef>
     </transition>
+    <transition>
+        <id>t10</id>
+        <x>900</x>
+        <y>260</y>
+        <label>compact</label>
+        <layout type="grid">
+            <cols>5</cols>
+            <rows>4</rows>
+            <offset>0</offset>
+            <fieldAlignment>bottom</fieldAlignment>
+            <hideEmptyRows>compacted</hideEmptyRows>
+            <compactDirection>up</compactDirection>
+        </layout>
+        <dataGroup>
+            <id>compact_up</id>
+            <layout>grid</layout>
+            <hideEmptyRows>compacted</hideEmptyRows>
+            <compactDirection>up</compactDirection>
+        </dataGroup>
+    </transition>
+    <transition>
+        <id>t11</id>
+        <x>900</x>
+        <y>300</y>
+        <label>all</label>
+        <layout type="grid">
+            <cols>5</cols>
+            <rows>4</rows>
+            <offset>0</offset>
+            <fieldAlignment>bottom</fieldAlignment>
+            <hideEmptyRows>all</hideEmptyRows>
+            <compactDirection>none</compactDirection>
+        </layout>
+        <dataGroup>
+            <id>compact_up</id>
+            <layout>grid</layout>
+            <hideEmptyRows>all</hideEmptyRows>
+            <compactDirection>none</compactDirection>
+        </dataGroup>
+    </transition>
+    <transition>
+        <id>t12</id>
+        <x>900</x>
+        <y>340</y>
+        <label>all</label>
+        <layout type="grid">
+            <cols>5</cols>
+            <rows>4</rows>
+            <offset>0</offset>
+            <fieldAlignment>bottom</fieldAlignment>
+            <hideEmptyRows>none</hideEmptyRows>
+            <compactDirection>none</compactDirection>
+        </layout>
+        <dataGroup>
+            <id>compact_up</id>
+            <layout>grid</layout>
+            <hideEmptyRows>none</hideEmptyRows>
+            <compactDirection>up</compactDirection>
+        </dataGroup>
+    </transition>
     <!-- PLACES -->
     <place>
         <id>p1</id>

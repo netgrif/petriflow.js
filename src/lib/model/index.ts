@@ -46,6 +46,7 @@ export * from './transition/alignment.enum';
 export * from './transition/appearance.enum';
 export * from './transition/assign-policy.enum';
 export * from './transition/assigned-user';
+export * from './transition/compact-direction.enum'
 export * from './transition/data-focus-policy.enum';
 export * from './transition/data-layout';
 export * from './transition/data-ref';
@@ -54,6 +55,7 @@ export * from './transition/data-ref-logic';
 export * from './transition/data-ref-logic-util';
 export * from './transition/datagroup'; // cspell:disable-line
 export * from './transition/finish-policy.enum';
+export * from './transition/hide-empty-rows.enum';
 export * from './transition/layout';
 export * from './transition/layout-type.enum';
 export * from './transition/logic';
