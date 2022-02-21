@@ -83,7 +83,7 @@ export class ExportUtils {
         if (action.id !== undefined && action.id != null) {
             exportAction.setAttribute('id', action.id);
         }
-        exportAction.innerHTML = action.definition;
+        exportAction.insertAdjacentText('beforeend', action.definition);
         element.appendChild(exportAction);
     }
 
