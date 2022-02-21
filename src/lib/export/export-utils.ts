@@ -31,7 +31,11 @@ export class ExportUtils {
                 }
                 tag.innerHTML = value.value;
             } else {
-                tag.innerHTML = value;
+                if (/<\/?[a-z][\s\S]*>/.test(value)) {
+                    tag.innerHTML = `<![CDATA[${value?.trim()}]]>`;
+                } else {
+                    tag.innerHTML = value;
+                }
             }
             doc.appendChild(tag);
         } else if (force) {
