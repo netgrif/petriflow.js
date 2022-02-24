@@ -29,12 +29,12 @@ export class ExportUtils {
                 if (value instanceof I18nWithDynamic && typeof value.dynamic === 'boolean' && value.dynamic) {
                     tag.setAttribute('dynamic', value.dynamic.toString());
                 }
-                tag.innerHTML = value.value;
+                tag.textContent = value.value;
             } else {
                 if (/<\/?[a-z][\s\S]*>/.test(value)) {
                     tag.innerHTML = `<![CDATA[${value?.trim()}]]>`;
                 } else {
-                    tag.innerHTML = value;
+                    tag.textContent = value;
                 }
             }
             doc.appendChild(tag);
