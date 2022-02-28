@@ -50,7 +50,7 @@ const CASE_EVENTS_DELETE_PRE_LENGTH = 1;
 const CASE_EVENTS_DELETE_POST_LENGTH = 1;
 const ROLE_TITLE_VALUE = 'title';
 const MODEL_ROLES_LENGTH = 4;
-const MODEL_TRANSITIONS_LENGTH = 9;
+const MODEL_TRANSITIONS_LENGTH = 10;
 const MODEL_PLACES_LENGTH = 10;
 const MODEL_ARCS_LENGTH = 16;
 const MODEL_DATA_LENGTH = 20;
@@ -659,6 +659,11 @@ describe('Petriflow integration tests', () => {
         assertRoleRefLogic(transitionT9RoleRef1, false, false, true, true, true);
         const transitionT9RoleRef2 = transitionWithoutDataGroup.roleRefs.find(r => r.id === ROLE_2_ID);
         assertRoleRefLogic(transitionT9RoleRef2, undefined, undefined, false, true, undefined);
+        const transitionPredefinedRoles = model.getTransition('predefined_roles');
+        const transitionPredefinedRolesDefault = transitionPredefinedRoles.roleRefs.find(r => r.id === 'default');
+        assertRoleRefLogic(transitionPredefinedRolesDefault, false, false, true, true, undefined);
+        const transitionPredefinedRolesAnonymous = transitionPredefinedRoles.roleRefs.find(r => r.id === 'anonymous');
+        assertRoleRefLogic(transitionPredefinedRolesAnonymous, true, undefined, false, false, false);
         log('Model transitions correct');
 
         expect(model.getPlaces().length).toEqual(MODEL_PLACES_LENGTH);

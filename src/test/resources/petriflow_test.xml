@@ -919,6 +919,35 @@
             </logic>
         </dataRef>
     </transition>
+    <transition>
+        <id>predefined_roles</id>
+        <x>460</x>
+        <y>260</y>
+        <label></label>
+        <layout type="flow">
+            <cols>3</cols>
+            <offset>0</offset>
+            <fieldAlignment>bottom</fieldAlignment>
+        </layout>
+        <roleRef>
+            <id>default</id>
+            <logic>
+                <perform>false</perform>
+                <delegate>false</delegate>
+                <cancel>true</cancel>
+                <assigned>true</assigned>
+            </logic>
+        </roleRef>
+        <roleRef>
+            <id>anonymous</id>
+            <logic>
+                <perform>true</perform>
+                <view>false</view>
+                <cancel>false</cancel>
+                <assigned>false</assigned>
+            </logic>
+        </roleRef>
+    </transition>
     <!-- PLACES -->
     <place>
         <id>p1</id>
