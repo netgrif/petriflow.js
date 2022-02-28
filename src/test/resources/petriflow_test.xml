@@ -183,6 +183,13 @@
         }
     </function>
     <!-- DATA -->
+    <data type="text">
+        <id>cdata_escape</id>
+        <title>CDATA &amp;&lt;&gt;</title>
+        <init>
+            <![CDATA[<p>CDATA &amp;&lt;&gt;</p>]]>
+        </init>
+    </data>
     <data type="number">
         <id>newVariable_1</id>
         <title>title</title>
@@ -438,7 +445,7 @@
         <id>t1</id>
         <x>460</x>
         <y>180</y>
-        <label name="t1_label">Task</label>
+        <label name="t1_label">Task escape:&amp;&lt;&gt;</label>
         <layout type="grid">
             <rows>4</rows>
             <cols>5</cols>

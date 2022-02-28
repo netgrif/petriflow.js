@@ -55,7 +55,7 @@ const MODEL_ROLES_LENGTH = 4;
 const MODEL_TRANSITIONS_LENGTH = 12;
 const MODEL_PLACES_LENGTH = 10;
 const MODEL_ARCS_LENGTH = 16;
-const MODEL_DATA_LENGTH = 20;
+const MODEL_DATA_LENGTH = 21;
 const MODEL_USERREFS_LENGTH = 2;
 const ROLE_1_ID = 'newRole_1';
 const ROLE_2_ID = 'newRole_2';
@@ -246,6 +246,9 @@ describe('Petriflow integration tests', () => {
         log('Model user refs correct');
 
         expect(model.getDataSet().length).toEqual(MODEL_DATA_LENGTH);
+        const cdataField = model.getData('cdata_escape');
+        expect(cdataField.title.value).toEqual('CDATA &<>');
+        expect(cdataField.init.expression).toContain('<p>CDATA &amp;&lt;&gt;</p>');
         const numberField = model.getData('newVariable_1');
         expect(numberField.type).toEqual(DataType.NUMBER);
         expect(numberField.title.value).toEqual('title');
@@ -427,7 +430,7 @@ describe('Petriflow integration tests', () => {
         expect(model.getTransitions().length).toEqual(MODEL_TRANSITIONS_LENGTH);
         const transitionT1 = model.getTransition('t1');
         expect(transitionT1.label.name).toEqual('t1_label');
-        expect(transitionT1.label.value).toEqual('Task');
+        expect(transitionT1.label.value).toEqual('Task escape:&<>');
         expect(transitionT1.icon).toEqual(MODEL_ICON);
         expect(transitionT1.assignPolicy).toEqual(AssignPolicy.AUTO);
         expect(transitionT1.finishPolicy).toEqual(FinishPolicy.AUTO_NO_DATA);

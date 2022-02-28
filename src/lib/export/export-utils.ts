@@ -29,9 +29,13 @@ export class ExportUtils {
                 if (value instanceof I18nWithDynamic && typeof value.dynamic === 'boolean' && value.dynamic) {
                     tag.setAttribute('dynamic', value.dynamic.toString());
                 }
-                tag.innerHTML = value.value;
+                tag.textContent = value.value;
             } else {
-                tag.innerHTML = value;
+                if (/<\/?[a-z][\s\S]*>/.test(value)) {
+                    tag.innerHTML = `<![CDATA[${value?.trim()}]]>`;
+                } else {
+                    tag.textContent = value;
+                }
             }
             doc.appendChild(tag);
         } else if (force) {
@@ -76,6 +80,9 @@ export class ExportUtils {
     }
 
     public exportAction(element: Element, action: Action): void {
+        if (action.definition === undefined || action.definition.trim().length === 0) {
+            return;
+        }
         const exportAction = this.xmlConstructor.createElement('action');
         if (action.id !== undefined && action.id != null) {
             exportAction.setAttribute('id', action.id);
