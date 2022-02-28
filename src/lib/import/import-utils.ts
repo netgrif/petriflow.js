@@ -194,7 +194,12 @@ export class ImportUtils {
         roleRef.logic.delegate = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delegate'));
         roleRef.logic.perform = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'perform'));
         /* @deprecated - 'this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assigned'))' is deprecated and it and following line will be removed in future versions. */
-        roleRef.logic.assign = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assigned')) || this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assign'))
+        const assigned = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assigned'));
+        if (assigned !== undefined) {
+            roleRef.logic.assign = assigned;
+        } else {
+            roleRef.logic.assign = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assign'));
+        }
         roleRef.logic.cancel = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'cancel'));
         roleRef.logic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
     }

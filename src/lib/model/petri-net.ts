@@ -147,7 +147,7 @@ export class PetriNet {
     }
 
     addRoleRef(roleRef: ProcessRoleRef) {
-        if (!this._roles.has(roleRef.id)) {
+        if (!this._roles.has(roleRef.id) && roleRef.id !== Role.DEFAULT && roleRef.id !== Role.ANONYMOUS) {
             throw new Error(`Referenced role with id ${roleRef.id} does not exist`);
         }
         if (this._roleRefs.has(roleRef.id)) {
