@@ -217,7 +217,7 @@ describe('Petriflow integration tests', () => {
         expect(processFunction.definition).toContain('}');
         log('Model functions correct');
 
-        expect(model.getRoleRefs().length).toEqual(3);
+        expect(model.getRoleRefs().length).toEqual(5);
         const roleRef1 = model.getRoleRef(ROLE_1_ID);
         expect(roleRef1.caseLogic.delete).toEqual(true);
         expect(roleRef1.caseLogic.create).toEqual(false);
@@ -230,6 +230,14 @@ describe('Petriflow integration tests', () => {
         expect(roleRef3.caseLogic.delete).toBeUndefined();
         expect(roleRef3.caseLogic.create).toEqual(false);
         expect(roleRef3.caseLogic.view).toEqual(true);
+        const roleRefAnonymous = model.getRoleRef('anonymous');
+        expect(roleRefAnonymous.caseLogic.create).toEqual(true);
+        expect(roleRefAnonymous.caseLogic.view).toEqual(false);
+        expect(roleRefAnonymous.caseLogic.delete).toEqual(undefined);
+        const roleRefDefault = model.getRoleRef('default');
+        expect(roleRefDefault.caseLogic.create).toEqual(undefined);
+        expect(roleRefDefault.caseLogic.view).toEqual(true);
+        expect(roleRefDefault.caseLogic.delete).toEqual(false);
         log('Model rol refs correct');
 
         expect(model.getUserRefs().length).toEqual(MODEL_USERREFS_LENGTH);

@@ -10,6 +10,20 @@
     <caseName dynamic="true">${new Date() as String}</caseName>
     <!-- PROCESS ROLE REFS -->
     <roleRef>
+        <id>anonymous</id>
+        <caseLogic>
+            <create>true</create>
+            <view>false</view>
+        </caseLogic>
+    </roleRef>
+    <roleRef>
+        <id>default</id>
+        <caseLogic>
+            <delete>false</delete>
+            <view>true</view>
+        </caseLogic>
+    </roleRef>
+    <roleRef>
         <id>newRole_1</id>
         <caseLogic>
             <create>false</create>
