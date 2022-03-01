@@ -10,6 +10,20 @@
     <caseName dynamic="true">${new Date() as String}</caseName>
     <!-- PROCESS ROLE REFS -->
     <roleRef>
+        <id>anonymous</id>
+        <caseLogic>
+            <create>true</create>
+            <view>false</view>
+        </caseLogic>
+    </roleRef>
+    <roleRef>
+        <id>default</id>
+        <caseLogic>
+            <delete>false</delete>
+            <view>true</view>
+        </caseLogic>
+    </roleRef>
+    <roleRef>
         <id>newRole_1</id>
         <caseLogic>
             <create>false</create>
@@ -183,6 +197,13 @@
         }
     </function>
     <!-- DATA -->
+    <data type="text">
+        <id>cdata_escape</id>
+        <title>CDATA &amp;&lt;&gt;</title>
+        <init>
+            <![CDATA[<p>CDATA &amp;&lt;&gt;</p>]]>
+        </init>
+    </data>
     <data type="number">
         <id>newVariable_1</id>
         <title>title</title>
@@ -438,7 +459,7 @@
         <id>t1</id>
         <x>460</x>
         <y>180</y>
-        <label name="t1_label">Task</label>
+        <label name="t1_label">Task escape:&amp;&lt;&gt;</label>
         <layout type="grid">
             <rows>4</rows>
             <cols>5</cols>
@@ -918,6 +939,95 @@
                 <behavior>editable</behavior>
             </logic>
         </dataRef>
+    </transition>
+    <transition>
+        <id>t10</id>
+        <x>900</x>
+        <y>260</y>
+        <label>compact</label>
+        <layout type="grid">
+            <cols>5</cols>
+            <rows>4</rows>
+            <offset>0</offset>
+            <fieldAlignment>bottom</fieldAlignment>
+            <hideEmptyRows>compacted</hideEmptyRows>
+            <compactDirection>up</compactDirection>
+        </layout>
+        <dataGroup>
+            <id>compact_up</id>
+            <layout>grid</layout>
+            <hideEmptyRows>compacted</hideEmptyRows>
+            <compactDirection>up</compactDirection>
+        </dataGroup>
+    </transition>
+    <transition>
+        <id>t11</id>
+        <x>900</x>
+        <y>300</y>
+        <label>all</label>
+        <layout type="grid">
+            <cols>5</cols>
+            <rows>4</rows>
+            <offset>0</offset>
+            <fieldAlignment>bottom</fieldAlignment>
+            <hideEmptyRows>all</hideEmptyRows>
+            <compactDirection>none</compactDirection>
+        </layout>
+        <dataGroup>
+            <id>compact_up</id>
+            <layout>grid</layout>
+            <hideEmptyRows>all</hideEmptyRows>
+            <compactDirection>none</compactDirection>
+        </dataGroup>
+    </transition>
+    <transition>
+        <id>t12</id>
+        <x>900</x>
+        <y>340</y>
+        <label>all</label>
+        <layout type="grid">
+            <cols>5</cols>
+            <rows>4</rows>
+            <offset>0</offset>
+            <fieldAlignment>bottom</fieldAlignment>
+            <hideEmptyRows>none</hideEmptyRows>
+            <compactDirection>none</compactDirection>
+        </layout>
+        <dataGroup>
+            <id>compact_up</id>
+            <layout>grid</layout>
+            <hideEmptyRows>none</hideEmptyRows>
+            <compactDirection>up</compactDirection>
+        </dataGroup>
+    </transition>
+    <transition>
+        <id>predefined_roles</id>
+        <x>460</x>
+        <y>260</y>
+        <label></label>
+        <layout type="flow">
+            <cols>3</cols>
+            <offset>0</offset>
+            <fieldAlignment>bottom</fieldAlignment>
+        </layout>
+        <roleRef>
+            <id>default</id>
+            <logic>
+                <perform>false</perform>
+                <delegate>false</delegate>
+                <cancel>true</cancel>
+                <assigned>true</assigned>
+            </logic>
+        </roleRef>
+        <roleRef>
+            <id>anonymous</id>
+            <logic>
+                <perform>true</perform>
+                <view>false</view>
+                <cancel>false</cancel>
+                <assigned>false</assigned>
+            </logic>
+        </roleRef>
     </transition>
     <!-- PLACES -->
     <place>

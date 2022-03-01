@@ -33,6 +33,8 @@ import {
 } from '../model';
 import {FunctionScope} from '../model/petrinet/function-scope.enum';
 import {PetriflowFunction} from '../model/petrinet/petriflow-function';
+import {HideEmptyRows} from '../model/transition/hide-empty-rows.enum';
+import {CompactDirection} from '../model/transition/compact-direction.enum';
 
 export class ImportUtils {
 
@@ -113,7 +115,17 @@ export class ImportUtils {
                 definition += node.nodeValue?.trim();
             }
         }
-        return definition;
+        return this.removeExcessiveIndents(definition);
+    }
+
+    public removeExcessiveIndents(action: string): string {
+        action = action.trim().replace(/\t/g, '    ');
+        const lines = action.split('\n');
+        let commonIndent = Math.min(...(lines.map(l => l.length - l.trimStart().length)));
+        if (isNaN(commonIndent) || !isFinite(commonIndent)) {
+            commonIndent = 0;
+        }
+        return lines.map(line => line.substring(commonIndent)).join('\n');
     }
 
     public parseEncryption(xmlTag: Element): string | undefined {
@@ -182,7 +194,12 @@ export class ImportUtils {
         roleRef.logic.delegate = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delegate'));
         roleRef.logic.perform = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'perform'));
         /* @deprecated - 'this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assigned'))' is deprecated and it and following line will be removed in future versions. */
-        roleRef.logic.assign = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assigned')) || this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assign'))
+        const assigned = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assigned'));
+        if (assigned !== undefined) {
+            roleRef.logic.assign = assigned;
+        } else {
+            roleRef.logic.assign = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assign'));
+        }
         roleRef.logic.cancel = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'cancel'));
         roleRef.logic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
     }
@@ -312,6 +329,8 @@ export class ImportUtils {
             }
         }
         dataGroup.stretch = this.tagValue(xmlDataGroup, 'stretch') === 'true';
+        dataGroup.hideEmptyRows = this.tagValue(xmlDataGroup, 'hideEmptyRows') as HideEmptyRows;
+        dataGroup.compactDirection = this.tagValue(xmlDataGroup, 'compactDirection') as CompactDirection;
         dataGroup.title = this.parseI18n(xmlDataGroup, 'title');
         const xmlDataRefs = Array.from(xmlDataGroup.getElementsByTagName('dataRef'));
         for (let i = 0; i < xmlDataRefs.length; i++) {
