@@ -4,6 +4,7 @@ import {
     Appearance,
     Arc,
     ArcType,
+    CompactDirection,
     Component,
     DataEvent,
     DataEventType,
@@ -15,11 +16,14 @@ import {
     Event,
     EventPhase,
     Expression,
+    FunctionScope,
+    HideEmptyRows,
     I18nString,
     I18nWithDynamic,
     Icon,
     IconType,
     LayoutType,
+    PetriflowFunction,
     PetriNet,
     Place,
     ProcessRoleRef,
@@ -31,10 +35,6 @@ import {
     TriggerType,
     UserRef
 } from '../model';
-import {FunctionScope} from '../model/petrinet/function-scope.enum';
-import {PetriflowFunction} from '../model/petrinet/petriflow-function';
-import {HideEmptyRows} from '../model/transition/hide-empty-rows.enum';
-import {CompactDirection} from '../model/transition/compact-direction.enum';
 
 export class ImportUtils {
 
