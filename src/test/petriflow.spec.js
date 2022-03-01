@@ -5,11 +5,13 @@ const {
     AssignPolicy,
     Breakpoint,
     CaseEventType,
+    CompactDirection,
     DataEventType,
     DataRefBehavior,
     DataType,
     FinishPolicy,
     FunctionScope,
+    HideEmptyRows,
     IconType,
     ImportService,
     ExportService,
@@ -50,10 +52,10 @@ const CASE_EVENTS_DELETE_PRE_LENGTH = 1;
 const CASE_EVENTS_DELETE_POST_LENGTH = 1;
 const ROLE_TITLE_VALUE = 'title';
 const MODEL_ROLES_LENGTH = 4;
-const MODEL_TRANSITIONS_LENGTH = 9;
+const MODEL_TRANSITIONS_LENGTH = 13;
 const MODEL_PLACES_LENGTH = 10;
 const MODEL_ARCS_LENGTH = 16;
-const MODEL_DATA_LENGTH = 20;
+const MODEL_DATA_LENGTH = 21;
 const MODEL_USERREFS_LENGTH = 2;
 const ROLE_1_ID = 'newRole_1';
 const ROLE_2_ID = 'newRole_2';
@@ -217,7 +219,7 @@ describe('Petriflow integration tests', () => {
         expect(processFunction.definition).toContain('}');
         log('Model functions correct');
 
-        expect(model.getRoleRefs().length).toEqual(3);
+        expect(model.getRoleRefs().length).toEqual(5);
         const roleRef1 = model.getRoleRef(ROLE_1_ID);
         expect(roleRef1.caseLogic.delete).toEqual(true);
         expect(roleRef1.caseLogic.create).toEqual(false);
@@ -230,6 +232,14 @@ describe('Petriflow integration tests', () => {
         expect(roleRef3.caseLogic.delete).toBeUndefined();
         expect(roleRef3.caseLogic.create).toEqual(false);
         expect(roleRef3.caseLogic.view).toEqual(true);
+        const roleRefAnonymous = model.getRoleRef('anonymous');
+        expect(roleRefAnonymous.caseLogic.create).toEqual(true);
+        expect(roleRefAnonymous.caseLogic.view).toEqual(false);
+        expect(roleRefAnonymous.caseLogic.delete).toEqual(undefined);
+        const roleRefDefault = model.getRoleRef('default');
+        expect(roleRefDefault.caseLogic.create).toEqual(undefined);
+        expect(roleRefDefault.caseLogic.view).toEqual(true);
+        expect(roleRefDefault.caseLogic.delete).toEqual(false);
         log('Model rol refs correct');
 
         expect(model.getUserRefs().length).toEqual(MODEL_USERREFS_LENGTH);
@@ -244,6 +254,9 @@ describe('Petriflow integration tests', () => {
         log('Model user refs correct');
 
         expect(model.getDataSet().length).toEqual(MODEL_DATA_LENGTH);
+        const cdataField = model.getData('cdata_escape');
+        expect(cdataField.title.value).toEqual('CDATA &<>');
+        expect(cdataField.init.expression).toContain('<p>CDATA &amp;&lt;&gt;</p>');
         const numberField = model.getData('newVariable_1');
         expect(numberField.type).toEqual(DataType.NUMBER);
         expect(numberField.title.value).toEqual('title');
@@ -425,7 +438,7 @@ describe('Petriflow integration tests', () => {
         expect(model.getTransitions().length).toEqual(MODEL_TRANSITIONS_LENGTH);
         const transitionT1 = model.getTransition('t1');
         expect(transitionT1.label.name).toEqual('t1_label');
-        expect(transitionT1.label.value).toEqual('Task');
+        expect(transitionT1.label.value).toEqual('Task escape:&<>');
         expect(transitionT1.icon).toEqual(MODEL_ICON);
         expect(transitionT1.assignPolicy).toEqual(AssignPolicy.AUTO);
         expect(transitionT1.finishPolicy).toEqual(FinishPolicy.AUTO_NO_DATA);
@@ -659,6 +672,38 @@ describe('Petriflow integration tests', () => {
         assertRoleRefLogic(transitionT9RoleRef1, false, false, true, true, true);
         const transitionT9RoleRef2 = transitionWithoutDataGroup.roleRefs.find(r => r.id === ROLE_2_ID);
         assertRoleRefLogic(transitionT9RoleRef2, undefined, undefined, false, true, undefined);
+        const transitionT10 = model.getTransition('t10');
+        expect(transitionT10).toBeDefined();
+        const transitionT10Layout = transitionT10.layout;
+        expect(transitionT10Layout.hideEmptyRows).toEqual(HideEmptyRows.COMPACTED);
+        expect(transitionT10Layout.compactDirection).toEqual(CompactDirection.UP);
+        const transitionT10DataGroup = transitionT10.dataGroups[0];
+        expect(transitionT10DataGroup).toBeDefined();
+        expect(transitionT10DataGroup.hideEmptyRows).toEqual(HideEmptyRows.COMPACTED);
+        expect(transitionT10DataGroup.compactDirection).toEqual(CompactDirection.UP);
+        const transitionT11 = model.getTransition('t11');
+        expect(transitionT11).toBeDefined();
+        const transitionT11Layout = transitionT11.layout;
+        expect(transitionT11Layout.hideEmptyRows).toEqual(HideEmptyRows.ALL);
+        expect(transitionT11Layout.compactDirection).toEqual(CompactDirection.NONE);
+        const transitionT11DataGroup = transitionT11.dataGroups[0];
+        expect(transitionT11DataGroup).toBeDefined();
+        expect(transitionT11DataGroup.hideEmptyRows).toEqual(HideEmptyRows.ALL);
+        expect(transitionT11DataGroup.compactDirection).toEqual(CompactDirection.NONE);
+        const transitionT12 = model.getTransition('t12');
+        expect(transitionT12).toBeDefined();
+        const transitionT12Layout = transitionT12.layout;
+        expect(transitionT12Layout.hideEmptyRows).toEqual(HideEmptyRows.NONE);
+        expect(transitionT12Layout.compactDirection).toEqual(CompactDirection.NONE);
+        const transitionT12DataGroup = transitionT12.dataGroups[0];
+        expect(transitionT12DataGroup).toBeDefined();
+        expect(transitionT12DataGroup.hideEmptyRows).toEqual(HideEmptyRows.NONE);
+        expect(transitionT12DataGroup.compactDirection).toEqual(CompactDirection.UP);
+        const transitionPredefinedRoles = model.getTransition('predefined_roles');
+        const transitionPredefinedRolesDefault = transitionPredefinedRoles.roleRefs.find(r => r.id === 'default');
+        assertRoleRefLogic(transitionPredefinedRolesDefault, false, false, true, true, undefined);
+        const transitionPredefinedRolesAnonymous = transitionPredefinedRoles.roleRefs.find(r => r.id === 'anonymous');
+        assertRoleRefLogic(transitionPredefinedRolesAnonymous, true, undefined, false, false, false);
         log('Model transitions correct');
 
         expect(model.getPlaces().length).toEqual(MODEL_PLACES_LENGTH);

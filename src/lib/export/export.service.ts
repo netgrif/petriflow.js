@@ -399,7 +399,8 @@ export class ExportService {
             this.exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString() ?? '');
             this.exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString() ?? '');
             this.exportUtils.exportTag(exportLayout, 'fieldAlignment', layout.alignment?.toString() ?? '');
-            // TODO: hideEmptyRows, compactDirection
+            this.exportUtils.exportTag(exportLayout, 'hideEmptyRows', layout.hideEmptyRows?.toString() ?? '');
+            this.exportUtils.exportTag(exportLayout, 'compactDirection', layout.compactDirection?.toString() ?? '');
             if (layout.type && layout.type !== LayoutType.LEGACY) {
                 exportLayout.setAttribute('type', layout.type);
             }
@@ -416,7 +417,8 @@ export class ExportService {
         this.exportUtils.exportTag(exportGroup, 'title', dataGroup.title ?? '');
         this.exportUtils.exportTag(exportGroup, 'alignment', dataGroup.alignment ?? '');
         this.exportUtils.exportTag(exportGroup, 'stretch', !dataGroup.stretch ? '' : dataGroup.stretch?.toString());
-        // TODO: hideEmptyRows, compactDirection
+        this.exportUtils.exportTag(exportGroup, 'hideEmptyRows', dataGroup.hideEmptyRows?.toString() ?? '');
+        this.exportUtils.exportTag(exportGroup, 'compactDirection', dataGroup.compactDirection?.toString() ?? '');
         dataGroup.getDataRefs().forEach(dataRef => this.exportDataRef(exportGroup, dataRef));
         element.appendChild(exportGroup);
     }

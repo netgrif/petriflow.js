@@ -10,11 +10,11 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=netgrif_petriflow.js&metric=coverage)](https://sonarcloud.io/dashboard?id=netgrif_petriflow.js)
 [![Known Vulnerabilities](https://snyk.io/test/github/netgrif/petriflow.js/badge.svg)](https://snyk.io/test/github/netgrif/petriflow.js)
 
-> Petriflow in Javascript world
+> Petriflow in JavaScript world
 
-Petriflow.js is a Javascript library of Petriflow objects, written in Typescript. The library is for those who want to integrate Petriflow
+Petriflow.js is a JavaScript library of Petriflow objects, written in TypeScript. The library is for those who want to integrate Petriflow
 processes into their applications. The library is updated together with the Petriflow specification to ensure up-to-date compatibility.
-The library also contains functions to parse Petriflow source code from XML files to Javascript objects and to export Javascript Objects to Petriflow source code.
+The library also contains functions to parse Petriflow source code from XML files to JavaScript objects and to export JavaScript Objects to Petriflow source code.
 
 Full specification of Petriflow low-code language can be found at [Petriflow.com](https://petriflow.com) 
 
@@ -46,11 +46,11 @@ For applications supporting ES6+ modules you can use `import` statement, i.e.:
 import {PetriNet, ImportService} from "@netgrif/petriflow";
 ```
 
-The library is also published with type declaration and so your Typescript project will automatically recognize all types and enumerations.
+The library is also published with type declaration and so your TypeScript project will automatically recognize all types and enumerations.
 
 ### Petriflow model
 
-The library contains every object, constant, and structure to fully interpret Petriflow source code files in Javascript.
+The library contains every object, constant, and structure to fully interpret Petriflow source code files in JavaScript.
 The root object is a [PetriNet](https://github.com/netgrif/petriflow.js/blob/master/src/lib/model/petri-net.ts) which contains all information from the Petriflow process. Every object in the library has
 `T.clone() => T` method to make a deep copy of the object.
 

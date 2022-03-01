@@ -39,6 +39,8 @@ import {
     UserRef,
     Validation
 } from '../model';
+import {CompactDirection} from '../model/transition/compact-direction.enum';
+import {HideEmptyRows} from '../model/transition/hide-empty-rows.enum';
 import {ImportUtils} from './import-utils';
 import {PetriNetResult} from './petri-net-result';
 
@@ -407,6 +409,8 @@ export class ImportService {
                 }
                 trans.layout.offset = this.importUtils.parseNumberValue(xmlLayout.item(0), 'offset') ?? 0;
                 trans.layout.alignment = this.importUtils.tagValue(xmlLayout.item(0), 'fieldAlignment') as Alignment;
+                trans.layout.hideEmptyRows = this.importUtils.tagValue(xmlLayout.item(0), 'hideEmptyRows') as HideEmptyRows;
+                trans.layout.compactDirection = this.importUtils.tagValue(xmlLayout.item(0), 'compactDirection') as CompactDirection;
             }
         } catch (e) {
             result.addError('Importing transition layout failed', e as Error);

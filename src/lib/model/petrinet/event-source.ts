@@ -33,7 +33,9 @@ export abstract class EventSource<T extends Event<S>, S> {
     public mergeEvent(event: T) {
         if (this._events.has(event.type)) {
             const oldEvent = this._events.get(event.type);
-            if (!oldEvent) return;
+            if (!oldEvent) {
+                return;
+            }
             oldEvent.preActions.push(...event.preActions);
             oldEvent.postActions.push(...event.postActions);
         } else {

@@ -1,6 +1,8 @@
 import {I18nString} from '../i18n/i18n-string';
 import {Alignment} from './alignment.enum';
+import {CompactDirection} from './compact-direction.enum';
 import {DataRef} from './data-ref';
+import {HideEmptyRows} from './hide-empty-rows.enum';
 import {LayoutType} from './layout-type.enum';
 
 export class DataGroup {
@@ -11,6 +13,8 @@ export class DataGroup {
     private _layout?: LayoutType;
     private _alignment?: Alignment;
     private _stretch: boolean;
+    private _hideEmptyRows?: HideEmptyRows;
+    private _compactDirection?: CompactDirection;
     private _dataRefs: Map<string, DataRef>;
 
     constructor(id: string) {
@@ -75,6 +79,22 @@ export class DataGroup {
         this._stretch = value;
     }
 
+    get hideEmptyRows(): HideEmptyRows | undefined {
+        return this._hideEmptyRows;
+    }
+
+    set hideEmptyRows(value: HideEmptyRows | undefined) {
+        this._hideEmptyRows = value;
+    }
+
+    get compactDirection(): CompactDirection | undefined {
+        return this._compactDirection;
+    }
+
+    set compactDirection(value: CompactDirection | undefined) {
+        this._compactDirection = value;
+    }
+
     getDataRefs(): Array<DataRef> {
         return Array.from(this._dataRefs.values());
     }
@@ -102,6 +122,8 @@ export class DataGroup {
         cloned._layout = this._layout;
         cloned._alignment = this._alignment;
         cloned._stretch = this._stretch;
+        cloned._hideEmptyRows = this._hideEmptyRows;
+        cloned._compactDirection = this._compactDirection;
         this._dataRefs.forEach(item => {
             cloned.addDataRef(item.clone());
         });
