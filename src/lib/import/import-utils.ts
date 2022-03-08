@@ -23,6 +23,7 @@ import {
     Icon,
     IconType,
     LayoutType,
+    NodeElement,
     PetriflowFunction,
     PetriNet,
     Place,
@@ -214,7 +215,7 @@ export class ImportUtils {
         roleRef.caseLogic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
     }
 
-    public checkVariability(model: PetriNet, arc: Arc, reference: string | undefined): void {
+    public checkVariability(model: PetriNet, arc: Arc<NodeElement, NodeElement>, reference: string | undefined): void {
         if (!reference) return;
         let ref: Place | DataVariable | undefined = model.getPlace(reference);
         if (ref) {
@@ -227,7 +228,7 @@ export class ImportUtils {
         }
     }
 
-    public attachReference(arc: Arc, reference: Place | DataVariable): void {
+    public attachReference(arc: Arc<NodeElement, NodeElement>, reference: Place | DataVariable): void {
         const weight = reference instanceof Place ? reference.marking : parseInt(reference.init?.expression ?? '' as string, 10);
 
         if (isNaN(weight)) {

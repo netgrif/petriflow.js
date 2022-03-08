@@ -7,6 +7,7 @@ import {
     Breakpoint,
     CaseEvent,
     CaseEventType,
+    CompactDirection,
     Component,
     DataEvent,
     DataEventType,
@@ -16,11 +17,14 @@ import {
     DataVariable,
     Expression,
     FinishPolicy,
+    HideEmptyRows,
     I18nString,
     I18nTranslations,
     I18nWithDynamic,
+    InhibitorArc,
     LayoutType,
     Mapping,
+    NodeElement,
     Option,
     PetriNet,
     Place,
@@ -28,6 +32,10 @@ import {
     ProcessEventType,
     ProcessRoleRef,
     ProcessUserRef,
+    ReadArc,
+    RegularPlaceTransitionArc,
+    RegularTransitionPlaceArc,
+    ResetArc,
     Role,
     RoleEvent,
     RoleEventType,
@@ -39,8 +47,6 @@ import {
     UserRef,
     Validation
 } from '../model';
-import {CompactDirection} from '../model/transition/compact-direction.enum';
-import {HideEmptyRows} from '../model/transition/hide-empty-rows.enum';
 import {ImportUtils} from './import-utils';
 import {PetriNetResult} from './petri-net-result';
 
@@ -455,7 +461,7 @@ export class ImportService {
             event.message = this.importUtils.parseI18n(xmlEvent, 'message');
             event.title = this.importUtils.parseI18n(xmlEvent, 'title');
             this.importUtils.parseEvent(xmlEvent, event);
-            trans.mergeEvent(event);
+            trans.eventSource.mergeEvent(event);
         } catch (e) {
             result.addError(`Importing transition event with index [${index} ${xmlEvent.id}] failed`, e as Error);
         }
@@ -564,7 +570,7 @@ export class ImportService {
         }
     }
 
-    public parseArc(result: PetriNetResult, xmlArc: Element): Arc {
+    public parseArc(result: PetriNetResult, xmlArc: Element): Arc<NodeElement, NodeElement> {
         const source = xmlArc.getElementsByTagName('sourceId')[0].childNodes[0].nodeValue;
         if (!source)
             throw new Error("Source of an arc must be defined!");
@@ -575,10 +581,9 @@ export class ImportService {
         const arcId = xmlArc.getElementsByTagName('id')[0].childNodes[0].nodeValue;
         if (!arcId)
             throw new Error("Id of an arc must be defined!");
-        const arc = new Arc(source, target, parsedArcType, arcId);
+        const arc = this.resolveArc(source, target, parsedArcType, arcId, result);
         arc.multiplicity = this.importUtils.parseNumberValue(xmlArc, 'multiplicity') ?? 0;
-        if (arc.type === ArcType.VARIABLE) {
-            arc.type = ArcType.REGULAR;
+        if (parsedArcType === ArcType.VARIABLE) {
             arc.reference = xmlArc.getElementsByTagName('multiplicity')[0]?.childNodes[0]?.nodeValue ?? undefined;
             this.importUtils.checkVariability(result.model, arc, arc.reference);
             result.addInfo(`Variable arc '${arc.id}' converted to regular with data field reference`);
@@ -591,7 +596,53 @@ export class ImportService {
         return arc;
     }
 
-    importBreakPoints(xmlArc: Element, arc: Arc, result: PetriNetResult) {
+    resolveArc(source: string, target: string, parsedArcType: ArcType, arcId: string, result: PetriNetResult): Arc<NodeElement, NodeElement> {
+        // TODO: refactor
+        let place, transition;
+        switch (parsedArcType) {
+            case ArcType.INHIBITOR:
+                place = result.model.getPlace(source);
+                transition = result.model.getTransition(target);
+                if (place === undefined || transition === undefined) {
+                    throw new Error(`Could not find nodes ${source}->${target}  of arc ${arcId}`);
+                }
+                return new InhibitorArc(place, transition, arcId);
+            case ArcType.RESET:
+                place = result.model.getPlace(source);
+                transition = result.model.getTransition(target);
+                if (place === undefined || transition === undefined) {
+                    throw new Error(`Could not find nodes ${source}->${target}  of arc ${arcId}`);
+                }
+                return new ResetArc(place, transition, arcId);
+            case ArcType.READ:
+                place = result.model.getPlace(source);
+                transition = result.model.getTransition(target);
+                if (place === undefined || transition === undefined) {
+                    throw new Error(`Could not find nodes ${source}->${target}  of arc ${arcId}`);
+                }
+                return new ReadArc(place, transition, arcId);
+            case ArcType.REGULAR:
+            case ArcType.VARIABLE:
+                if (result.model.getPlace(source)) {
+                    place = result.model.getPlace(source);
+                    transition = result.model.getTransition(target);
+                    if (place === undefined || transition === undefined) {
+                        throw new Error(`Could not find nodes ${source}->${target}  of arc ${arcId}`);
+                    }
+                    return new RegularPlaceTransitionArc(place, transition, arcId);
+                } else {
+                    place = result.model.getPlace(target);
+                    transition = result.model.getTransition(source);
+                    if (place === undefined || transition === undefined) {
+                        throw new Error(`Could not find nodes ${source}->${target}  of arc ${arcId}`);
+                    }
+                    return new RegularTransitionPlaceArc(transition, place, arcId);
+                }
+        }
+        throw new Error(`Unknown type ${parsedArcType}`);
+    }
+
+    importBreakPoints(xmlArc: Element, arc: Arc<NodeElement, NodeElement>, result: PetriNetResult) {
         ['breakpoint', 'breakPoint'].forEach(breakPointName => {
             if (xmlArc.getElementsByTagName(breakPointName).length > 0) {
                 Array.from(xmlArc.getElementsByTagName(breakPointName)).forEach((breakpoint) => {
@@ -690,7 +741,7 @@ export class ImportService {
                 t.dataGroups.forEach(g => {
                     ImportService.checkI18n(g.title, i18ns, modelResult);
                 });
-                t.getEvents().forEach(e => {
+                t.eventSource.getEvents().forEach(e => {
                     ImportService.checkI18n(e.title, i18ns, modelResult);
                     ImportService.checkI18n(e.message, i18ns, modelResult);
                 });

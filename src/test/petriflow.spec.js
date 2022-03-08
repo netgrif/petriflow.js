@@ -97,8 +97,8 @@ describe('Petriflow integration tests', () => {
         expect(arc.id).toEqual(id);
         expect(arc.type).toEqual(type);
         expect(arc.reference).toEqual(reference);
-        expect(arc.destination).toEqual(destination);
-        expect(arc.source).toEqual(source);
+        expect(arc.destination.id).toEqual(destination);
+        expect(arc.source.id).toEqual(source);
         expect(arc.multiplicity).toEqual(multiplicity);
         if (breakpoints && breakpoints.length > 0) {
             expect(arc.breakpoints.length).toEqual(breakpoints.length);
@@ -446,7 +446,7 @@ describe('Petriflow integration tests', () => {
         expect(transitionT1.layout.cols).toEqual(5);
         expect(transitionT1.layout.offset).toEqual(0);
         expect(transitionT1.layout.alignment).toEqual(Alignment.CENTER);
-        const t1AssignEvent = transitionT1.getEvent(TransitionEventType.ASSIGN);
+        const t1AssignEvent = transitionT1.eventSource.getEvent(TransitionEventType.ASSIGN);
         expect(t1AssignEvent.id).toEqual('assign');
         expect(t1AssignEvent.title.value).toEqual('t1_assign_title_value');
         expect(t1AssignEvent.title.name).toEqual('t1_assign_title');
@@ -456,19 +456,19 @@ describe('Petriflow integration tests', () => {
         expect(t1AssignEvent.preActions[0].definition).toContain('test("t1_assign_pre")');
         expect(t1AssignEvent.postActions.length).toEqual(1);
         expect(t1AssignEvent.postActions[0].definition).toContain('test("t1_assign_post")');
-        const t1FinishEvent = transitionT1.getEvent(TransitionEventType.FINISH);
+        const t1FinishEvent = transitionT1.eventSource.getEvent(TransitionEventType.FINISH);
         expect(t1FinishEvent.id).toEqual('finish');
         expect(t1FinishEvent.preActions.length).toEqual(1);
         expect(t1FinishEvent.preActions[0].definition).toContain('test("t1_finish_pre")');
         expect(t1FinishEvent.postActions.length).toEqual(1);
         expect(t1FinishEvent.postActions[0].definition).toContain('test("t1_finish_post")');
-        const t1CancelEvent = transitionT1.getEvent(TransitionEventType.CANCEL);
+        const t1CancelEvent = transitionT1.eventSource.getEvent(TransitionEventType.CANCEL);
         expect(t1CancelEvent.id).toEqual('cancel');
         expect(t1CancelEvent.preActions.length).toEqual(1);
         expect(t1CancelEvent.preActions[0].definition).toContain('test("t1_cancel_pre")');
         expect(t1CancelEvent.postActions.length).toEqual(1);
         expect(t1CancelEvent.postActions[0].definition).toContain('test("t1_cancel_post")');
-        const t1DelegateEvent = transitionT1.getEvent(TransitionEventType.DELEGATE);
+        const t1DelegateEvent = transitionT1.eventSource.getEvent(TransitionEventType.DELEGATE);
         expect(t1DelegateEvent.id).toEqual('delegate');
         expect(t1DelegateEvent.preActions.length).toEqual(1);
         expect(t1DelegateEvent.preActions[0].definition).toContain('test("t1_delegate_pre")');
