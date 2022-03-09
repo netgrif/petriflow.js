@@ -10,7 +10,7 @@ export class TransitionSimulation {
 
     fire(transitionId: string): void {
         if (!this.isEnabled(transitionId)) {
-            throw new Error();
+            throw new Error(`Transition ${transitionId} is not enabled to fire`);
         }
         const transition = this.getTransition(transitionId);
         const inputArcs = this.model.getArcs().filter(a => a.destination === transition);
