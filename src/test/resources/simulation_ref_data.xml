@@ -1,0 +1,54 @@
+<document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
+    <id>new_model</id>
+    <initials>NEW</initials>
+    <title>New Model</title>
+    <icon>device_hub</icon>
+    <defaultRole>true</defaultRole>
+    <anonymousRole>true</anonymousRole>
+    <transitionRole>false</transitionRole>
+    <data type="number">
+        <id>input</id>
+        <title/>
+        <init>1</init>
+    </data>
+    <data type="number">
+        <id>output</id>
+        <title/>
+        <init>1</init>
+    </data>
+    <transition>
+        <id>t1</id>
+        <x>100</x>
+        <y>180</y>
+        <label/>
+    </transition>
+    <transition>
+        <id>t2</id>
+        <x>340</x>
+        <y>180</y>
+        <label/>
+    </transition>
+    <place>
+        <id>p1</id>
+        <x>220</x>
+        <y>180</y>
+        <tokens>0</tokens>
+        <static>false</static>
+    </place>
+    <arc>
+        <id>a1</id>
+        <type>regular</type>
+        <sourceId>t1</sourceId>
+        <destinationId>p1</destinationId>
+        <multiplicity>1</multiplicity>
+        <reference>input</reference>
+    </arc>
+    <arc>
+        <id>a2</id>
+        <type>regular</type>
+        <sourceId>p1</sourceId>
+        <destinationId>t2</destinationId>
+        <multiplicity>1</multiplicity>
+        <reference>output</reference>
+    </arc>
+</document>
