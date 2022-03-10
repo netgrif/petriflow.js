@@ -409,7 +409,17 @@ export class PetriNet {
         this._i18ns.forEach(i => cloned.addI18n(i.clone()));
         this._transitions.forEach(t => cloned.addTransition(t.clone()));
         this._places.forEach(p => cloned.addPlace(p.clone()));
-        this._arcs.forEach(a => cloned.addArc(a.clone()));
+        this._arcs.forEach(a => {
+            const clonedArc = a.clone();
+            if (clonedArc.source instanceof Place) {
+                clonedArc.source = cloned.getPlace(clonedArc.source.id) as Place;
+                clonedArc.destination = cloned.getTransition(clonedArc.destination.id) as Transition;
+            } else {
+                clonedArc.source = cloned.getTransition(clonedArc.source.id) as Transition;
+                clonedArc.destination = cloned.getPlace(clonedArc.destination.id) as Place;
+            }
+            cloned.addArc(clonedArc);
+        });
         this._roleRefs.forEach(ref => cloned.addRoleRef(ref.clone()));
         this._userRefs.forEach(ref => cloned.addUserRef(ref.clone()));
         return cloned;
