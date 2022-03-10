@@ -77,17 +77,17 @@ export class TransitionSimulation {
 
     private updateIOArc(arc: Arc<NodeElement, NodeElement>) {
         if (arc.destination instanceof Transition) {
-            this.insertArc(this.inputArcs, arc);
+            this.insertArc(this.inputArcs, arc, arc.destination.id);
         } else {
-            this.insertArc(this.outputArcs, arc);
+            this.insertArc(this.outputArcs, arc, arc.source.id);
         }
     }
 
-    private insertArc(arcs: Map<string, Array<Arc<NodeElement, NodeElement>>>, arc: Arc<NodeElement, NodeElement>) {
-        if (!arcs.has(arc.destination.id)) {
-            arcs.set(arc.destination.id, new Array<Arc<NodeElement, NodeElement>>());
+    private insertArc(arcs: Map<string, Array<Arc<NodeElement, NodeElement>>>, arc: Arc<NodeElement, NodeElement>, id: string) {
+        if (!arcs.has(id)) {
+            arcs.set(id, new Array<Arc<NodeElement, NodeElement>>());
         }
-        arcs.get(arc.destination.id)?.push(arc);
+        arcs.get(id)?.push(arc);
     }
 
     private updateDataReference(arc: Arc<NodeElement, NodeElement>) {

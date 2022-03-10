@@ -6,7 +6,8 @@ const {
 const fs = require('fs');
 
 const TEST_FILE_PATH = 'src/test/resources/simulation_task.xml';
-const TEST_FILE_PATH_2 = 'src/test/resources/simulation_task_multiple.xml';
+const MULTIPLE_INPUT_ARCS_PATH = 'src/test/resources/simulation_task_multiple.xml';
+const TASK_SEQUENCE_PATH = 'src/test/resources/simulation_sequence.xml';
 
 describe('Petriflow simulation tests', () => {
     let importService;
@@ -17,12 +18,69 @@ describe('Petriflow simulation tests', () => {
         exportService = new ExportService();
     });
 
-    test('multiple input arcs', () => {
-        const file = fs.readFileSync(TEST_FILE_PATH_2).toString();
+    test('task sequence', () => {
+        const file = fs.readFileSync(TASK_SEQUENCE_PATH).toString();
         const result = importService.parseFromXml(file);
 
         const sim = new TransitionSimulation(result.model);
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 3; i++) {
+            expect(sim.enabled().length).toEqual(2);
+            expect(sim.isEnabled('t1')).toEqual(true);
+            expect(sim.isEnabled('t5')).toEqual(true);
+            sim.fire('t1');
+
+            expect(sim.enabled().length).toEqual(3);
+            expect(sim.isEnabled('t2')).toEqual(true);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t5')).toEqual(true);
+            sim.fire('t2');
+
+            expect(sim.enabled().length).toEqual(3);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t5')).toEqual(true);
+            sim.fire('t3');
+
+            expect(sim.enabled().length).toEqual(3);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t5')).toEqual(true);
+            sim.fire('t4');
+
+            expect(sim.enabled().length).toEqual(3);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t6')).toEqual(true);
+            sim.fire('t4');
+
+            expect(sim.enabled().length).toEqual(3);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t6')).toEqual(true);
+            sim.fire('t6');
+
+            expect(sim.enabled().length).toEqual(3);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t6')).toEqual(true);
+
+            expect(sim.simulationModel.getPlace('p1').marking).toEqual(0);
+            expect(sim.simulationModel.getPlace('p2').marking).toEqual(0);
+            expect(sim.simulationModel.getPlace('p3').marking).toEqual(1);
+            expect(sim.simulationModel.getPlace('p4').marking).toEqual(1);
+            expect(sim.simulationModel.getPlace('p5').marking).toEqual(2);
+            expect(sim.simulationModel.getPlace('p6').marking).toEqual(1);
+
+            sim.reset();
+        }
+    });
+
+    test('multiple input arcs', () => {
+        const file = fs.readFileSync(MULTIPLE_INPUT_ARCS_PATH).toString();
+        const result = importService.parseFromXml(file);
+
+        const sim = new TransitionSimulation(result.model);
+        for (let i = 0; i < 3; i++) {
             expect(sim.enabled().length).toEqual(3);
             expect(sim.isEnabled('t1')).toEqual(true);
             expect(sim.isEnabled('t2')).toEqual(true);
@@ -51,7 +109,7 @@ describe('Petriflow simulation tests', () => {
         const result = importService.parseFromXml(file);
 
         const sim = new TransitionSimulation(result.model);
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 3; i++) {
             expect(sim.enabled().length).toEqual(9);
             expect(sim.isEnabled('t1')).toEqual(true);
             expect(sim.isEnabled('t2')).toEqual(true);
