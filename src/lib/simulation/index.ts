@@ -1,1 +1,1 @@
-export * from './transition-simulation'
+export * from './simulation';

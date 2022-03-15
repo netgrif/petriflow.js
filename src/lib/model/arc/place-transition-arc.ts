@@ -4,7 +4,7 @@ import {Arc} from './arc';
 
 export abstract class PlaceTransitionArc extends Arc<Place, Transition> {
 
-    abstract consume(): void;
+    abstract consume(): number;
 
     abstract canFire(): boolean;
 

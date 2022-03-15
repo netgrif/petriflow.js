@@ -1,16 +1,16 @@
 const {
     ImportService,
     ExportService,
-    TransitionSimulation
+    Simulation
 } = require('../../dist/petriflow');
 const fs = require('fs');
 
-const TEST_FILE_PATH = 'src/test/resources/simulation_task.xml';
-const MULTIPLE_INPUT_ARCS_PATH = 'src/test/resources/simulation_task_multiple.xml';
+const TEST_FILE_PATH = 'src/test/resources/simulation_transition.xml';
+const MULTIPLE_INPUT_ARCS_PATH = 'src/test/resources/simulation_transition_multiple.xml';
 const TASK_SEQUENCE_PATH = 'src/test/resources/simulation_sequence.xml';
 const REF_DATA_PATH = 'src/test/resources/simulation_ref_data.xml';
 
-describe('Petriflow simulation tests', () => {
+describe('Petriflow transition simulation tests', () => {
     let importService;
     let exportService;
 
@@ -23,7 +23,7 @@ describe('Petriflow simulation tests', () => {
         const file = fs.readFileSync(REF_DATA_PATH).toString();
         const result = importService.parseFromXml(file);
 
-        const sim = new TransitionSimulation(result.model);
+        const sim = new Simulation(result.model);
         for (let i = 0; i < 3; i++) {
             expect(sim.enabled().length).toEqual(1);
             expect(sim.isEnabled('t1')).toEqual(true);
@@ -55,7 +55,7 @@ describe('Petriflow simulation tests', () => {
         const file = fs.readFileSync(TASK_SEQUENCE_PATH).toString();
         const result = importService.parseFromXml(file);
 
-        const sim = new TransitionSimulation(result.model);
+        const sim = new Simulation(result.model);
         for (let i = 0; i < 3; i++) {
             expect(sim.enabled().length).toEqual(2);
             expect(sim.isEnabled('t1')).toEqual(true);
@@ -112,7 +112,7 @@ describe('Petriflow simulation tests', () => {
         const file = fs.readFileSync(MULTIPLE_INPUT_ARCS_PATH).toString();
         const result = importService.parseFromXml(file);
 
-        const sim = new TransitionSimulation(result.model);
+        const sim = new Simulation(result.model);
         for (let i = 0; i < 3; i++) {
             expect(sim.enabled().length).toEqual(3);
             expect(sim.isEnabled('t1')).toEqual(true);
@@ -141,7 +141,7 @@ describe('Petriflow simulation tests', () => {
         const file = fs.readFileSync(TEST_FILE_PATH).toString();
         const result = importService.parseFromXml(file);
 
-        const sim = new TransitionSimulation(result.model);
+        const sim = new Simulation(result.model);
         for (let i = 0; i < 3; i++) {
             expect(sim.enabled().length).toEqual(9);
             expect(sim.isEnabled('t1')).toEqual(true);

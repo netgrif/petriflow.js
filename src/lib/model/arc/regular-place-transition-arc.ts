@@ -4,9 +4,10 @@ import {PlaceTransitionArc} from './place-transition-arc';
 export class RegularPlaceTransitionArc extends PlaceTransitionArc {
 
     // TODO: documentation
-    consume(): void {
+    consume(): number {
         this.assertCanFire();
         this.source.marking -= this.multiplicity;
+        return this.multiplicity;
     }
 
     // TODO: documentation

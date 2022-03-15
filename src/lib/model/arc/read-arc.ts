@@ -4,8 +4,9 @@ import {PlaceTransitionArc} from './place-transition-arc';
 export class ReadArc extends PlaceTransitionArc {
 
     // TODO: documentation
-    consume(): void {
+    consume(): number {
         this.assertCanFire();
+        return 0;
     }
 
     // TODO: documentation

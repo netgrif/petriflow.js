@@ -6,9 +6,11 @@ export class ResetArc extends PlaceTransitionArc {
     /**
      * Reset arc consumes all tokens in place.
      */
-    consume(): void {
+    consume(): number {
         this.assertCanFire();
+        const marking = this.source.marking;
         this.source.marking = 0;
+        return marking;
     }
 
     /**
