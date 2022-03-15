@@ -113,6 +113,93 @@ describe('Petriflow transition simulation tests', () => {
             expect(sim.isEnabled('t6')).toEqual(true);
             expect(sim.isAssigned('t6')).toEqual(false);
 
+            sim.assign('t3');
+            expect(sim.enabled().length).toEqual(5);
+            expect(sim.assigned().length).toEqual(1);
+            expect(sim.simulationModel.getPlace('p1').marking).toEqual(2);
+            expect(sim.isEnabled('t1')).toEqual(true);
+            expect(sim.isAssigned('t1')).toEqual(false);
+            expect(sim.isEnabled('t2')).toEqual(true);
+            expect(sim.isAssigned('t2')).toEqual(false);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isAssigned('t3')).toEqual(true);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t5')).toEqual(false);
+            expect(sim.isEnabled('t6')).toEqual(true);
+
+            sim.finish('t3');
+            expect(sim.enabled().length).toEqual(5);
+            expect(sim.assigned().length).toEqual(0);
+            expect(sim.simulationModel.getPlace('p1').marking).toEqual(2);
+            expect(sim.isEnabled('t1')).toEqual(true);
+            expect(sim.isAssigned('t1')).toEqual(false);
+            expect(sim.isEnabled('t2')).toEqual(true);
+            expect(sim.isAssigned('t2')).toEqual(false);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isAssigned('t3')).toEqual(false);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t5')).toEqual(false);
+            expect(sim.isEnabled('t6')).toEqual(true);
+
+            sim.assign('t3');
+            expect(sim.enabled().length).toEqual(5);
+            expect(sim.assigned().length).toEqual(1);
+            expect(sim.simulationModel.getPlace('p1').marking).toEqual(2);
+            expect(sim.isEnabled('t1')).toEqual(true);
+            expect(sim.isAssigned('t1')).toEqual(false);
+            expect(sim.isEnabled('t2')).toEqual(true);
+            expect(sim.isAssigned('t2')).toEqual(false);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isAssigned('t3')).toEqual(true);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t5')).toEqual(false);
+            expect(sim.isEnabled('t6')).toEqual(true);
+
+            sim.finish('t3');
+            expect(sim.enabled().length).toEqual(5);
+            expect(sim.assigned().length).toEqual(0);
+            expect(sim.simulationModel.getPlace('p1').marking).toEqual(2);
+            expect(sim.isEnabled('t1')).toEqual(true);
+            expect(sim.isAssigned('t1')).toEqual(false);
+            expect(sim.isEnabled('t2')).toEqual(true);
+            expect(sim.isAssigned('t2')).toEqual(false);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isAssigned('t3')).toEqual(false);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t5')).toEqual(false);
+            expect(sim.isEnabled('t6')).toEqual(true);
+
+            sim.assign('t6');
+            sim.fire('t4');
+            expect(sim.enabled().length).toEqual(5);
+            expect(sim.assigned().length).toEqual(1);
+            expect(sim.simulationModel.getPlace('p1').marking).toEqual(1);
+            expect(sim.isEnabled('t1')).toEqual(true);
+            expect(sim.isAssigned('t1')).toEqual(false);
+            expect(sim.isEnabled('t2')).toEqual(true);
+            expect(sim.isAssigned('t2')).toEqual(false);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isAssigned('t3')).toEqual(false);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t5')).toEqual(false);
+            expect(sim.isEnabled('t6')).toEqual(true);
+            expect(sim.isAssigned('t6')).toEqual(true);
+
+            sim.cancel('t6');
+            expect(sim.enabled().length).toEqual(5);
+            expect(sim.assigned().length).toEqual(0);
+            expect(sim.simulationModel.getPlace('p1').marking).toEqual(3);
+            expect(sim.isEnabled('t1')).toEqual(true);
+            expect(sim.isAssigned('t1')).toEqual(false);
+            expect(sim.isEnabled('t2')).toEqual(true);
+            expect(sim.isAssigned('t2')).toEqual(false);
+            expect(sim.isEnabled('t3')).toEqual(true);
+            expect(sim.isAssigned('t3')).toEqual(false);
+            expect(sim.isEnabled('t4')).toEqual(true);
+            expect(sim.isEnabled('t5')).toEqual(false);
+            expect(sim.isEnabled('t6')).toEqual(true);
+            expect(sim.isAssigned('t6')).toEqual(false);
+
             sim.reset();
         }
     });
