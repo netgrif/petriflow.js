@@ -806,4 +806,10 @@ describe('Petriflow integration tests', () => {
             event.addAction(new Action('', ''), undefined);
         }).toThrow();
     });
+
+    test('invalid xml import', () => {
+        let file = fs.readFileSync('src/test/resources/invalid_xml_test.xml').toString();
+        const result = importService.parseFromXml(file);
+        expect(result.errors.length).toEqual(1);
+    });
 });
