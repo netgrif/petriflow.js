@@ -535,23 +535,32 @@ export class ImportService {
     public importPlaces(modelResult: PetriNetResult, xmlDoc: Document): void {
         for (const xmlPlace of Array.from(xmlDoc.getElementsByTagName('place'))) {
             try {
-                const xx = this.importUtils.parseNumberValue(xmlPlace, 'x') ?? 0;
-                const yy = this.importUtils.parseNumberValue(xmlPlace, 'y') ?? 0;
-                const isStatic = this.importUtils.parsePlaceStatic(xmlPlace);
-                const placeId = xmlPlace.getElementsByTagName('id')[0]?.childNodes[0]?.nodeValue;
-                if (!placeId)
-                    throw new Error("Id of a place must be defined!");
-                const place = new Place(xx, yy, isStatic, placeId);
-                this.parsePlace(modelResult.model, xmlPlace, place);
+                this.importPlace(modelResult, xmlPlace);
             } catch (e) {
                 modelResult.addError('Error happened during the importing places [' + this.importUtils.tagValue(xmlPlace, 'id') + ']: ' + (e as Error).toString(), e as Error);
             }
         }
     }
 
+    importPlace(modelResult: PetriNetResult, xmlPlace: Element) {
+        const placeId = xmlPlace.getElementsByTagName('id')?.item(0)?.childNodes[0]?.nodeValue;
+        if (!placeId) {
+            throw new Error("Id of a place must be defined!");
+        }
+        let xx = this.importUtils.parseNumberValue(xmlPlace, 'x');
+        let yy = this.importUtils.parseNumberValue(xmlPlace, 'y');
+        if (xx === undefined || yy === undefined) {
+            modelResult.addWarning(`Could not parse place coordinates [${xx}, ${yy}]`);
+            xx = xx ?? 0;
+            yy = yy ?? 0;
+        }
+        const isStatic = this.importUtils.parsePlaceStatic(xmlPlace);
+        const place = new Place(xx, yy, isStatic, placeId);
+        this.parsePlace(modelResult.model, xmlPlace, place);
+    }
+
     public parsePlace(model: PetriNet, xmlPlace: Element, place: Place): void {
         model.addPlace(place);
-
         place.marking = this.importUtils.parseNumberValue(xmlPlace, 'tokens') ?? 0;
         if (xmlPlace.getElementsByTagName('label').length > 0 &&
             xmlPlace.getElementsByTagName('label')[0].childNodes.length !== 0) {
@@ -571,16 +580,16 @@ export class ImportService {
     }
 
     public parseArc(result: PetriNetResult, xmlArc: Element): Arc<NodeElement, NodeElement> {
-        const source = xmlArc.getElementsByTagName('sourceId')[0].childNodes[0].nodeValue;
+        const arcId = xmlArc.getElementsByTagName('id')?.item(0)?.childNodes[0]?.nodeValue;
+        if (!arcId)
+            throw new Error("Id of an arc must be defined!");
+        const source = xmlArc.getElementsByTagName('sourceId')?.item(0)?.childNodes[0]?.nodeValue;
         if (!source)
             throw new Error("Source of an arc must be defined!");
-        const target = xmlArc.getElementsByTagName('destinationId')[0].childNodes[0].nodeValue;
+        const target = xmlArc.getElementsByTagName('destinationId')?.item(0)?.childNodes[0]?.nodeValue;
         if (!target)
             throw new Error("Target of an arc must be defined!");
         const parsedArcType = this.importUtils.parseArcType(xmlArc);
-        const arcId = xmlArc.getElementsByTagName('id')[0].childNodes[0].nodeValue;
-        if (!arcId)
-            throw new Error("Id of an arc must be defined!");
         const arc = this.resolveArc(source, target, parsedArcType, arcId, result);
         arc.multiplicity = this.importUtils.parseNumberValue(xmlArc, 'multiplicity') ?? 0;
         if (parsedArcType === ArcType.VARIABLE) {
@@ -601,45 +610,34 @@ export class ImportService {
         let place, transition;
         switch (parsedArcType) {
             case ArcType.INHIBITOR:
-                place = result.model.getPlace(source);
-                transition = result.model.getTransition(target);
-                if (place === undefined || transition === undefined) {
-                    throw new Error(`Could not find nodes ${source}->${target}  of arc ${arcId}`);
-                }
+                [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                 return new InhibitorArc(place, transition, arcId);
             case ArcType.RESET:
-                place = result.model.getPlace(source);
-                transition = result.model.getTransition(target);
-                if (place === undefined || transition === undefined) {
-                    throw new Error(`Could not find nodes ${source}->${target}  of arc ${arcId}`);
-                }
+                [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                 return new ResetArc(place, transition, arcId);
             case ArcType.READ:
-                place = result.model.getPlace(source);
-                transition = result.model.getTransition(target);
-                if (place === undefined || transition === undefined) {
-                    throw new Error(`Could not find nodes ${source}->${target}  of arc ${arcId}`);
-                }
+                [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                 return new ReadArc(place, transition, arcId);
             case ArcType.REGULAR:
             case ArcType.VARIABLE:
                 if (result.model.getPlace(source)) {
-                    place = result.model.getPlace(source);
-                    transition = result.model.getTransition(target);
-                    if (place === undefined || transition === undefined) {
-                        throw new Error(`Could not find nodes ${source}->${target}  of arc ${arcId}`);
-                    }
+                    [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                     return new RegularPlaceTransitionArc(place, transition, arcId);
                 } else {
-                    place = result.model.getPlace(target);
-                    transition = result.model.getTransition(source);
-                    if (place === undefined || transition === undefined) {
-                        throw new Error(`Could not find nodes ${source}->${target}  of arc ${arcId}`);
-                    }
+                    [place, transition] = this.getPlaceTransition(result, target, source, arcId);
                     return new RegularTransitionPlaceArc(transition, place, arcId);
                 }
         }
         throw new Error(`Unknown type ${parsedArcType}`);
+    }
+
+    getPlaceTransition(result: PetriNetResult, placeId: string, transitionId: string, arcId: string): [Place, Transition] {
+        const place = result.model.getPlace(placeId);
+        const transition = result.model.getTransition(transitionId);
+        if (place === undefined || transition === undefined) {
+            throw new Error(`Could not find nodes ${placeId}->${transitionId}  of arc ${arcId}`);
+        }
+        return [place, transition];
     }
 
     importBreakPoints(xmlArc: Element, arc: Arc<NodeElement, NodeElement>, result: PetriNetResult) {

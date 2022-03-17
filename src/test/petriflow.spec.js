@@ -21,7 +21,8 @@ const {
     Template,
     TransitionEventType,
     TriggerType, PetriNet, DataVariable, Expression, Place, Transition,
-    RegularPlaceTransitionArc, DataEventSource, DataEvent, Action
+    RegularPlaceTransitionArc, DataEventSource, DataEvent, Action,
+    I18nTranslations, Mapping
 } = require('../../dist/petriflow');
 const fs = require('fs');
 
@@ -54,8 +55,8 @@ const CASE_EVENTS_DELETE_POST_LENGTH = 1;
 const ROLE_TITLE_VALUE = 'title';
 const MODEL_ROLES_LENGTH = 4;
 const MODEL_TRANSITIONS_LENGTH = 13;
-const MODEL_PLACES_LENGTH = 10;
-const MODEL_ARCS_LENGTH = 16;
+const MODEL_PLACES_LENGTH = 12;
+const MODEL_ARCS_LENGTH = 17;
 const MODEL_DATA_LENGTH = 21;
 const MODEL_USERREFS_LENGTH = 2;
 const ROLE_1_ID = 'newRole_1';
@@ -387,6 +388,8 @@ describe('Petriflow integration tests', () => {
         expect(multichoiceMapField.inits[1].expression).toEqual('key5');
         const fileField = model.getData('newVariable_7');
         expect(fileField).not.toBeUndefined();
+        expect(fileField.remote).toEqual(true);
+        expect(fileField.length).toEqual(10);
         const fileListField = model.getData('newVariable_8');
         expect(fileListField).not.toBeUndefined();
         const booleanField = model.getData('newVariable_9');
@@ -404,6 +407,10 @@ describe('Petriflow integration tests', () => {
         expect(taskRefField).not.toBeUndefined();
         const caseRefField = model.getData('newVariable_14');
         expect(caseRefField).not.toBeUndefined();
+        expect(caseRefField.allowedNets.length).toEqual(3);
+        expect(caseRefField.allowedNets).toContain('net_1');
+        expect(caseRefField.allowedNets).toContain('net_2');
+        expect(caseRefField.allowedNets).toContain('net_3');
         const userListField = model.getData('newVariable_15');
         expect(userListField).not.toBeUndefined();
         log('Model data correct');
@@ -442,6 +449,7 @@ describe('Petriflow integration tests', () => {
         expect(transitionT1.label.name).toEqual('t1_label');
         expect(transitionT1.label.value).toEqual('Task escape:&<>');
         expect(transitionT1.icon).toEqual(MODEL_ICON);
+        expect(transitionT1.priority).toEqual(1);
         expect(transitionT1.assignPolicy).toEqual(AssignPolicy.AUTO);
         expect(transitionT1.finishPolicy).toEqual(FinishPolicy.AUTO_NO_DATA);
         expect(transitionT1.layout.rows).toEqual(4);
@@ -766,7 +774,7 @@ describe('Petriflow integration tests', () => {
     test('should import & export', () => {
         let file = fs.readFileSync(TEST_FILE_PATH).toString();
         debug = false;
-        const model1 = importAndExport(file, 6, 20, 9);
+        const model1 = importAndExport(file, 14, 22, 9);
         expect(model1).toBeDefined();
         const model2 = importAndExport(model1, 0, 20, 0);
         expect(model2).toBeDefined();
@@ -808,8 +816,83 @@ describe('Petriflow integration tests', () => {
     });
 
     test('invalid xml import', () => {
-        let file = fs.readFileSync('src/test/resources/invalid_xml_test.xml').toString();
+        const file = fs.readFileSync('src/test/resources/invalid_xml_test.xml').toString();
         const result = importService.parseFromXml(file);
         expect(result.errors.length).toEqual(1);
+    });
+
+    test('petri-net code test', () => {
+        const net = new PetriNet();
+        const p1 = new Place(10, 10, false, 'p1');
+        const t1 = new Transition(50, 10, 't1');
+        const a1 = new RegularPlaceTransitionArc(p1, t1, 'a1');
+        const i18nSk = new I18nTranslations('sk');
+        const d1 = new DataVariable('d1', DataType.TEXT);
+        const m1 = new Mapping('m1', 't1');
+        net.addPlace(p1);
+        net.addTransition(t1);
+        net.addArc(a1);
+        net.addI18n(i18nSk);
+        net.addData(d1);
+        net.addMapping(m1);
+
+        const a2 = new RegularPlaceTransitionArc(p1, t1, 'a1');
+        expect(net.getArcs().length).toEqual(1);
+        expect(() => {
+            net.addArc(a2);
+        }).toThrow();
+        expect(net.getArcs().length).toEqual(1);
+        net.removeArc('a1');
+        expect(net.getArcs().length).toEqual(0);
+
+        const p2 = new Place(10, 10, false, 'p1');
+        expect(net.getPlaces().length).toEqual(1);
+        expect(() => {
+            net.addPlace(p2);
+        }).toThrow();
+        expect(net.getPlaces().length).toEqual(1);
+        net.removePlace('p1');
+        expect(net.getPlaces().length).toEqual(0);
+
+        const t2 = new Transition(10, 10, 't1');
+        expect(net.getTransitions().length).toEqual(1);
+        expect(() => {
+            net.addTransition(t2);
+        }).toThrow();
+        expect(net.getTransitions().length).toEqual(1);
+        net.removeTransition('t1');
+        expect(net.getTransitions().length).toEqual(0);
+
+        const i18nSk2 = new I18nTranslations('sk');
+        expect(net.getI18ns().length).toEqual(1);
+        expect(() => {
+            net.addI18n(i18nSk2);
+        }).toThrow();
+        expect(net.getI18ns().length).toEqual(1);
+        net.removeI18n('sk');
+        expect(net.getI18ns().length).toEqual(0);
+
+        const d2 = new DataVariable('d1', DataType.TEXT);
+        expect(net.getDataSet().length).toEqual(1);
+        expect(() => {
+            net.addData(d2);
+        }).toThrow();
+        expect(net.getDataSet().length).toEqual(1);
+        net.removeData('d1');
+        expect(net.getDataSet().length).toEqual(0);
+
+        const m2 = new Mapping('m1', 't1');
+        expect(net.getMappings().length).toEqual(1);
+        expect(() => {
+            net.addMapping(m2);
+        }).toThrow();
+        expect(net.getMappings().length).toEqual(1);
+        net.removeMapping('m1');
+        expect(net.getMappings().length).toEqual(0);
+
+        net.defaultRole = undefined;
+        net.anonymousRole = undefined;
+        net.transitionRole = undefined;
+        exportService.exportXml(net);
     });
 });

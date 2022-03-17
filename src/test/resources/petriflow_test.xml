@@ -375,6 +375,8 @@
     <data type="file">
         <id>newVariable_7</id>
         <title>title</title>
+        <remote/>
+        <length>10</length>
     </data>
     <data type="fileList">
         <id>newVariable_8</id>
@@ -405,6 +407,11 @@
     <data type="caseRef">
         <id>newVariable_14</id>
         <title>title</title>
+        <allowedNets>
+            <allowedNet>net_1</allowedNet>
+            <allowedNet>net_2</allowedNet>
+            <allowedNet>net_3</allowedNet>
+        </allowedNets>
     </data>
     <data type="userList">
         <id>newVariable_15</id>
@@ -511,6 +518,7 @@
             <fieldAlignment>center</fieldAlignment>
         </layout>
         <icon>home</icon>
+        <priority>1</priority>
         <assignPolicy>auto</assignPolicy>
         <finishPolicy>auto_no_data</finishPolicy>
         <transactionRef>
@@ -625,9 +633,12 @@
                     <action trigger="get">
                         test("t5_newVariable_1_get")
                     </action>
-                    <action trigger="set">
+                    <action trigger="set" id="t5_newVariable_1_set">
                         test("t5_newVariable_1_set")
                     </action>
+                    <actionRef>
+                        <id>t5_newVariable_1_set</id>
+                    </actionRef>
                 </logic>
                 <layout>
                     <x>0</x>
@@ -1157,6 +1168,24 @@
         <tokens>0</tokens>
         <static>false</static>
     </place>
+    <place>
+        <id>invalid_x</id>
+        <x>a</x>
+        <y>100</y>
+        <tokens>0</tokens>
+    </place>
+    <place>
+        <id>invalid_y</id>
+        <x>100</x>
+        <y>a</y>
+        <tokens>0</tokens>
+    </place>
+<!-- invalid place with no id -->
+    <place>
+        <x>100</x>
+        <y>a</y>
+        <tokens>0</tokens>
+    </place>
     <!-- ARCS -->
     <arc>
         <id>a1</id>
@@ -1278,6 +1307,46 @@
         <breakpoint>
             <x>20</x>
             <y>20</y>
+        </breakpoint>
+    </arc>
+    <arc>
+<!--  arc_with_no_id -->
+    </arc>
+    <arc>
+        <id>arc_with_no_source</id>
+        <sourceId></sourceId>
+    </arc>
+    <arc>
+        <id>arc_with_no_destination</id>
+        <sourceId>t2</sourceId>
+        <destinationId/>
+    </arc>
+    <arc>
+        <id>invalid_source</id>
+        <type>regular</type>
+        <sourceId>invalid_source_id</sourceId>
+        <destinationId>invalid_destination_id</destinationId>
+    </arc>
+    <arc>
+        <id>invalid_destination</id>
+        <type>regular</type>
+        <sourceId>t2</sourceId>
+        <destinationId>invalid_destination_id</destinationId>
+    </arc>
+    <arc>
+        <id>invalid_type</id>
+        <type>invalid_type</type>
+        <sourceId>t2</sourceId>
+        <destinationId>p3</destinationId>
+    </arc>
+    <arc>
+        <id>invalid_breakpont</id>
+        <type>regular</type>
+        <sourceId>t2</sourceId>
+        <destinationId>p3</destinationId>
+        <breakpoint>
+            <x>a</x>
+            <y>b</y>
         </breakpoint>
     </arc>
 </document>
