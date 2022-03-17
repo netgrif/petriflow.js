@@ -18,6 +18,24 @@ describe('Petriflow transition simulation tests', () => {
         exportService = new ExportService();
     });
 
+    test('task event errors', () => {
+        const file = fs.readFileSync(SIMPLE_NET_FILE).toString();
+        const result = importService.parseFromXml(file);
+        const sim = new Simulation(result.model);
+
+        sim.assign('t1');
+        expect(() => {
+            sim.fire('t1');
+        }).toThrow();
+        sim.cancel('t1');
+        expect(() => {
+            sim.finish('t1');
+        }).toThrow();
+        expect(() => {
+            sim.cancel('t1');
+        }).toThrow();
+    });
+
     test('simple net', () => {
         const file = fs.readFileSync(SIMPLE_NET_FILE).toString();
         const result = importService.parseFromXml(file);

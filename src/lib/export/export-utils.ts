@@ -44,23 +44,12 @@ export class ExportUtils {
         }
     }
 
-    public exportExpression(doc: Element, name: string, value: Expression | Array<Expression> | undefined) {
+    public exportExpression(doc: Element, name: string, value: Expression | undefined) {
         if (value !== undefined) {
-            if (!Array.isArray(value)) {
-                this.exportTag(doc, name, value.expression, false, value.dynamic ? [{
-                    key: 'dynamic',
-                    value: value.dynamic.toString()
-                }] : undefined);
-            } else if (value.length > 0) {
-                const exportInits = this.xmlConstructor.createElement('inits');
-                value.forEach(init => {
-                    this.exportTag(exportInits, name, init.expression, false, init.dynamic ? [{
-                        key: 'dynamic',
-                        value: init.dynamic.toString()
-                    }] : undefined);
-                });
-                doc.appendChild(exportInits);
-            }
+            this.exportTag(doc, name, value.expression, false, value.dynamic ? [{
+                key: 'dynamic',
+                value: value.dynamic.toString()
+            }] : undefined);
         }
     }
 

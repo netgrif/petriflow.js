@@ -19,6 +19,12 @@ describe('Petriflow transition simulation tests', () => {
         exportService = new ExportService();
     });
 
+    test('no model error', () => {
+        expect(() => {
+            new Simulation(undefined);
+        }).toThrow();
+    });
+
     test('data reference', () => {
         const file = fs.readFileSync(REF_DATA_PATH).toString();
         const result = importService.parseFromXml(file);

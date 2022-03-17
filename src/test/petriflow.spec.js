@@ -20,7 +20,8 @@ const {
     RoleEventType,
     Template,
     TransitionEventType,
-    TriggerType
+    TriggerType, PetriNet, DataVariable, Expression, Place, Transition,
+    RegularPlaceTransitionArc
 } = require('../../dist/petriflow');
 const fs = require('fs');
 
@@ -769,5 +770,21 @@ describe('Petriflow integration tests', () => {
         const model2 = importAndExport(model1, 0, 20, 0);
         expect(model2).toBeDefined();
         expect(model1).toEqual(model2);
+    });
+
+    test('should export manually created model', () => {
+        const model = new PetriNet();
+        const p1 = new Place(10, 10, false, 'p1');
+        const t1 = new Transition(50, 10, 't1');
+        const a1 = new RegularPlaceTransitionArc(p1, t1, 'a_old');
+        const a1_breakpoint = new Breakpoint(0, 0);
+        a1_breakpoint.x = 30;
+        a1_breakpoint.y = 30;
+        a1.breakpoints = [a1_breakpoint];
+        a1.id = 'a1';
+        model.addPlace(p1);
+        model.addTransition(t1);
+        model.addArc(a1);
+        const xml = exportService.exportXml(model);
     });
 });

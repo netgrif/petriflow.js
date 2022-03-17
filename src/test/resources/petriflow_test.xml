@@ -137,7 +137,10 @@
         </event>
     </caseEvents>
     <!-- TRANSACTIONS -->
-    <!-- @deprecated   -->
+    <transaction>
+        <id>trans1</id>
+        <title>Transaction 1</title>
+    </transaction>
     <!-- ROLES -->
     <role>
         <id>newRole_1</id>
@@ -203,6 +206,22 @@
         <init>
             <![CDATA[<p>CDATA &amp;&lt;&gt;</p>]]>
         </init>
+        <event type="get">
+            <id>cdata_get</id>
+            <actions phase="post">
+                <action id="cdata_get_post">
+                    test
+                </action>
+            </actions>
+        </event>
+        <event type="set">
+            <id>cdata_set</id>
+            <actions phase="post">
+                <actionRef>
+                    <id>cdata_get_post</id>
+                </actionRef>
+            </actions>
+        </event>
     </data>
     <data type="number">
         <id>newVariable_1</id>
@@ -469,6 +488,9 @@
         <icon>home</icon>
         <assignPolicy>auto</assignPolicy>
         <finishPolicy>auto_no_data</finishPolicy>
+        <transactionRef>
+            <id>trans1</id>
+        </transactionRef>
         <event type="assign">
             <id>assign</id>
             <title name="t1_assign_title">t1_assign_title_value</title>
