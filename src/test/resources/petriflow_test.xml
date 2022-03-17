@@ -45,6 +45,13 @@
         </caseLogic>
     </roleRef>
     <roleRef>
+        <id>newRole_3</id>
+        <caseLogic>
+            <create>false</create>
+            <view>true</view>
+        </caseLogic>
+    </roleRef>
+    <roleRef>
         <id>invalid_role_id</id>
         <caseLogic>
             <create>false</create>
@@ -61,6 +68,13 @@
     </usersRef>
     <usersRef>
         <id>ivalid_id</id>
+        <caseLogic>
+            <create>false</create>
+            <delete>true</delete>
+        </caseLogic>
+    </usersRef>
+    <usersRef>
+        <id>newVariable_1</id>
         <caseLogic>
             <create>false</create>
             <delete>true</delete>
@@ -217,9 +231,20 @@
         <event type="set">
             <id>cdata_set</id>
             <actions phase="post">
+                <action id="cdata_set_post">
+                    test
+                </action>
                 <actionRef>
                     <id>cdata_get_post</id>
                 </actionRef>
+            </actions>
+        </event>
+        <event type="set">
+            <id>cdata_set_duplicate</id>
+            <actions phase="post">
+                <action id="cdata_set_post_duplicate">
+                    test
+                </action>
             </actions>
         </event>
     </data>

@@ -21,7 +21,7 @@ const {
     Template,
     TransitionEventType,
     TriggerType, PetriNet, DataVariable, Expression, Place, Transition,
-    RegularPlaceTransitionArc
+    RegularPlaceTransitionArc, DataEventSource, DataEvent, Action
 } = require('../../dist/petriflow');
 const fs = require('fs');
 
@@ -258,6 +258,7 @@ describe('Petriflow integration tests', () => {
         const cdataField = model.getData('cdata_escape');
         expect(cdataField.title.value).toEqual('CDATA &<>');
         expect(cdataField.init.expression).toContain('<p>CDATA &amp;&lt;&gt;</p>');
+        expect(cdataField.getEvent(DataEventType.SET).postActions.length).toEqual(2);
         const numberField = model.getData('newVariable_1');
         expect(numberField.type).toEqual(DataType.NUMBER);
         expect(numberField.title.value).toEqual('title');
@@ -765,7 +766,7 @@ describe('Petriflow integration tests', () => {
     test('should import & export', () => {
         let file = fs.readFileSync(TEST_FILE_PATH).toString();
         debug = false;
-        const model1 = importAndExport(file, 4, 20, 9);
+        const model1 = importAndExport(file, 6, 20, 9);
         expect(model1).toBeDefined();
         const model2 = importAndExport(model1, 0, 20, 0);
         expect(model2).toBeDefined();
@@ -786,5 +787,23 @@ describe('Petriflow integration tests', () => {
         model.addTransition(t1);
         model.addArc(a1);
         const xml = exportService.exportXml(model);
+    });
+
+    test('event-source', () => {
+        const source = new DataVariable('data', DataType.TEXT);
+        source.addEvent(new DataEvent(DataEventType.SET, 'set'));
+        expect(() => {
+            source.addEvent(new DataEvent(DataEventType.SET, 'set2'));
+        }).toThrow();
+        source.removeEvent(DataEventType.SET);
+
+        const event = new DataEvent(DataEventType.SET, 'set')
+        source.addEvent(event);
+        expect(() => {
+            event.addAction(undefined, undefined);
+        }).toThrow();
+        expect(() => {
+            event.addAction(new Action('', ''), undefined);
+        }).toThrow();
     });
 });
