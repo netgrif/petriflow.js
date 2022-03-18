@@ -3,6 +3,9 @@ import {TransitionPlaceArc} from './transition-place-arc';
 
 export class RegularTransitionPlaceArc extends TransitionPlaceArc {
 
+    /**
+     * Regular arc produces number of tokens equal to its multiplicity.
+     */
     produce(): void {
         this.destination.marking += this.multiplicity;
     }

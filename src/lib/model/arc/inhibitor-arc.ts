@@ -3,16 +3,23 @@ import {PlaceTransitionArc} from './place-transition-arc';
 
 export class InhibitorArc extends PlaceTransitionArc {
 
-    // TODO: documentation
+    /**
+     * Inhibitor arc does not consume any tokens from input place.
+     * @returns always 0
+     * @throws Error if firing precondition is not fulfilled.
+     */
     consume(): number {
         this.assertCanFire();
         return 0;
     }
 
-    // TODO: documentation
+    /**
+     * Inhibitor arc enables transition to fire if the input place contains fewer
+     * tokens than the multiplicity of arc.
+     * @returns true if place marking < multiplicity, false otherwise
+     */
     canFire(): boolean {
         return this.source.marking < this.multiplicity;
-
     }
 
     get type(): ArcType {

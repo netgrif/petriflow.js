@@ -220,4 +220,19 @@ describe('Petriflow transition simulation tests', () => {
             sim.reset();
         }
     });
+
+    test('arc order', () => {
+        const file = fs.readFileSync('src/test/resources/simulation_arc_order.xml').toString();
+        const result = importService.parseFromXml(file);
+
+        const sim = new Simulation(result.model);
+        // for (let i = 0; i < 3; i++) {
+            expect(sim.isEnabled('t1')).toEqual(true);
+            expect(() => {
+                sim.fire('t1');
+            }).not.toThrow();
+            expect(sim.isEnabled('t1')).toEqual(false);
+            sim.reset();
+        // }
+    });
 });

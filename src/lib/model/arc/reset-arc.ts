@@ -4,10 +4,12 @@ import {PlaceTransitionArc} from './place-transition-arc';
 export class ResetArc extends PlaceTransitionArc {
 
     /**
-     * Reset arc consumes all tokens in place.
+     * Reset arc consumes all tokens from the input place. Since reset arc does
+     * not impose any precondition on firing, this function does not throw any
+     * error.
+     * @returns number of consumed tokens = number of tokens in input place.
      */
     consume(): number {
-        this.assertCanFire();
         const marking = this.source.marking;
         this.source.marking = 0;
         return marking;
@@ -15,6 +17,7 @@ export class ResetArc extends PlaceTransitionArc {
 
     /**
      * Reset arc does not impose a precondition on firing.
+     * @returns always true
      */
     canFire(): boolean {
         return true;

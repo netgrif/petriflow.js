@@ -3,13 +3,21 @@ import {PlaceTransitionArc} from './place-transition-arc';
 
 export class ReadArc extends PlaceTransitionArc {
 
-    // TODO: documentation
+    /**
+     * Read arc does not consume any tokens from input place.
+     * @returns always 0
+     * @throws Error if firing precondition is not fulfilled.
+     */
     consume(): number {
         this.assertCanFire();
         return 0;
     }
 
-    // TODO: documentation
+    /**
+     * Read arc enables transition to fire if the input place contains at least as
+     * many tokens as the multiplicity of arc.
+     * @returns true if place marking >= multiplicity, false otherwise
+     */
     canFire(): boolean {
         return this.source.marking >= this.multiplicity;
     }

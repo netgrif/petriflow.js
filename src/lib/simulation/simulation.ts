@@ -1,5 +1,6 @@
 import {
     Arc,
+    ArcType,
     NodeElement,
     PetriNet,
     Place,
@@ -10,6 +11,12 @@ import {
 
 export class Simulation {
 
+    static readonly ARC_ORDER = [
+        ArcType.INHIBITOR,
+        ArcType.READ,
+        ArcType.REGULAR,
+        ArcType.RESET
+    ];
     private readonly originalModel: PetriNet;
     private _simulationModel: PetriNet;
     private dataVariables: Map<string, number>;
@@ -43,7 +50,8 @@ export class Simulation {
         this.outputArcs = new Map<string, Array<Arc<NodeElement, NodeElement>>>();
         this.assignedTasks = new Set<string>();
         this.consumedTokens = new Map<string, number>();
-        for (const arc of this._simulationModel.getArcs()) {
+        const arcs = this._simulationModel.getArcs().sort(this.arcOrder);
+        for (const arc of arcs) {
             this.updateIOArc(arc);
             this.updateDataReference(arc);
         }
@@ -104,6 +112,7 @@ export class Simulation {
         this._simulationModel.getPlaces().forEach(p => originalMarking.set(p, p.marking));
         let result = true;
         try {
+
             inputArcs?.forEach(a => (a as PlaceTransitionArc).consume());
         } catch (ignored) {
             result = false;
@@ -147,5 +156,9 @@ export class Simulation {
                 arc.multiplicity = value;
             }
         }
+    }
+
+    protected arcOrder(a: Arc<NodeElement, NodeElement>, b: Arc<NodeElement, NodeElement>): number {
+        return Simulation.ARC_ORDER.indexOf(a.type) - Simulation.ARC_ORDER.indexOf(b.type);
     }
 }
