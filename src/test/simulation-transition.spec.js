@@ -226,13 +226,13 @@ describe('Petriflow transition simulation tests', () => {
         const result = importService.parseFromXml(file);
 
         const sim = new Simulation(result.model);
-        // for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             expect(sim.isEnabled('t1')).toEqual(true);
             expect(() => {
                 sim.fire('t1');
             }).not.toThrow();
             expect(sim.isEnabled('t1')).toEqual(false);
             sim.reset();
-        // }
+        }
     });
 });
