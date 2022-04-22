@@ -26,7 +26,7 @@ import {ExportUtils} from './export-utils';
 
 export class ExportService {
 
-    public static readonly PETRIFLOW_SCHEMA_URL = 'https://netgrif.github.io/petriflow/petriflow.schema.xsd';
+    public static readonly PETRIFLOW_SCHEMA_URL = 'https://petriflow.com/petriflow.schema.xsd';
 
     protected xmlConstructor = document.implementation.createDocument(null, 'document', null);
 
