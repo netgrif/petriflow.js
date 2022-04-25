@@ -1,15 +1,15 @@
 import {Action} from './action';
+import {Element} from './element';
 import {EventPhase} from './event-phase.enum';
 
-export abstract class Event<T> {
+export abstract class Event<T> extends Element {
     private _type: T;
-    private _id: string;
-    private _preActions: Array<Action>;
-    private _postActions: Array<Action>;
+    private readonly _preActions: Array<Action>;
+    private readonly _postActions: Array<Action>;
 
     protected constructor(type: T, id: string) {
+        super(id);
         this._type = type;
-        this._id = id;
         this._preActions = [];
         this._postActions = [];
     }
@@ -20,14 +20,6 @@ export abstract class Event<T> {
 
     set type(value: T) {
         this._type = value;
-    }
-
-    get id(): string {
-        return this._id;
-    }
-
-    set id(value: string) {
-        this._id = value;
     }
 
     get preActions(): Array<Action> {

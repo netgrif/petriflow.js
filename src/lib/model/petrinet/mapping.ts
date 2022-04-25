@@ -2,9 +2,9 @@ import {DataRef} from '../transition/data-ref';
 import {DataGroup} from '../transition/datagroup'; // cspell:disable-line
 import {RoleRef} from '../transition/role-ref';
 import {Trigger} from '../transition/trigger';
+import {Element} from './element';
 
-export class Mapping {
-    private _id: string;
+export class Mapping extends Element {
     private _transitionRef: string;
     private _roleRef: Array<RoleRef>;
     private _dataRef: Array<DataRef>;
@@ -12,20 +12,12 @@ export class Mapping {
     private _trigger: Array<Trigger>;
 
     constructor(id: string, transRef: string) {
-        this._id = id;
+        super(id);
         this._transitionRef = transRef;
         this._roleRef = [];
         this._dataRef = [];
         this._dataGroup = [];
         this._trigger = [];
-    }
-
-    get id(): string {
-        return this._id;
-    }
-
-    set id(value: string) {
-        this._id = value;
     }
 
     get transitionRef(): string {
@@ -69,7 +61,7 @@ export class Mapping {
     }
 
     public clone(): Mapping {
-        const cloned = new Mapping(this._id, this._transitionRef);
+        const cloned = new Mapping(this.id, this._transitionRef);
         cloned._roleRef = this._roleRef.map(item => item.clone());
         cloned._dataRef = this._dataRef.map(item => item.clone());
         cloned._dataGroup = this._dataGroup.map(item => item.clone());

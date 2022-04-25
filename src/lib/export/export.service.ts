@@ -11,7 +11,7 @@ import {
     Event,
     FinishPolicy,
     IconType,
-    LayoutType,
+    LayoutType, NodeElement,
     PetriNet,
     ProcessEvent,
     ProcessRoleRef,
@@ -314,7 +314,7 @@ export class ExportService {
             trans.dataGroups.forEach(dataGroup => {
                 this.exportDataGroup(exportTrans, dataGroup);
             });
-            trans.getEvents().forEach(event => {
+            trans.eventSource.getEvents().forEach(event => {
                 this.exportEvent(exportTrans, event);
             });
             doc.appendChild(exportTrans);
@@ -441,8 +441,8 @@ export class ExportService {
             const exportArc = this.xmlConstructor.createElement('arc');
             this.exportUtils.exportTag(exportArc, 'id', arc.id, true);
             this.exportUtils.exportTag(exportArc, 'type', arc.type);
-            this.exportUtils.exportTag(exportArc, 'sourceId', arc.source);
-            this.exportUtils.exportTag(exportArc, 'destinationId', arc.destination);
+            this.exportUtils.exportTag(exportArc, 'sourceId', arc.source.id);
+            this.exportUtils.exportTag(exportArc, 'destinationId', arc.destination.id);
             this.exportUtils.exportTag(exportArc, 'multiplicity', arc.multiplicity?.toString());
             this.exportUtils.exportTag(exportArc, 'reference', arc.reference ?? '');
             if (arc.breakpoints !== undefined) {
@@ -452,7 +452,7 @@ export class ExportService {
         });
     }
 
-    public exportBreakpoints(exportArc: Element, arc: Arc): void {
+    public exportBreakpoints(exportArc: Element, arc: Arc<NodeElement, NodeElement>): void {
         arc.breakpoints.forEach((point) => {
             const breakPoint = this.xmlConstructor.createElement('breakpoint');
             this.exportUtils.exportTag(breakPoint, 'x', point.x?.toString());

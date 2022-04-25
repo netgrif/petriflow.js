@@ -20,7 +20,9 @@ const {
     RoleEventType,
     Template,
     TransitionEventType,
-    TriggerType
+    TriggerType, PetriNet, DataVariable, Expression, Place, Transition,
+    RegularPlaceTransitionArc, DataEventSource, DataEvent, Action,
+    I18nTranslations, Mapping
 } = require('../../dist/petriflow');
 const fs = require('fs');
 
@@ -53,8 +55,8 @@ const CASE_EVENTS_DELETE_POST_LENGTH = 1;
 const ROLE_TITLE_VALUE = 'title';
 const MODEL_ROLES_LENGTH = 4;
 const MODEL_TRANSITIONS_LENGTH = 13;
-const MODEL_PLACES_LENGTH = 10;
-const MODEL_ARCS_LENGTH = 16;
+const MODEL_PLACES_LENGTH = 12;
+const MODEL_ARCS_LENGTH = 17;
 const MODEL_DATA_LENGTH = 21;
 const MODEL_USERREFS_LENGTH = 2;
 const ROLE_1_ID = 'newRole_1';
@@ -97,8 +99,8 @@ describe('Petriflow integration tests', () => {
         expect(arc.id).toEqual(id);
         expect(arc.type).toEqual(type);
         expect(arc.reference).toEqual(reference);
-        expect(arc.destination).toEqual(destination);
-        expect(arc.source).toEqual(source);
+        expect(arc.destination.id).toEqual(destination);
+        expect(arc.source.id).toEqual(source);
         expect(arc.multiplicity).toEqual(multiplicity);
         if (breakpoints && breakpoints.length > 0) {
             expect(arc.breakpoints.length).toEqual(breakpoints.length);
@@ -257,6 +259,7 @@ describe('Petriflow integration tests', () => {
         const cdataField = model.getData('cdata_escape');
         expect(cdataField.title.value).toEqual('CDATA &<>');
         expect(cdataField.init.expression).toContain('<p>CDATA &amp;&lt;&gt;</p>');
+        expect(cdataField.getEvent(DataEventType.SET).postActions.length).toEqual(2);
         const numberField = model.getData('newVariable_1');
         expect(numberField.type).toEqual(DataType.NUMBER);
         expect(numberField.title.value).toEqual('title');
@@ -385,6 +388,8 @@ describe('Petriflow integration tests', () => {
         expect(multichoiceMapField.inits[1].expression).toEqual('key5');
         const fileField = model.getData('newVariable_7');
         expect(fileField).not.toBeUndefined();
+        expect(fileField.remote).toEqual(true);
+        expect(fileField.length).toEqual(10);
         const fileListField = model.getData('newVariable_8');
         expect(fileListField).not.toBeUndefined();
         const booleanField = model.getData('newVariable_9');
@@ -402,6 +407,10 @@ describe('Petriflow integration tests', () => {
         expect(taskRefField).not.toBeUndefined();
         const caseRefField = model.getData('newVariable_14');
         expect(caseRefField).not.toBeUndefined();
+        expect(caseRefField.allowedNets.length).toEqual(3);
+        expect(caseRefField.allowedNets).toContain('net_1');
+        expect(caseRefField.allowedNets).toContain('net_2');
+        expect(caseRefField.allowedNets).toContain('net_3');
         const userListField = model.getData('newVariable_15');
         expect(userListField).not.toBeUndefined();
         log('Model data correct');
@@ -440,13 +449,14 @@ describe('Petriflow integration tests', () => {
         expect(transitionT1.label.name).toEqual('t1_label');
         expect(transitionT1.label.value).toEqual('Task escape:&<>');
         expect(transitionT1.icon).toEqual(MODEL_ICON);
+        expect(transitionT1.priority).toEqual(1);
         expect(transitionT1.assignPolicy).toEqual(AssignPolicy.AUTO);
         expect(transitionT1.finishPolicy).toEqual(FinishPolicy.AUTO_NO_DATA);
         expect(transitionT1.layout.rows).toEqual(4);
         expect(transitionT1.layout.cols).toEqual(5);
         expect(transitionT1.layout.offset).toEqual(0);
         expect(transitionT1.layout.alignment).toEqual(Alignment.CENTER);
-        const t1AssignEvent = transitionT1.getEvent(TransitionEventType.ASSIGN);
+        const t1AssignEvent = transitionT1.eventSource.getEvent(TransitionEventType.ASSIGN);
         expect(t1AssignEvent.id).toEqual('assign');
         expect(t1AssignEvent.title.value).toEqual('t1_assign_title_value');
         expect(t1AssignEvent.title.name).toEqual('t1_assign_title');
@@ -456,19 +466,19 @@ describe('Petriflow integration tests', () => {
         expect(t1AssignEvent.preActions[0].definition).toContain('test("t1_assign_pre")');
         expect(t1AssignEvent.postActions.length).toEqual(1);
         expect(t1AssignEvent.postActions[0].definition).toContain('test("t1_assign_post")');
-        const t1FinishEvent = transitionT1.getEvent(TransitionEventType.FINISH);
+        const t1FinishEvent = transitionT1.eventSource.getEvent(TransitionEventType.FINISH);
         expect(t1FinishEvent.id).toEqual('finish');
         expect(t1FinishEvent.preActions.length).toEqual(1);
         expect(t1FinishEvent.preActions[0].definition).toContain('test("t1_finish_pre")');
         expect(t1FinishEvent.postActions.length).toEqual(1);
         expect(t1FinishEvent.postActions[0].definition).toContain('test("t1_finish_post")');
-        const t1CancelEvent = transitionT1.getEvent(TransitionEventType.CANCEL);
+        const t1CancelEvent = transitionT1.eventSource.getEvent(TransitionEventType.CANCEL);
         expect(t1CancelEvent.id).toEqual('cancel');
         expect(t1CancelEvent.preActions.length).toEqual(1);
         expect(t1CancelEvent.preActions[0].definition).toContain('test("t1_cancel_pre")');
         expect(t1CancelEvent.postActions.length).toEqual(1);
         expect(t1CancelEvent.postActions[0].definition).toContain('test("t1_cancel_post")');
-        const t1DelegateEvent = transitionT1.getEvent(TransitionEventType.DELEGATE);
+        const t1DelegateEvent = transitionT1.eventSource.getEvent(TransitionEventType.DELEGATE);
         expect(t1DelegateEvent.id).toEqual('delegate');
         expect(t1DelegateEvent.preActions.length).toEqual(1);
         expect(t1DelegateEvent.preActions[0].definition).toContain('test("t1_delegate_pre")');
@@ -764,10 +774,125 @@ describe('Petriflow integration tests', () => {
     test('should import & export', () => {
         let file = fs.readFileSync(TEST_FILE_PATH).toString();
         debug = false;
-        const model1 = importAndExport(file, 4, 20, 9);
+        const model1 = importAndExport(file, 14, 22, 9);
         expect(model1).toBeDefined();
         const model2 = importAndExport(model1, 0, 20, 0);
         expect(model2).toBeDefined();
         expect(model1).toEqual(model2);
+    });
+
+    test('should export manually created model', () => {
+        const model = new PetriNet();
+        const p1 = new Place(10, 10, false, 'p1');
+        const t1 = new Transition(50, 10, 't1');
+        const a1 = new RegularPlaceTransitionArc(p1, t1, 'a_old');
+        const a1_breakpoint = new Breakpoint(0, 0);
+        a1_breakpoint.x = 30;
+        a1_breakpoint.y = 30;
+        a1.breakpoints = [a1_breakpoint];
+        a1.id = 'a1';
+        model.addPlace(p1);
+        model.addTransition(t1);
+        model.addArc(a1);
+        const xml = exportService.exportXml(model);
+    });
+
+    test('event-source', () => {
+        const source = new DataVariable('data', DataType.TEXT);
+        source.addEvent(new DataEvent(DataEventType.SET, 'set'));
+        expect(() => {
+            source.addEvent(new DataEvent(DataEventType.SET, 'set2'));
+        }).toThrow();
+        source.removeEvent(DataEventType.SET);
+
+        const event = new DataEvent(DataEventType.SET, 'set')
+        source.addEvent(event);
+        expect(() => {
+            event.addAction(undefined, undefined);
+        }).toThrow();
+        expect(() => {
+            event.addAction(new Action('', ''), undefined);
+        }).toThrow();
+    });
+
+    test('invalid xml import', () => {
+        const file = fs.readFileSync('src/test/resources/invalid_xml_test.xml').toString();
+        const result = importService.parseFromXml(file);
+        expect(result.errors.length).toEqual(1);
+    });
+
+    test('petri-net code test', () => {
+        const net = new PetriNet();
+        const p1 = new Place(10, 10, false, 'p1');
+        const t1 = new Transition(50, 10, 't1');
+        const a1 = new RegularPlaceTransitionArc(p1, t1, 'a1');
+        const i18nSk = new I18nTranslations('sk');
+        const d1 = new DataVariable('d1', DataType.TEXT);
+        const m1 = new Mapping('m1', 't1');
+        net.addPlace(p1);
+        net.addTransition(t1);
+        net.addArc(a1);
+        net.addI18n(i18nSk);
+        net.addData(d1);
+        net.addMapping(m1);
+
+        const a2 = new RegularPlaceTransitionArc(p1, t1, 'a1');
+        expect(net.getArcs().length).toEqual(1);
+        expect(() => {
+            net.addArc(a2);
+        }).toThrow();
+        expect(net.getArcs().length).toEqual(1);
+        net.removeArc('a1');
+        expect(net.getArcs().length).toEqual(0);
+
+        const p2 = new Place(10, 10, false, 'p1');
+        expect(net.getPlaces().length).toEqual(1);
+        expect(() => {
+            net.addPlace(p2);
+        }).toThrow();
+        expect(net.getPlaces().length).toEqual(1);
+        net.removePlace('p1');
+        expect(net.getPlaces().length).toEqual(0);
+
+        const t2 = new Transition(10, 10, 't1');
+        expect(net.getTransitions().length).toEqual(1);
+        expect(() => {
+            net.addTransition(t2);
+        }).toThrow();
+        expect(net.getTransitions().length).toEqual(1);
+        net.removeTransition('t1');
+        expect(net.getTransitions().length).toEqual(0);
+
+        const i18nSk2 = new I18nTranslations('sk');
+        expect(net.getI18ns().length).toEqual(1);
+        expect(() => {
+            net.addI18n(i18nSk2);
+        }).toThrow();
+        expect(net.getI18ns().length).toEqual(1);
+        net.removeI18n('sk');
+        expect(net.getI18ns().length).toEqual(0);
+
+        const d2 = new DataVariable('d1', DataType.TEXT);
+        expect(net.getDataSet().length).toEqual(1);
+        expect(() => {
+            net.addData(d2);
+        }).toThrow();
+        expect(net.getDataSet().length).toEqual(1);
+        net.removeData('d1');
+        expect(net.getDataSet().length).toEqual(0);
+
+        const m2 = new Mapping('m1', 't1');
+        expect(net.getMappings().length).toEqual(1);
+        expect(() => {
+            net.addMapping(m2);
+        }).toThrow();
+        expect(net.getMappings().length).toEqual(1);
+        net.removeMapping('m1');
+        expect(net.getMappings().length).toEqual(0);
+
+        net.defaultRole = undefined;
+        net.anonymousRole = undefined;
+        net.transitionRole = undefined;
+        exportService.exportXml(net);
     });
 });

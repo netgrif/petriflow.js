@@ -16,6 +16,7 @@ import {ProcessUserRef} from './petrinet/process-user-ref';
 import {Transaction} from './petrinet/transaction';
 import {Role} from './role/role';
 import {Transition} from './transition/transition';
+import {NodeElement} from './petrinet/node-element';
 
 export class PetriNet {
     private _id: string;
@@ -39,7 +40,7 @@ export class PetriNet {
     private _i18ns: Map<string, I18nTranslations>;
     private _transitions: Map<string, Transition>;
     private _places: Map<string, Place>;
-    private _arcs: Map<string, Arc>;
+    private _arcs: Map<string, Arc<NodeElement, NodeElement>>;
 
     constructor() {
         this._id = 'new_model';
@@ -53,7 +54,7 @@ export class PetriNet {
         this._caseName = new I18nWithDynamic('');
         this._transitions = new Map<string, Transition>();
         this._places = new Map<string, Place>();
-        this._arcs = new Map<string, Arc>();
+        this._arcs = new Map<string, Arc<NodeElement, NodeElement>>();
         this._data = new Map<string, DataVariable>();
         this._transactions = new Map<string, Transaction>();
         this._roles = new Map<string, Role>();
@@ -368,15 +369,15 @@ export class PetriNet {
         this._places.delete(id);
     }
 
-    getArcs(): Array<Arc> {
+    getArcs(): Array<Arc<NodeElement, NodeElement>> {
         return Array.from(this._arcs.values());
     }
 
-    getArc(id: string): Arc | undefined {
+    getArc(id: string): Arc<NodeElement, NodeElement> | undefined {
         return this._arcs.get(id);
     }
 
-    addArc(arc: Arc) {
+    addArc(arc: Arc<NodeElement, NodeElement>) {
         if (this._arcs.has(arc.id)) {
             throw new Error(`Duplicate arc with id ${arc.id}`);
         }
@@ -408,7 +409,17 @@ export class PetriNet {
         this._i18ns.forEach(i => cloned.addI18n(i.clone()));
         this._transitions.forEach(t => cloned.addTransition(t.clone()));
         this._places.forEach(p => cloned.addPlace(p.clone()));
-        this._arcs.forEach(a => cloned.addArc(a.clone()));
+        this._arcs.forEach(a => {
+            const clonedArc = a.clone();
+            if (clonedArc.source instanceof Place) {
+                clonedArc.source = cloned.getPlace(clonedArc.source.id) as Place;
+                clonedArc.destination = cloned.getTransition(clonedArc.destination.id) as Transition;
+            } else {
+                clonedArc.source = cloned.getTransition(clonedArc.source.id) as Transition;
+                clonedArc.destination = cloned.getPlace(clonedArc.destination.id) as Place;
+            }
+            cloned.addArc(clonedArc);
+        });
         this._roleRefs.forEach(ref => cloned.addRoleRef(ref.clone()));
         this._userRefs.forEach(ref => cloned.addUserRef(ref.clone()));
         return cloned;
