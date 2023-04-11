@@ -13,7 +13,10 @@ export class ExportUtils {
 
     protected xmlConstructor = document.implementation.createDocument(null, 'document', null);
 
-    public exportTag(doc: Element, name: string, value: string | I18nString | I18nWithDynamic, force = false, attributes?: Array<{ key: string, value: string }>): void {
+    public exportTag(doc: Element, name: string, value: string | I18nString | I18nWithDynamic, force = false, attributes?: Array<{
+        key: string,
+        value: string
+    }>): void {
         if ((typeof value === 'string' && value !== '') ||
             (value instanceof I18nString && value.value !== undefined && value.value !== null && value.value !== '')) {
             const tag = this.xmlConstructor.createElement(name);
@@ -44,24 +47,34 @@ export class ExportUtils {
         }
     }
 
-    public exportExpression(doc: Element, name: string, value: Expression | Array<Expression> | undefined) {
-        if (value !== undefined) {
-            if (!Array.isArray(value)) {
-                this.exportTag(doc, name, value.expression, false, value.dynamic ? [{
-                    key: 'dynamic',
-                    value: value.dynamic.toString()
-                }] : undefined);
-            } else if (value.length > 0) {
-                const exportInits = this.xmlConstructor.createElement('inits');
-                value.forEach(init => {
-                    this.exportTag(exportInits, name, init.expression, false, init.dynamic ? [{
-                        key: 'dynamic',
-                        value: init.dynamic.toString()
-                    }] : undefined);
-                });
-                doc.appendChild(exportInits);
-            }
+    public exportExpression(doc: Element, name: string, value: Expression | undefined) {
+        if (value === undefined) {
+            return;
         }
+        this.exportTag(doc, name, value.expression, false, value.dynamic ? [{
+            key: 'dynamic',
+            value: value.dynamic.toString()
+        }] : undefined);
+    }
+
+    public exportI18nWithDynamic(doc: Element, name: string, value: I18nWithDynamic | undefined) {
+        if (value === undefined) {
+            return;
+        }
+        const attributes = [];
+        if (value.dynamic) {
+            attributes.push({
+                key: 'dynamic',
+                value: value.dynamic.toString()
+            })
+        }
+        if (value.name) {
+            attributes.push({
+                key: 'name',
+                value: value.name
+            })
+        }
+        this.exportTag(doc, name, value.value, false, attributes);
     }
 
     public exportActions<T>(element: Element, event: Event<T>, phase: string): void {

@@ -196,18 +196,11 @@ export class ExportService {
                 });
                 exportData.appendChild(validations);
             }
-            this._exportUtils.exportExpression(exportData, 'init', data.init);
+            this._exportUtils.exportI18nWithDynamic(exportData, 'init', data.init);
             if (data.inits.length > 0) {
                 const inits = this.xmlConstructor.createElement('inits');
                 data.inits.forEach(init => {
-                    let attr;
-                    if (init.dynamic) {
-                        attr = [{
-                            key: 'dynamic',
-                            value: String(init.dynamic)
-                        }];
-                    }
-                    this._exportUtils.exportTag(inits, 'init', init.expression, false, attr);
+                    this._exportUtils.exportI18nWithDynamic(inits, 'init', init);
                 });
                 exportData.appendChild(inits);
             }
