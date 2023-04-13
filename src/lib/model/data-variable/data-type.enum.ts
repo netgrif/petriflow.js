@@ -15,5 +15,6 @@ export enum DataType {
     BUTTON = 'button',
     TASK_REF = 'taskRef',
     CASE_REF = 'caseRef',
-    FILTER = 'filter'
+    FILTER = 'filter',
+    I18N = 'i18n'
 }
