@@ -17,10 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js 14
+      - name: Use Node.js 18
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 18
           cache: 'npm'
       - run: npm ci
       - run: npm run build
