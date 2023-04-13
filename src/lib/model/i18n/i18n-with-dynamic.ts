@@ -3,8 +3,8 @@ import {I18nString} from './i18n-string';
 export class I18nWithDynamic extends I18nString {
     private _dynamic: boolean;
 
-    constructor(value: string, dynamic = false) {
-        super(value);
+    constructor(value: string, name?: string, dynamic = false) {
+        super(value, name);
         this._dynamic = dynamic;
     }
 
@@ -17,8 +17,6 @@ export class I18nWithDynamic extends I18nString {
     }
 
     public clone(): I18nWithDynamic {
-        const cloned = new I18nWithDynamic(this.value, this._dynamic);
-        cloned.name = this.name;
-        return cloned;
+        return new I18nWithDynamic(this.value, this.name, this._dynamic);
     }
 }

@@ -1,4 +1,5 @@
 import {I18nString} from '../i18n/i18n-string';
+import {I18nWithDynamic} from "../i18n/i18n-with-dynamic";
 import {Component} from './component';
 import {DataEventSource} from './data-event-source';
 import {DataType} from './data-type.enum';
@@ -14,8 +15,8 @@ export class DataVariable extends DataEventSource {
     private _options: Array<Option>;
     private _optionsInit?: Expression;
     private _validations: Array<Validation>;
-    private _init?: Expression;
-    private _inits: Array<Expression>;
+    private _init?: I18nWithDynamic;
+    private _inits: Array<I18nWithDynamic>;
     private _component?: Component;
     private _type: DataType;
     private _immediate: boolean;
@@ -96,19 +97,19 @@ export class DataVariable extends DataEventSource {
         this._validations = value;
     }
 
-    get init(): Expression | undefined {
+    get init(): I18nWithDynamic | undefined {
         return this._init;
     }
 
-    set init(value: Expression | undefined) {
+    set init(value: I18nWithDynamic | undefined) {
         this._init = value;
     }
 
-    get inits(): Array<Expression> {
+    get inits(): Array<I18nWithDynamic> {
         return this._inits;
     }
 
-    set inits(value: Array<Expression>) {
+    set inits(value: Array<I18nWithDynamic>) {
         this._inits = value;
     }
 
