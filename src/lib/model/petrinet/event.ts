@@ -1,6 +1,6 @@
+import {I18nString} from '../i18n/i18n-string';
 import {Action} from './action';
 import {EventPhase} from './event-phase.enum';
-import {I18nString} from "../i18n/i18n-string";
 
 export abstract class Event<T> {
     private _type: T;
