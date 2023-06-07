@@ -30,6 +30,6 @@ export class I18nString {
     }
 
     public isEmpty(): boolean {
-        return (this._name === undefined || this._name.trim().length === 0) && (this.value === undefined || this.value.trim().length === 0);
+        return !this._name && !this._value;
     }
 }
