@@ -97,6 +97,9 @@ export class ExportService {
     }
 
     public exportEvent<T>(element: Element, event: Event<T>): void {
+        if (event.isEmpty()) {
+            return
+        }
         let exportProcessEvent;
         if (event instanceof ProcessEvent) {
             exportProcessEvent = this.xmlConstructor.createElement('processEvents');

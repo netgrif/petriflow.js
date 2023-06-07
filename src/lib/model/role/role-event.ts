@@ -26,4 +26,8 @@ export class RoleEvent extends Event<RoleEventType> {
         this.postActions.forEach(item => cloned.postActions.push(item.clone()));
         return cloned;
     }
+
+    public isEmpty(): boolean {
+        return super.isEmpty() && this._title.isEmpty();
+    }
 }

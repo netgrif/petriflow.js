@@ -28,4 +28,8 @@ export class I18nString {
         cloned.name = this.name;
         return cloned;
     }
+
+    public isEmpty(): boolean {
+        return (this._name === undefined || this._name.trim().length === 0) && (this.value === undefined || this.value.trim().length === 0);
+    }
 }
