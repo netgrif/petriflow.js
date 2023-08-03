@@ -5,7 +5,6 @@ import {EventPhase} from './event-phase.enum';
 
 export abstract class Event<T> extends Element {
     private _type: T;
-    private _id: string;
     private readonly _preActions: Array<Action>;
     private readonly _postActions: Array<Action>;
     private _message: I18nString;

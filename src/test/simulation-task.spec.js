@@ -3,7 +3,7 @@
 const {
     ImportService,
     ExportService,
-    Simulation
+    BasicSimulation
 } = require('../../dist/petriflow');
 const fs = require('fs');
 
@@ -21,7 +21,7 @@ describe('Petriflow transition simulation tests', () => {
     test('task event errors', () => {
         const file = fs.readFileSync(SIMPLE_NET_FILE).toString();
         const result = importService.parseFromXml(file);
-        const sim = new Simulation(result.model);
+        const sim = new BasicSimulation(result.model);
 
         sim.assign('t1');
         expect(() => {
@@ -40,7 +40,7 @@ describe('Petriflow transition simulation tests', () => {
         const file = fs.readFileSync(SIMPLE_NET_FILE).toString();
         const result = importService.parseFromXml(file);
 
-        const sim = new Simulation(result.model);
+        const sim = new BasicSimulation(result.model);
         for (let i = 0; i < 3; i++) {
             expect(sim.enabled().length).toEqual(5);
             expect(sim.assigned().length).toEqual(0);
