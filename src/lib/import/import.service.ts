@@ -215,7 +215,7 @@ export class ImportService {
         data.immediate = this.importUtils.tagAttribute(xmlData, 'immediate') === 'true';
         data.encryption = this.importUtils.parseEncryption(xmlData);
         data.init = this.importUtils.resolveInit(xmlData);
-        this.importUtils.resolveInits(xmlData).forEach(i => data.inits.push(i));
+        data.inits = this.importUtils.resolveInits(xmlData);
         data.length = this.importUtils.parseNumberValue(xmlData, 'length');
         data.component = this.importUtils.parseViewAndComponent(xmlData);
         this.importUtils.resolveFormat(xmlData, data);

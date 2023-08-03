@@ -119,6 +119,7 @@
                     <!-- @formatter:on    -->
                 </action>
             </actions>
+            <message name="process_upload_message">process_upload_message_value</message>
         </event>
     </processEvents>
     <caseEvents>
@@ -135,6 +136,7 @@
                     test("case_create_post")
                 </action>
             </actions>
+            <message name="case_create_message">case_create_message_value</message>
         </event>
         <event type="delete">
             <id>case_delete</id>
@@ -429,6 +431,21 @@
         <id>newVariable_18</id>
         <title>title</title>
     </data>
+    <data type="i18n">
+        <id>newVariable_19</id>
+        <title>i18n</title>
+        <init name="newVariable_19_name">newVariable_19 name value</init>
+    </data>
+    <data type="i18n">
+        <id>newVariable_20</id>
+        <title>i18n</title>
+        <init dynamic="true">newVariable_20 name value</init>
+    </data>
+    <data type="i18n">
+        <id>newVariable_21</id>
+        <title>i18n no translation</title>
+        <init name="newVariable_21_name">newVariable_21 name value</init>
+    </data>
     <!-- I18NS -->
     <i18n locale="uk">
         <i18nString name="title">UK_title</i18nString>
@@ -451,6 +468,8 @@
         <i18nString name="newVariable_4_option_1">UK_newVariable_4_option_1</i18nString>
         <i18nString name="newVariable_4_option_2">UK_newVariable_4_option_2</i18nString>
         <i18nString name="newVariable_4_option_3">UK_newVariable_4_option_3</i18nString>
+        <i18nString name="newVariable_19_name">UK_newVariable_19_name</i18nString>
+        <i18nString name="case_create_message">UK_case_create_message</i18nString>
     </i18n>
     <i18n locale="de">
         <i18nString name="title">DE_title</i18nString>
@@ -473,6 +492,8 @@
         <i18nString name="newVariable_4_option_1">DE_newVariable_4_option_1</i18nString>
         <i18nString name="newVariable_4_option_2">DE_newVariable_4_option_2</i18nString>
         <i18nString name="newVariable_4_option_3">DE_newVariable_4_option_3</i18nString>
+        <i18nString name="newVariable_19_name">DE_newVariable_19_name</i18nString>
+        <i18nString name="case_create_message">DE_case_create_message</i18nString>
     </i18n>
     <i18n locale="sk">
     </i18n>

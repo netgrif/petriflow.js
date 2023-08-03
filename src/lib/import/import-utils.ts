@@ -74,8 +74,9 @@ export class ImportUtils {
     }
 
     public tagAttribute(xmlTag: Element | null, attribute: string): string {
-        if (!xmlTag)
+        if (!xmlTag) {
             return '';
+        }
         let attr;
         for (let i = 0; i < xmlTag.attributes.length; i++) {
             if (xmlTag.attributes.item(i)?.name === attribute) {
@@ -216,7 +217,9 @@ export class ImportUtils {
     }
 
     public checkVariability(model: PetriNet, arc: Arc<NodeElement, NodeElement>, reference: string | undefined): void {
-        if (!reference) return;
+        if (!reference) {
+            return;
+        }
         let ref: Place | DataVariable | undefined = model.getPlace(reference);
         if (ref) {
             this.attachReference(arc, ref);
@@ -229,7 +232,7 @@ export class ImportUtils {
     }
 
     public attachReference(arc: Arc<NodeElement, NodeElement>, reference: Place | DataVariable): void {
-        const weight = reference instanceof Place ? reference.marking : parseInt(reference.init?.expression ?? '' as string, 10);
+        const weight = reference instanceof Place ? reference.marking : parseInt(reference.init?.value ?? '' as string, 10);
 
         if (isNaN(weight)) {
             throw new Error('Not a number. Cannot change the value of arc weight.');
@@ -302,8 +305,9 @@ export class ImportUtils {
 
     public parseDataLayout(xmlLayout: Element | null): DataLayout {
         const layout = new DataLayout();
-        if (!xmlLayout)
+        if (!xmlLayout) {
             return layout;
+        }
         layout.x = this.parseNumberValue(xmlLayout, 'x') ?? 0;
         layout.y = this.parseNumberValue(xmlLayout, 'y') ?? 0;
         layout.rows = this.parseNumberValue(xmlLayout, 'rows') ?? 0;
@@ -377,18 +381,21 @@ export class ImportUtils {
         }
     }
 
-    public resolveInits(xmlData: Element): Array<Expression> {
-        const inits: Array<Expression> = [];
+    public resolveInits(xmlData: Element): Array<I18nWithDynamic> {
+        const inits: Array<I18nWithDynamic> = [];
         if (this.checkLengthAndNodes(xmlData, 'inits')) {
             for (const value of Array.from(xmlData.getElementsByTagName('inits')[0]?.getElementsByTagName('init'))) {
-                const dynamic = this.tagAttribute(value, 'dynamic');
-                inits.push(new Expression(value.textContent ?? '', dynamic === '' ? undefined : dynamic === 'true'));
+                const init = this.resolveInitValue(value);
+                if (!init) {
+                    continue;
+                }
+                inits.push(init);
             }
         }
         return inits;
     }
 
-    public resolveInit(xmlData: Element): Expression | undefined {
+    public resolveInit(xmlData: Element): I18nWithDynamic | undefined {
         let elementValue;
         for (const value of Array.from(xmlData.getElementsByTagName('init'))) {
             if (!value.parentElement?.tagName || value.parentElement.tagName !== 'data') {
@@ -396,10 +403,16 @@ export class ImportUtils {
             }
             elementValue = value;
         }
-        if (!elementValue)
+        return this.resolveInitValue(elementValue);
+    }
+
+    public resolveInitValue(elementValue: Element | undefined): I18nWithDynamic | undefined {
+        if (!elementValue) {
             return undefined;
+        }
         const dynamic = this.tagAttribute(elementValue, 'dynamic');
-        return new Expression(elementValue.textContent ?? '', dynamic === '' ? undefined : dynamic === 'true');
+        const name = this.tagAttribute(elementValue, 'name');
+        return new I18nWithDynamic(elementValue.textContent ?? '', name, dynamic === '' ? undefined : dynamic === 'true');
     }
 
     public checkLengthAndNodes(element: Element, name: string) {
@@ -413,7 +426,9 @@ export class ImportUtils {
                 data.component = new Component('currency');
             }
             const xmlCur = xmlData.getElementsByTagName('format')?.item(0)?.getElementsByTagName('currency').item(0);
-            if (!xmlCur) return;
+            if (!xmlCur) {
+                return;
+            }
             data.component.properties.push(new Property('locale', this.tagValue(xmlCur, 'locale')));
             data.component.properties.push(new Property('code', this.tagValue(xmlCur, 'code') !== '' ? this.tagValue(xmlCur, 'code') : 'EUR'));
             data.component.properties.push(new Property('fractionSize', (this.parseNumberValue(xmlCur, 'fractionSize') !== undefined ? this.parseNumberValue(xmlCur, 'fractionSize') : 2)?.toString() ?? ''));
@@ -421,8 +436,9 @@ export class ImportUtils {
     }
 
     public parseNumberValue(element: Element | null, name: string): number | undefined {
-        if (!element)
+        if (!element) {
             return undefined;
+        }
         const value = parseInt(this.tagValue(element, name), 10);
         return isNaN(value) ? undefined : value;
     }

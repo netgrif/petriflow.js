@@ -1,17 +1,21 @@
+import {I18nString} from '../i18n/i18n-string';
 import {Action} from './action';
 import {Element} from './element';
 import {EventPhase} from './event-phase.enum';
 
 export abstract class Event<T> extends Element {
     private _type: T;
+    private _id: string;
     private readonly _preActions: Array<Action>;
     private readonly _postActions: Array<Action>;
+    private _message: I18nString;
 
     protected constructor(type: T, id: string) {
         super(id);
         this._type = type;
         this._preActions = [];
         this._postActions = [];
+        this._message = new I18nString('');
     }
 
     get type(): T {
@@ -28,6 +32,14 @@ export abstract class Event<T> extends Element {
 
     get postActions(): Array<Action> {
         return this._postActions;
+    }
+
+    get message(): I18nString {
+        return this._message;
+    }
+
+    set message(value: I18nString) {
+        this._message = value;
     }
 
     public addAction(action: Action, phase: EventPhase): void {

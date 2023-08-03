@@ -57,7 +57,7 @@ const MODEL_ROLES_LENGTH = 4;
 const MODEL_TRANSITIONS_LENGTH = 13;
 const MODEL_PLACES_LENGTH = 12;
 const MODEL_ARCS_LENGTH = 17;
-const MODEL_DATA_LENGTH = 21;
+const MODEL_DATA_LENGTH = 24;
 const MODEL_USERREFS_LENGTH = 2;
 const ROLE_1_ID = 'newRole_1';
 const ROLE_2_ID = 'newRole_2';
@@ -258,12 +258,12 @@ describe('Petriflow integration tests', () => {
         expect(model.getDataSet().length).toEqual(MODEL_DATA_LENGTH);
         const cdataField = model.getData('cdata_escape');
         expect(cdataField.title.value).toEqual('CDATA &<>');
-        expect(cdataField.init.expression).toContain('<p>CDATA &amp;&lt;&gt;</p>');
+        expect(cdataField.init.value).toContain('<p>CDATA &amp;&lt;&gt;</p>');
         expect(cdataField.getEvent(DataEventType.SET).postActions.length).toEqual(2);
         const numberField = model.getData('newVariable_1');
         expect(numberField.type).toEqual(DataType.NUMBER);
         expect(numberField.title.value).toEqual('title');
-        expect(numberField.init.expression).toEqual('5');
+        expect(numberField.init.value).toEqual('5');
         expect(numberField.init.dynamic).toEqual(false);
         expect(numberField.validations.length).toEqual(1);
         const numberFieldValidation = numberField.validations[0];
@@ -383,9 +383,9 @@ describe('Petriflow integration tests', () => {
         expect(multichoiceMapField.options.find(o => o.key === 'key6').value.value).toEqual('value6');
         expect(multichoiceMapField.inits.length).toEqual(2);
         expect(multichoiceMapField.inits[0].dynamic).toEqual(false);
-        expect(multichoiceMapField.inits[0].expression).toEqual('key4');
+        expect(multichoiceMapField.inits[0].value).toEqual('key4');
         expect(multichoiceMapField.inits[1].dynamic).toEqual(false);
-        expect(multichoiceMapField.inits[1].expression).toEqual('key5');
+        expect(multichoiceMapField.inits[1].value).toEqual('key5');
         const fileField = model.getData('newVariable_7');
         expect(fileField).not.toBeUndefined();
         expect(fileField.remote).toEqual(true);
@@ -398,7 +398,7 @@ describe('Petriflow integration tests', () => {
         expect(dateField).not.toBeUndefined();
         expect(dateField.init).not.toBeUndefined();
         expect(dateField.init.dynamic).toEqual(true);
-        expect(dateField.init.expression).toEqual('new Date()');
+        expect(dateField.init.value).toEqual('new Date()');
         const dateTimeField = model.getData('newVariable_11');
         expect(dateTimeField).not.toBeUndefined();
         const userField = model.getData('newVariable_12');
@@ -413,6 +413,21 @@ describe('Petriflow integration tests', () => {
         expect(caseRefField.allowedNets).toContain('net_3');
         const userListField = model.getData('newVariable_15');
         expect(userListField).not.toBeUndefined();
+        const i18nField1 = model.getData('newVariable_19');
+        expect(i18nField1).not.toBeUndefined();
+        expect(i18nField1.init).not.toBeUndefined();
+        expect(i18nField1.init.name).toEqual('newVariable_19_name');
+        expect(i18nField1.init.value).toEqual('newVariable_19 name value');
+        expect(i18nField1.init.dynamic).toEqual(false);
+        const i18nField2 = model.getData('newVariable_20');
+        expect(i18nField2).not.toBeUndefined();
+        expect(i18nField2.init).not.toBeUndefined();
+        expect(i18nField2.init.value).toEqual('newVariable_20 name value');
+        expect(i18nField2.init.dynamic).toEqual(true);
+        const i18nField3 = model.getData('newVariable_21');
+        expect(i18nField3).not.toBeUndefined();
+        expect(i18nField3.init).not.toBeUndefined();
+        expect(i18nField3.init.name).toEqual('newVariable_21_name');
         log('Model data correct');
 
         expect(model.getI18ns().length).toEqual(3);
@@ -436,7 +451,9 @@ describe('Petriflow integration tests', () => {
             'newVariable_3_value3',
             'newVariable_4_option_1',
             'newVariable_4_option_2',
-            'newVariable_4_option_3'
+            'newVariable_4_option_3',
+            'newVariable_19_name',
+            'case_create_message'
         ];
         assertI18n('uk', i18ns, model);
         assertI18n('de', i18ns, model);
