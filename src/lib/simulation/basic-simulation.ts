@@ -30,7 +30,6 @@ export class BasicSimulation extends Simulation {
 
     updateData(dataVariables: Map<string, number>): void {
         this.dataVariables = dataVariables;
-        // TODO: PF-34 dataset of simulation model is not updated?
         this.simulationModel.getArcs().forEach(arc => this.updateDataReference(arc));
     }
 
