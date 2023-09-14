@@ -24,7 +24,7 @@ export class RegularPlaceTransitionArc extends PlaceTransitionArc {
     }
 
     get type(): ArcType {
-        return ArcType.REGULAR;
+        return ArcType.REGULAR_PT;
     }
 
     clone(): RegularPlaceTransitionArc {

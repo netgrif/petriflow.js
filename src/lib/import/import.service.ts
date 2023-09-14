@@ -1,7 +1,6 @@
 import {
     Alignment,
     Arc,
-    ArcType,
     AssignedUser,
     AssignPolicy,
     Breakpoint,
@@ -45,7 +44,8 @@ import {
     TransitionEventType,
     TransitionLayout,
     UserRef,
-    Validation
+    Validation,
+    XmlArcType
 } from '../model';
 import {ImportUtils} from './import-utils';
 import {PetriNetResult} from './petri-net-result';
@@ -592,7 +592,7 @@ export class ImportService {
         const parsedArcType = this.importUtils.parseArcType(xmlArc);
         const arc = this.resolveArc(source, target, parsedArcType, arcId, result);
         arc.multiplicity = this.importUtils.parseNumberValue(xmlArc, 'multiplicity') ?? 0;
-        if (parsedArcType === ArcType.VARIABLE) {
+        if (parsedArcType as string === 'variable') {
             arc.reference = xmlArc.getElementsByTagName('multiplicity')[0]?.childNodes[0]?.nodeValue ?? undefined;
             this.importUtils.checkVariability(result.model, arc, arc.reference);
             result.addInfo(`Variable arc '${arc.id}' converted to regular with data field reference`);
@@ -605,21 +605,21 @@ export class ImportService {
         return arc;
     }
 
-    resolveArc(source: string, target: string, parsedArcType: ArcType, arcId: string, result: PetriNetResult): Arc<NodeElement, NodeElement> {
+    resolveArc(source: string, target: string, parsedArcType: XmlArcType, arcId: string, result: PetriNetResult): Arc<NodeElement, NodeElement> {
         // TODO: refactor
         let place, transition;
         switch (parsedArcType) {
-            case ArcType.INHIBITOR:
+            case XmlArcType.INHIBITOR:
                 [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                 return new InhibitorArc(place, transition, arcId);
-            case ArcType.RESET:
+            case XmlArcType.RESET:
                 [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                 return new ResetArc(place, transition, arcId);
-            case ArcType.READ:
+            case XmlArcType.READ:
                 [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                 return new ReadArc(place, transition, arcId);
-            case ArcType.REGULAR:
-            case ArcType.VARIABLE:
+            case XmlArcType.REGULAR:
+            case 'variable' as XmlArcType:
                 if (result.model.getPlace(source)) {
                     [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                     return new RegularPlaceTransitionArc(place, transition, arcId);

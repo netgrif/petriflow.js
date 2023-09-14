@@ -7,6 +7,7 @@ import {I18nWithDynamic} from './i18n/i18n-with-dynamic';
 import {CaseEvent} from './petrinet/case-event';
 import {CaseEventType} from './petrinet/case-event-type.enum';
 import {Mapping} from './petrinet/mapping';
+import {NodeElement} from './petrinet/node-element';
 import {PetriflowFunction} from './petrinet/petriflow-function';
 import {Place} from './petrinet/place';
 import {ProcessEvent} from './petrinet/process-event';
@@ -16,7 +17,6 @@ import {ProcessUserRef} from './petrinet/process-user-ref';
 import {Transaction} from './petrinet/transaction';
 import {Role} from './role/role';
 import {Transition} from './transition/transition';
-import {NodeElement} from './petrinet/node-element';
 
 export class PetriNet {
     private _id: string;

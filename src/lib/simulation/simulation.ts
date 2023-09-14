@@ -5,7 +5,8 @@ export abstract class Simulation {
     static readonly ARC_ORDER = [
         ArcType.INHIBITOR,
         ArcType.READ,
-        ArcType.REGULAR,
+        ArcType.REGULAR_PT,
+        ArcType.REGULAR_TP,
         ArcType.RESET
     ];
 

@@ -11,7 +11,7 @@ export class RegularTransitionPlaceArc extends TransitionPlaceArc {
     }
 
     get type(): ArcType {
-        return ArcType.REGULAR;
+        return ArcType.REGULAR_TP;
     }
 
     clone(): RegularTransitionPlaceArc {

@@ -1,9 +1,9 @@
+import {Element} from '../petrinet/element';
 import {NodeElement} from '../petrinet/node-element';
 import {ArcType} from './arc-type.enum';
 import {Breakpoint} from './breakpoint';
 
-export abstract class Arc<S extends NodeElement, D extends NodeElement> {
-    private _id: string;
+export abstract class Arc<S extends NodeElement, D extends NodeElement> extends Element {
     private _source: S;
     private _destination: D;
     private _multiplicity: number;
@@ -11,7 +11,7 @@ export abstract class Arc<S extends NodeElement, D extends NodeElement> {
     private _breakpoints: Array<Breakpoint>;
 
     constructor(source: S, target: D, id: string) {
-        this._id = id;
+        super(id);
         this._source = source;
         this._destination = target;
         this._multiplicity = 1;
@@ -19,14 +19,6 @@ export abstract class Arc<S extends NodeElement, D extends NodeElement> {
     }
 
     abstract get type(): ArcType;
-
-    get id(): string {
-        return this._id;
-    }
-
-    set id(value: string) {
-        this._id = value;
-    }
 
     get source(): S {
         return this._source;

@@ -3,7 +3,6 @@ import {
     Alignment,
     Appearance,
     Arc,
-    ArcType,
     CompactDirection,
     Component,
     DataEvent,
@@ -34,7 +33,7 @@ import {
     Template,
     Trigger,
     TriggerType,
-    UserRef
+    UserRef, XmlArcType
 } from '../model';
 
 export class ImportUtils {
@@ -356,10 +355,10 @@ export class ImportUtils {
         return isStatic;
     }
 
-    public parseArcType(xmlArc: Element): ArcType {
-        let parsedArcType = ArcType.REGULAR;
+    public parseArcType(xmlArc: Element): XmlArcType {
+        let parsedArcType = XmlArcType.REGULAR;
         if (this.checkLengthAndNodes(xmlArc, 'type')) {
-            parsedArcType = xmlArc.getElementsByTagName('type')[0].childNodes[0].nodeValue as ArcType;
+            parsedArcType = xmlArc.getElementsByTagName('type')[0].childNodes[0].nodeValue as XmlArcType;
         }
         return parsedArcType;
     }

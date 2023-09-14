@@ -747,22 +747,22 @@ describe('Petriflow integration tests', () => {
         log('Model places correct');
 
         expect(model.getArcs().length).toEqual(MODEL_ARCS_LENGTH);
-        assertArc(model.getArc('a1'), 'a1', ArcType.REGULAR, 'p1', 't1', 3, 'p2');
-        assertArc(model.getArc('a2'), 'a2', ArcType.REGULAR, 't1', 'p3', 5, 'newVariable_1');
+        assertArc(model.getArc('a1'), 'a1', ArcType.REGULAR_PT, 'p1', 't1', 3, 'p2');
+        assertArc(model.getArc('a2'), 'a2', ArcType.REGULAR_TP, 't1', 'p3', 5, 'newVariable_1');
         assertArc(model.getArc('a3'), 'a3', ArcType.RESET, 'p4', 't2', 1);
         assertArc(model.getArc('a4'), 'a4', ArcType.INHIBITOR, 'p5', 't3', 1);
         assertArc(model.getArc('a5'), 'a5', ArcType.READ, 'p6', 't4', 1);
-        assertArc(model.getArc('a6'), 'a6', ArcType.REGULAR, 't2', 'p7', 20);
-        assertArc(model.getArc('a7'), 'a7', ArcType.REGULAR, 't3', 'p8', 1);
-        assertArc(model.getArc('a8'), 'a8', ArcType.REGULAR, 't4', 'p9', 1);
-        assertArc(model.getArc('a9'), 'a9', ArcType.REGULAR, 'p1', 't2', 1);
-        assertArc(model.getArc('a10'), 'a10', ArcType.REGULAR, 'p4', 't3', 1);
-        assertArc(model.getArc('a11'), 'a11', ArcType.REGULAR, 'p5', 't4', 1);
-        assertArc(model.getArc('a12'), 'a12', ArcType.REGULAR, 'p6', 't3', 1);
-        assertArc(model.getArc('a13'), 'a13', ArcType.REGULAR, 'p5', 't2', 1);
-        assertArc(model.getArc('a14'), 'a14', ArcType.REGULAR, 't2', 'p8', 1);
-        assertArc(model.getArc('a15'), 'a15', ArcType.REGULAR, 't2', 'p3', 1);
-        assertArc(model.getArc('a16'), 'a16', ArcType.REGULAR, 't2', 'p3', 5, 'newVariable_1', [new Breakpoint(10, 10), new Breakpoint(20, 20)]);
+        assertArc(model.getArc('a6'), 'a6', ArcType.REGULAR_TP, 't2', 'p7', 20);
+        assertArc(model.getArc('a7'), 'a7', ArcType.REGULAR_TP, 't3', 'p8', 1);
+        assertArc(model.getArc('a8'), 'a8', ArcType.REGULAR_TP, 't4', 'p9', 1);
+        assertArc(model.getArc('a9'), 'a9', ArcType.REGULAR_PT, 'p1', 't2', 1);
+        assertArc(model.getArc('a10'), 'a10', ArcType.REGULAR_PT, 'p4', 't3', 1);
+        assertArc(model.getArc('a11'), 'a11', ArcType.REGULAR_PT, 'p5', 't4', 1);
+        assertArc(model.getArc('a12'), 'a12', ArcType.REGULAR_PT, 'p6', 't3', 1);
+        assertArc(model.getArc('a13'), 'a13', ArcType.REGULAR_PT, 'p5', 't2', 1);
+        assertArc(model.getArc('a14'), 'a14', ArcType.REGULAR_TP, 't2', 'p8', 1);
+        assertArc(model.getArc('a15'), 'a15', ArcType.REGULAR_TP, 't2', 'p3', 1);
+        assertArc(model.getArc('a16'), 'a16', ArcType.REGULAR_TP, 't2', 'p3', 5, 'newVariable_1', [new Breakpoint(10, 10), new Breakpoint(20, 20)]);
         log('Model arcs correct');
     }
 

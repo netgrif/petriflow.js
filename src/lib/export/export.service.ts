@@ -433,7 +433,7 @@ export class ExportService {
         model.getArcs().forEach(arc => {
             const exportArc = this.xmlConstructor.createElement('arc');
             this._exportUtils.exportTag(exportArc, 'id', arc.id, true);
-            this._exportUtils.exportTag(exportArc, 'type', arc.type);
+            this._exportUtils.exportTag(exportArc, 'type', this._exportUtils.exportArcType(arc.type));
             this._exportUtils.exportTag(exportArc, 'sourceId', arc.source.id);
             this._exportUtils.exportTag(exportArc, 'destinationId', arc.destination.id);
             this._exportUtils.exportTag(exportArc, 'multiplicity', arc.multiplicity?.toString());
