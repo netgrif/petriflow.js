@@ -21,6 +21,7 @@ import {Transition} from './transition/transition';
 export class PetriNet {
     private _id: string;
     private _version: string;
+    private _lastChanged: number;
     private _initials: string;
     private _title: I18nString;
     private _icon: string;
@@ -45,6 +46,7 @@ export class PetriNet {
     constructor() {
         this._id = 'new_model';
         this._version = '';
+        this._lastChanged = Date.now();
         this._initials = 'NEW';
         this._title = new I18nString('New Model');
         this._icon = 'device_hub';
@@ -81,6 +83,14 @@ export class PetriNet {
 
     set version(value: string) {
         this._version = value;
+    }
+
+    get lastChanged(): number {
+        return this._lastChanged;
+    }
+
+    set lastChanged(value: number) {
+        this._lastChanged = value;
     }
 
     get initials(): string {
@@ -392,6 +402,7 @@ export class PetriNet {
         const cloned = new PetriNet();
         cloned._id = this._id;
         cloned._version = this._version;
+        cloned._lastChanged = this._lastChanged;
         cloned._initials = this._initials;
         cloned._title = this._title?.clone();
         cloned._icon = this._icon;
