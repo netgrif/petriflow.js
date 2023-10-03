@@ -1,5 +1,5 @@
 import {
-    Action,
+    Action, Arc,
     ArcType,
     CaseLogic,
     Event,
@@ -148,16 +148,8 @@ export class ExportUtils {
         element.appendChild(exportLogic);
     }
 
-    public arcTypeMapping: Map<ArcType, XmlArcType> = new Map([
-        [ArcType.REGULAR_TP, XmlArcType.REGULAR],
-        [ArcType.REGULAR_PT, XmlArcType.REGULAR],
-        [ArcType.READ, XmlArcType.READ],
-        [ArcType.RESET, XmlArcType.RESET],
-        [ArcType.INHIBITOR, XmlArcType.INHIBITOR],
-    ]);
-
     public exportArcType(type: ArcType): XmlArcType {
-        const xmlType = this.arcTypeMapping.get(type);
+        const xmlType = Arc.arcTypeMapping.get(type);
         if (!xmlType) {
             throw new Error(`Unknown export mapping for arc type ${type}`);
         }

@@ -30,7 +30,15 @@ export class BasicSimulation extends Simulation {
 
     updateData(dataVariables: Map<string, number>): void {
         this.dataVariables = dataVariables;
-        this.simulationModel.getArcs().forEach(arc => this.updateDataReference(arc));
+        this.simulationModel.getArcs()
+            .filter(a => !!a.reference)
+            .forEach(arc => this.updateDataReference(arc));
+    }
+
+    updatePlaceReferences(): void {
+        this.simulationModel.getArcs()
+            .filter(a => !!a.reference)
+            .forEach(arc => this.updatePlaceReference(arc));
     }
 
     assign(transitionId: string): void {
@@ -46,6 +54,7 @@ export class BasicSimulation extends Simulation {
             this.consumedTokens.set(a.id, consumed);
         });
         this.assignedTasks.add(transitionId);
+        this.updatePlaceReferences();
     }
 
     finish(transitionId: string): void {
@@ -55,6 +64,7 @@ export class BasicSimulation extends Simulation {
         const outputArcs = this.outputArcs.get(transitionId);
         outputArcs?.forEach(a => (a as TransitionPlaceArc).produce());
         this.assignedTasks.delete(transitionId);
+        this.updatePlaceReferences();
     }
 
     cancel(transitionId: string): void {
@@ -70,6 +80,7 @@ export class BasicSimulation extends Simulation {
             }
         });
         this.assignedTasks.delete(transitionId);
+        this.updatePlaceReferences();
     }
 
     isEnabled(transitionId: string): boolean {
@@ -100,7 +111,7 @@ export class BasicSimulation extends Simulation {
         return this.simulationModel.getTransitions().filter(t => this.assignedTasks.has(t.id));
     }
 
-    protected updateIOArc(arc: Arc<NodeElement, NodeElement>) {
+    protected updateIOArc(arc: Arc<NodeElement, NodeElement>): void {
         if (arc.destination instanceof Transition) {
             this.insertArc(this.inputArcs, arc, arc.destination.id);
         } else {
@@ -108,20 +119,32 @@ export class BasicSimulation extends Simulation {
         }
     }
 
-    protected insertArc(arcs: Map<string, Array<Arc<NodeElement, NodeElement>>>, arc: Arc<NodeElement, NodeElement>, id: string) {
+    protected insertArc(arcs: Map<string, Array<Arc<NodeElement, NodeElement>>>, arc: Arc<NodeElement, NodeElement>, id: string): void {
         if (!arcs.has(id)) {
             arcs.set(id, new Array<Arc<NodeElement, NodeElement>>());
         }
         arcs.get(id)?.push(arc);
     }
 
-    protected updateDataReference(arc: Arc<NodeElement, NodeElement>) {
-        if (arc.reference && this.dataVariables.has(arc.reference)) {
-            const value = this.dataVariables.get(arc.reference);
-            if (value) {
-                arc.multiplicity = value;
-            }
+    protected updateDataReference(arc: Arc<NodeElement, NodeElement>): void {
+        if (!arc.reference || !this.dataVariables.has(arc.reference)) {
+            return;
         }
+        const value = this.dataVariables.get(arc.reference);
+        if (value !== undefined) {
+            arc.multiplicity = value;
+        }
+    }
+
+    protected updatePlaceReference(arc: Arc<NodeElement, NodeElement>): void {
+        if (!arc.reference) {
+            return;
+        }
+        const place = this.simulationModel.getPlace(arc.reference);
+        if (!place) {
+            return;
+        }
+        arc.multiplicity = place.marking;
     }
 
     protected arcOrder(a: Arc<NodeElement, NodeElement>, b: Arc<NodeElement, NodeElement>): number {
