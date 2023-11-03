@@ -62,4 +62,8 @@ export abstract class Event<T> {
             this._postActions.push(action);
         }
     }
+
+    public isEmpty():boolean {
+        return this.preActions.length === 0 && this.postActions.length === 0 && this.message.isEmpty();
+    }
 }

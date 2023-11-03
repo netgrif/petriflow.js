@@ -757,6 +757,14 @@ describe('Petriflow integration tests', () => {
         log('Model arcs correct');
     }
 
+    function assertCorrectExport(xml) {
+        expect(xml).not.toContain('t2_finish');
+        expect(xml).not.toContain('t2_assign');
+        expect(xml).not.toContain('t2_cancel');
+        expect(xml).not.toContain('t2_delegate');
+        log('Empty events not exported correctly');
+    }
+
     function importAndExport(xml, errors = 0, warnings = 0, info = 0) {
         const modelResult = importService.parseFromXml(xml);
         expect(modelResult.errors.length).toEqual(errors);
@@ -769,6 +777,7 @@ describe('Petriflow integration tests', () => {
         log('Import successful');
         const exported = exportService.exportXml(model);
         log(exported);
+        assertCorrectExport(exported);
         log('Export successful');
         return exported;
     }
