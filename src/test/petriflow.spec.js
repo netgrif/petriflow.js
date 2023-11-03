@@ -516,6 +516,7 @@ describe('Petriflow integration tests', () => {
         expect(t5DataGroup.getDataRefs().length).toEqual(15);
         expect(t5DataGroup.getDataRef('newVariable_1')).not.toBeUndefined();
         expect(t5DataGroup.getDataRef('newVariable_1').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t5DataGroup.getDataRef('newVariable_1').logic.immediate).toEqual(true);
         expect(t5DataGroup.getDataRef('newVariable_1').layout.x).toEqual(0);
         expect(t5DataGroup.getDataRef('newVariable_1').layout.y).toEqual(0);
         expect(t5DataGroup.getDataRef('newVariable_1').layout.rows).toEqual(1);

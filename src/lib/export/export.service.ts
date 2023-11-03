@@ -325,6 +325,9 @@ export class ExportService {
             if (dataRef.logic.required) {
                 this._exportUtils.exportTag(logic, 'behavior', DataRefBehavior.REQUIRED);
             }
+            if (dataRef.logic.immediate) {
+                this._exportUtils.exportTag(logic, 'behavior', DataRefBehavior.IMMEDIATE);
+            }
             dataRef.logic.actionRefs.forEach(ref => {
                 const actionRef = this.xmlConstructor.createElement('actionRef');
                 this._exportUtils.exportTag(actionRef, 'id', ref);

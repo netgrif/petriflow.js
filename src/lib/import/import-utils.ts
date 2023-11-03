@@ -283,6 +283,8 @@ export class ImportUtils {
             for (const logic of Array.from(xmlDataRefLogic.getElementsByTagName('behavior'))) {
                 if (logic.childNodes[0].nodeValue as DataRefBehavior === DataRefBehavior.REQUIRED) {
                     dataRef.logic.required = true;
+                } else if (logic.childNodes[0].nodeValue as DataRefBehavior === DataRefBehavior.IMMEDIATE) {
+                    dataRef.logic.immediate = true;
                 } else if (logic.childNodes[0].nodeValue as DataRefBehavior !== DataRefBehavior.OPTIONAL) {
                     dataRef.logic.behavior = logic.childNodes[0].nodeValue as DataRefBehavior;
                 }
