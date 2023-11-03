@@ -596,6 +596,7 @@
                 <id>newVariable_1</id>
                 <logic>
                     <behavior>editable</behavior>
+                    <behavior>immediate</behavior>
                     <action trigger="get">
                         test("t5_newVariable_1_get")
                     </action>
