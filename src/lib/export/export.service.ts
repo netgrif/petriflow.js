@@ -415,7 +415,7 @@ export class ExportService {
         this._exportUtils.exportTag(exportGroup, 'stretch', !dataGroup.stretch ? '' : dataGroup.stretch?.toString());
         this._exportUtils.exportTag(exportGroup, 'hideEmptyRows', dataGroup.hideEmptyRows?.toString() ?? '');
         this._exportUtils.exportTag(exportGroup, 'compactDirection', dataGroup.compactDirection?.toString() ?? '');
-        dataGroup.getDataRefs().forEach(dataRef => this.exportDataRef(exportGroup, dataRef));
+        dataGroup.getDataRefs().sort(this.dataRefOrder).forEach(dataRef => this.exportDataRef(exportGroup, dataRef));
         element.appendChild(exportGroup);
     }
 
@@ -455,5 +455,18 @@ export class ExportService {
             this._exportUtils.exportTag(breakPoint, 'y', point.y?.toString());
             exportArc.appendChild(breakPoint);
         });
+    }
+
+    public dataRefOrder(a: DataRef, b: DataRef): number {
+        if (a?.layout?.y < b?.layout?.y) {
+            return -1;
+        }
+        if (a?.layout?.y > b?.layout?.y) {
+            return 1;
+        }
+        if (a?.layout?.x < b?.layout?.x) {
+            return -1;
+        }
+        return 1;
     }
 }
