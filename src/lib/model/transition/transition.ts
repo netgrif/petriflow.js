@@ -1,22 +1,17 @@
 import {I18nString} from '../i18n/i18n-string';
-import {EventSource} from '../petrinet/event-source';
+import {NodeElement} from '../petrinet/node-element';
 import {AssignPolicy} from './assign-policy.enum';
 import {AssignedUser} from './assigned-user';
 import {DataFocusPolicy} from './data-focus-policy.enum';
 import {DataGroup} from './datagroup'; // cspell:disable-line
 import {FinishPolicy} from './finish-policy.enum';
 import {RoleRef} from './role-ref';
-import {TransitionEvent} from './transition-event';
-import {TransitionEventType} from './transition-event-type.enum';
+import {TransitionEventSource} from './transition-event-source';
 import {TransitionLayout} from './transition-layout';
 import {Trigger} from './trigger';
 import {UserRef} from './user-ref';
 
-export class Transition extends EventSource<TransitionEvent, TransitionEventType> {
-    private _id: string;
-    private _x: number;
-    private _y: number;
-    private _label: I18nString;
+export class Transition extends NodeElement {
     private _layout?: TransitionLayout;
     private _icon?: string;
     private _priority?: number;
@@ -29,13 +24,10 @@ export class Transition extends EventSource<TransitionEvent, TransitionEventType
     private _userRefs: Array<UserRef>;
     private _dataGroups: Array<DataGroup>;
     private _assignedUser?: AssignedUser;
+    private _eventSource: TransitionEventSource;
 
     constructor(x: number, y: number, id: string) {
-        super();
-        this._id = id;
-        this._x = x;
-        this._y = y;
-        this._label = new I18nString('');
+        super(id, x, y, new I18nString(''));
         this._assignPolicy = AssignPolicy.MANUAL;
         this._dataFocusPolicy = DataFocusPolicy.MANUAL;
         this._finishPolicy = FinishPolicy.MANUAL;
@@ -43,38 +35,7 @@ export class Transition extends EventSource<TransitionEvent, TransitionEventType
         this._roleRefs = [];
         this._userRefs = [];
         this._dataGroups = [];
-    }
-
-    get id(): string {
-        return this._id;
-    }
-
-    set id(value: string) {
-        this._id = value;
-    }
-
-    get x(): number {
-        return this._x;
-    }
-
-    set x(value: number) {
-        this._x = value;
-    }
-
-    get y(): number {
-        return this._y;
-    }
-
-    set y(value: number) {
-        this._y = value;
-    }
-
-    get label(): I18nString {
-        return this._label;
-    }
-
-    set label(value: I18nString) {
-        this._label = value;
+        this._eventSource = new TransitionEventSource();
     }
 
     get layout(): TransitionLayout | undefined {
@@ -173,9 +134,17 @@ export class Transition extends EventSource<TransitionEvent, TransitionEventType
         this._assignedUser = value;
     }
 
+    get eventSource(): TransitionEventSource {
+        return this._eventSource;
+    }
+
+    set eventSource(value: TransitionEventSource) {
+        this._eventSource = value;
+    }
+
     public clone(): Transition {
-        const cloned = new Transition(this._x, this._y, this._id);
-        cloned._label = this._label?.clone();
+        const cloned = new Transition(this.x, this.y, this.id);
+        cloned.label = this.label?.clone();
         cloned._layout = this._layout?.clone();
         cloned._icon = this._icon;
         cloned._priority = this._priority;
@@ -188,7 +157,7 @@ export class Transition extends EventSource<TransitionEvent, TransitionEventType
         cloned._userRefs = this._userRefs.map(item => item.clone());
         cloned._dataGroups = this._dataGroups.map(item => item.clone());
         cloned._assignedUser = this._assignedUser?.clone();
-        this.getEvents().forEach(event => cloned.addEvent(event.clone()));
+        this.eventSource.getEvents().forEach(event => cloned.eventSource.addEvent(event.clone()));
         return cloned;
     }
 }

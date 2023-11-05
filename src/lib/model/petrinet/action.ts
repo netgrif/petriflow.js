@@ -1,18 +1,11 @@
-export class Action {
-    private _id: string;
+import {Element} from './element';
+
+export class Action extends Element {
     private _definition: string;
 
     constructor(id: string, definition: string) {
-        this._id = id;
+        super(id);
         this._definition = definition;
-    }
-
-    get id(): string {
-        return this._id;
-    }
-
-    set id(value: string) {
-        this._id = value;
     }
 
     get definition(): string {
@@ -24,6 +17,6 @@ export class Action {
     }
 
     public clone(): Action {
-        return new Action(this._id, this._definition);
+        return new Action(this.id, this._definition);
     }
 }

@@ -7,6 +7,7 @@ import {I18nWithDynamic} from './i18n/i18n-with-dynamic';
 import {CaseEvent} from './petrinet/case-event';
 import {CaseEventType} from './petrinet/case-event-type.enum';
 import {Mapping} from './petrinet/mapping';
+import {NodeElement} from './petrinet/node-element';
 import {PetriflowFunction} from './petrinet/petriflow-function';
 import {Place} from './petrinet/place';
 import {ProcessEvent} from './petrinet/process-event';
@@ -20,6 +21,7 @@ import {Transition} from './transition/transition';
 export class PetriNet {
     private _id: string;
     private _version: string;
+    private _lastChanged: number;
     private _initials: string;
     private _title: I18nString;
     private _icon: string;
@@ -39,11 +41,12 @@ export class PetriNet {
     private _i18ns: Map<string, I18nTranslations>;
     private _transitions: Map<string, Transition>;
     private _places: Map<string, Place>;
-    private _arcs: Map<string, Arc>;
+    private _arcs: Map<string, Arc<NodeElement, NodeElement>>;
 
     constructor() {
         this._id = 'new_model';
         this._version = '';
+        this._lastChanged = Date.now();
         this._initials = 'NEW';
         this._title = new I18nString('New Model');
         this._icon = 'device_hub';
@@ -53,7 +56,7 @@ export class PetriNet {
         this._caseName = new I18nWithDynamic('');
         this._transitions = new Map<string, Transition>();
         this._places = new Map<string, Place>();
-        this._arcs = new Map<string, Arc>();
+        this._arcs = new Map<string, Arc<NodeElement, NodeElement>>();
         this._data = new Map<string, DataVariable>();
         this._transactions = new Map<string, Transaction>();
         this._roles = new Map<string, Role>();
@@ -80,6 +83,14 @@ export class PetriNet {
 
     set version(value: string) {
         this._version = value;
+    }
+
+    get lastChanged(): number {
+        return this._lastChanged;
+    }
+
+    set lastChanged(value: number) {
+        this._lastChanged = value;
     }
 
     get initials(): string {
@@ -368,15 +379,15 @@ export class PetriNet {
         this._places.delete(id);
     }
 
-    getArcs(): Array<Arc> {
+    getArcs(): Array<Arc<NodeElement, NodeElement>> {
         return Array.from(this._arcs.values());
     }
 
-    getArc(id: string): Arc | undefined {
+    getArc(id: string): Arc<NodeElement, NodeElement> | undefined {
         return this._arcs.get(id);
     }
 
-    addArc(arc: Arc) {
+    addArc(arc: Arc<NodeElement, NodeElement>) {
         if (this._arcs.has(arc.id)) {
             throw new Error(`Duplicate arc with id ${arc.id}`);
         }
@@ -391,6 +402,7 @@ export class PetriNet {
         const cloned = new PetriNet();
         cloned._id = this._id;
         cloned._version = this._version;
+        cloned._lastChanged = this._lastChanged;
         cloned._initials = this._initials;
         cloned._title = this._title?.clone();
         cloned._icon = this._icon;
@@ -408,7 +420,17 @@ export class PetriNet {
         this._i18ns.forEach(i => cloned.addI18n(i.clone()));
         this._transitions.forEach(t => cloned.addTransition(t.clone()));
         this._places.forEach(p => cloned.addPlace(p.clone()));
-        this._arcs.forEach(a => cloned.addArc(a.clone()));
+        this._arcs.forEach(a => {
+            const clonedArc = a.clone();
+            if (clonedArc.source instanceof Place) {
+                clonedArc.source = cloned.getPlace(clonedArc.source.id) as Place;
+                clonedArc.destination = cloned.getTransition(clonedArc.destination.id) as Transition;
+            } else {
+                clonedArc.source = cloned.getTransition(clonedArc.source.id) as Transition;
+                clonedArc.destination = cloned.getPlace(clonedArc.destination.id) as Place;
+            }
+            cloned.addArc(clonedArc);
+        });
         this._roleRefs.forEach(ref => cloned.addRoleRef(ref.clone()));
         this._userRefs.forEach(ref => cloned.addUserRef(ref.clone()));
         return cloned;

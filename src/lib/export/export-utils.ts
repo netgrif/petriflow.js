@@ -1,12 +1,14 @@
 import {
-    Action,
+    Action, Arc,
+    ArcType,
     CaseLogic,
     Event,
     Expression,
     I18nString,
     I18nWithDynamic,
     Logic,
-    PetriflowFunction
+    PetriflowFunction,
+    XmlArcType
 } from '../model';
 
 export class ExportUtils {
@@ -144,5 +146,13 @@ export class ExportUtils {
             this.exportTag(exportLogic, 'view', logic.view.toString());
         }
         element.appendChild(exportLogic);
+    }
+
+    public exportArcType(type: ArcType): XmlArcType {
+        const xmlType = Arc.arcTypeMapping.get(type);
+        if (!xmlType) {
+            throw new Error(`Unknown export mapping for arc type ${type}`);
+        }
+        return xmlType;
     }
 }

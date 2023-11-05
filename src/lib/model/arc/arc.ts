@@ -1,53 +1,46 @@
-import {ArcType} from './arc-type.enum';
+import {Element} from '../petrinet/element';
+import {NodeElement} from '../petrinet/node-element';
+import {ArcType, XmlArcType} from './arc-type.enum';
 import {Breakpoint} from './breakpoint';
 
-export class Arc {
-    private _id: string;
-    private _type: ArcType;
-    private _source: string;
-    private _destination: string;
+export abstract class Arc<S extends NodeElement, D extends NodeElement> extends Element {
+    private _source: S;
+    private _destination: D;
     private _multiplicity: number;
     private _reference?: string;
     private _breakpoints: Array<Breakpoint>;
 
-    constructor(source: string, target: string, type: ArcType, id: string) {
-        this._type = type;
-        this._id = id;
+    constructor(source: S, target: D, id: string) {
+        super(id);
         this._source = source;
         this._destination = target;
         this._multiplicity = 1;
         this._breakpoints = [];
     }
 
-    get id(): string {
-        return this._id;
-    }
+    public static arcTypeMapping: Map<ArcType, XmlArcType> = new Map([
+        [ArcType.REGULAR_TP, XmlArcType.REGULAR],
+        [ArcType.REGULAR_PT, XmlArcType.REGULAR],
+        [ArcType.READ, XmlArcType.READ],
+        [ArcType.RESET, XmlArcType.RESET],
+        [ArcType.INHIBITOR, XmlArcType.INHIBITOR],
+    ]);
 
-    set id(value: string) {
-        this._id = value;
-    }
+    abstract get type(): ArcType;
 
-    get type(): ArcType {
-        return this._type;
-    }
-
-    set type(value: ArcType) {
-        this._type = value;
-    }
-
-    get source(): string {
+    get source(): S {
         return this._source;
     }
 
-    set source(value: string) {
+    set source(value: S) {
         this._source = value;
     }
 
-    get destination(): string {
+    get destination(): D {
         return this._destination;
     }
 
-    set destination(value: string) {
+    set destination(value: D) {
         this._destination = value;
     }
 
@@ -75,11 +68,11 @@ export class Arc {
         this._breakpoints = value;
     }
 
-    clone(): Arc {
-        const cloned = new Arc(this._source, this._destination, this._type, this._id);
+    cloneAttributes(cloned: Arc<S, D>): void {
         cloned._multiplicity = this._multiplicity;
         cloned._reference = this._reference;
         cloned._breakpoints = this._breakpoints?.map(bp => bp.clone());
-        return cloned;
     }
+
+    abstract clone(): Arc<S, D>;
 }
