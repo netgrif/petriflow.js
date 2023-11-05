@@ -1,20 +1,12 @@
 import {I18nString} from '../i18n/i18n-string';
+import {Element} from './element';
 
-export class Transaction {
-    private _id: string;
+export class Transaction extends Element {
     private _title: I18nString;
 
     constructor(id: string, title: I18nString) {
-        this._id = id;
+        super(id);
         this._title = title;
-    }
-
-    get id(): string {
-        return this._id;
-    }
-
-    set id(value: string) {
-        this._id = value;
     }
 
     get title(): I18nString {
@@ -26,6 +18,6 @@ export class Transaction {
     }
 
     public clone(): Transaction {
-        return new Transaction(this._id, this._title?.clone());
+        return new Transaction(this.id, this._title?.clone());
     }
 }

@@ -3,7 +3,6 @@ import {
     Alignment,
     Appearance,
     Arc,
-    ArcType,
     CompactDirection,
     Component,
     DataEvent,
@@ -23,6 +22,7 @@ import {
     Icon,
     IconType,
     LayoutType,
+    NodeElement,
     PetriflowFunction,
     PetriNet,
     Place,
@@ -33,7 +33,7 @@ import {
     Template,
     Trigger,
     TriggerType,
-    UserRef
+    UserRef, XmlArcType
 } from '../model';
 
 export class ImportUtils {
@@ -215,7 +215,7 @@ export class ImportUtils {
         roleRef.caseLogic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
     }
 
-    public checkVariability(model: PetriNet, arc: Arc, reference: string | undefined): void {
+    public checkVariability(model: PetriNet, arc: Arc<NodeElement, NodeElement>, reference: string | undefined): void {
         if (!reference) {
             return;
         }
@@ -230,7 +230,7 @@ export class ImportUtils {
         }
     }
 
-    public attachReference(arc: Arc, reference: Place | DataVariable): void {
+    public attachReference(arc: Arc<NodeElement, NodeElement>, reference: Place | DataVariable): void {
         const weight = reference instanceof Place ? reference.marking : parseInt(reference.init?.value ?? '' as string, 10);
 
         if (isNaN(weight)) {
@@ -283,6 +283,8 @@ export class ImportUtils {
             for (const logic of Array.from(xmlDataRefLogic.getElementsByTagName('behavior'))) {
                 if (logic.childNodes[0].nodeValue as DataRefBehavior === DataRefBehavior.REQUIRED) {
                     dataRef.logic.required = true;
+                } else if (logic.childNodes[0].nodeValue as DataRefBehavior === DataRefBehavior.IMMEDIATE) {
+                    dataRef.logic.immediate = true;
                 } else if (logic.childNodes[0].nodeValue as DataRefBehavior !== DataRefBehavior.OPTIONAL) {
                     dataRef.logic.behavior = logic.childNodes[0].nodeValue as DataRefBehavior;
                 }
@@ -355,10 +357,10 @@ export class ImportUtils {
         return isStatic;
     }
 
-    public parseArcType(xmlArc: Element): ArcType {
-        let parsedArcType = ArcType.REGULAR;
+    public parseArcType(xmlArc: Element): XmlArcType {
+        let parsedArcType = XmlArcType.REGULAR;
         if (this.checkLengthAndNodes(xmlArc, 'type')) {
-            parsedArcType = xmlArc.getElementsByTagName('type')[0].childNodes[0].nodeValue as ArcType;
+            parsedArcType = xmlArc.getElementsByTagName('type')[0].childNodes[0].nodeValue as XmlArcType;
         }
         return parsedArcType;
     }

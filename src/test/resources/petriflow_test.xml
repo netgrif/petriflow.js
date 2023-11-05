@@ -45,6 +45,13 @@
         </caseLogic>
     </roleRef>
     <roleRef>
+        <id>newRole_3</id>
+        <caseLogic>
+            <create>false</create>
+            <view>true</view>
+        </caseLogic>
+    </roleRef>
+    <roleRef>
         <id>invalid_role_id</id>
         <caseLogic>
             <create>false</create>
@@ -61,6 +68,13 @@
     </usersRef>
     <usersRef>
         <id>ivalid_id</id>
+        <caseLogic>
+            <create>false</create>
+            <delete>true</delete>
+        </caseLogic>
+    </usersRef>
+    <usersRef>
+        <id>newVariable_1</id>
         <caseLogic>
             <create>false</create>
             <delete>true</delete>
@@ -139,7 +153,10 @@
         </event>
     </caseEvents>
     <!-- TRANSACTIONS -->
-    <!-- @deprecated   -->
+    <transaction>
+        <id>trans1</id>
+        <title>Transaction 1</title>
+    </transaction>
     <!-- ROLES -->
     <role>
         <id>newRole_1</id>
@@ -205,6 +222,33 @@
         <init>
             <![CDATA[<p>CDATA &amp;&lt;&gt;</p>]]>
         </init>
+        <event type="get">
+            <id>cdata_get</id>
+            <actions phase="post">
+                <action id="cdata_get_post">
+                    test
+                </action>
+            </actions>
+        </event>
+        <event type="set">
+            <id>cdata_set</id>
+            <actions phase="post">
+                <action id="cdata_set_post">
+                    test
+                </action>
+                <actionRef>
+                    <id>cdata_get_post</id>
+                </actionRef>
+            </actions>
+        </event>
+        <event type="set">
+            <id>cdata_set_duplicate</id>
+            <actions phase="post">
+                <action id="cdata_set_post_duplicate">
+                    test
+                </action>
+            </actions>
+        </event>
     </data>
     <data type="number">
         <id>newVariable_1</id>
@@ -333,6 +377,8 @@
     <data type="file">
         <id>newVariable_7</id>
         <title>title</title>
+        <remote/>
+        <length>10</length>
     </data>
     <data type="fileList">
         <id>newVariable_8</id>
@@ -363,6 +409,11 @@
     <data type="caseRef">
         <id>newVariable_14</id>
         <title>title</title>
+        <allowedNets>
+            <allowedNet>net_1</allowedNet>
+            <allowedNet>net_2</allowedNet>
+            <allowedNet>net_3</allowedNet>
+        </allowedNets>
     </data>
     <data type="userList">
         <id>newVariable_15</id>
@@ -488,8 +539,12 @@
             <fieldAlignment>center</fieldAlignment>
         </layout>
         <icon>home</icon>
+        <priority>1</priority>
         <assignPolicy>auto</assignPolicy>
         <finishPolicy>auto_no_data</finishPolicy>
+        <transactionRef>
+            <id>trans1</id>
+        </transactionRef>
         <event type="assign">
             <id>assign</id>
             <title name="t1_assign_title">t1_assign_title_value</title>
@@ -555,6 +610,18 @@
             <offset>0</offset>
             <fieldAlignment>bottom</fieldAlignment>
         </layout>
+        <event type="finish">
+            <id>t2_finish</id>
+        </event>
+        <event type="assign">
+            <id>t2_assign</id>
+        </event>
+        <event type="cancel">
+            <id>t2_cancel</id>
+        </event>
+        <event type="delegate">
+            <id>t2_delegate</id>
+        </event>
     </transition>
     <transition>
         <id>t3</id>
@@ -596,12 +663,16 @@
                 <id>newVariable_1</id>
                 <logic>
                     <behavior>editable</behavior>
+                    <behavior>immediate</behavior>
                     <action trigger="get">
                         test("t5_newVariable_1_get")
                     </action>
-                    <action trigger="set">
+                    <action trigger="set" id="t5_newVariable_1_set">
                         test("t5_newVariable_1_set")
                     </action>
+                    <actionRef>
+                        <id>t5_newVariable_1_set</id>
+                    </actionRef>
                 </logic>
                 <layout>
                     <x>0</x>
@@ -1131,6 +1202,24 @@
         <tokens>0</tokens>
         <static>false</static>
     </place>
+    <place>
+        <id>invalid_x</id>
+        <x>a</x>
+        <y>100</y>
+        <tokens>0</tokens>
+    </place>
+    <place>
+        <id>invalid_y</id>
+        <x>100</x>
+        <y>a</y>
+        <tokens>0</tokens>
+    </place>
+<!-- invalid place with no id -->
+    <place>
+        <x>100</x>
+        <y>a</y>
+        <tokens>0</tokens>
+    </place>
     <!-- ARCS -->
     <arc>
         <id>a1</id>
@@ -1252,6 +1341,46 @@
         <breakpoint>
             <x>20</x>
             <y>20</y>
+        </breakpoint>
+    </arc>
+    <arc>
+<!--  arc_with_no_id -->
+    </arc>
+    <arc>
+        <id>arc_with_no_source</id>
+        <sourceId></sourceId>
+    </arc>
+    <arc>
+        <id>arc_with_no_destination</id>
+        <sourceId>t2</sourceId>
+        <destinationId/>
+    </arc>
+    <arc>
+        <id>invalid_source</id>
+        <type>regular</type>
+        <sourceId>invalid_source_id</sourceId>
+        <destinationId>invalid_destination_id</destinationId>
+    </arc>
+    <arc>
+        <id>invalid_destination</id>
+        <type>regular</type>
+        <sourceId>t2</sourceId>
+        <destinationId>invalid_destination_id</destinationId>
+    </arc>
+    <arc>
+        <id>invalid_type</id>
+        <type>invalid_type</type>
+        <sourceId>t2</sourceId>
+        <destinationId>p3</destinationId>
+    </arc>
+    <arc>
+        <id>invalid_breakpont</id>
+        <type>regular</type>
+        <sourceId>t2</sourceId>
+        <destinationId>p3</destinationId>
+        <breakpoint>
+            <x>a</x>
+            <y>b</y>
         </breakpoint>
     </arc>
 </document>

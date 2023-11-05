@@ -11,7 +11,7 @@ import {
     Event,
     FinishPolicy,
     IconType,
-    LayoutType,
+    LayoutType, NodeElement,
     PetriNet,
     ProcessEvent,
     ProcessRoleRef,
@@ -97,6 +97,9 @@ export class ExportService {
     }
 
     public exportEvent<T>(element: Element, event: Event<T>): void {
+        if (event.isEmpty()) {
+            return
+        }
         let exportProcessEvent;
         if (event instanceof ProcessEvent) {
             exportProcessEvent = this.xmlConstructor.createElement('processEvents');
@@ -307,7 +310,7 @@ export class ExportService {
             trans.dataGroups.forEach(dataGroup => {
                 this.exportDataGroup(exportTrans, dataGroup);
             });
-            trans.getEvents().forEach(event => {
+            trans.eventSource.getEvents().forEach(event => {
                 this.exportEvent(exportTrans, event);
             });
             doc.appendChild(exportTrans);
@@ -324,6 +327,9 @@ export class ExportService {
             }
             if (dataRef.logic.required) {
                 this._exportUtils.exportTag(logic, 'behavior', DataRefBehavior.REQUIRED);
+            }
+            if (dataRef.logic.immediate) {
+                this._exportUtils.exportTag(logic, 'behavior', DataRefBehavior.IMMEDIATE);
             }
             dataRef.logic.actionRefs.forEach(ref => {
                 const actionRef = this.xmlConstructor.createElement('actionRef');
@@ -412,7 +418,7 @@ export class ExportService {
         this._exportUtils.exportTag(exportGroup, 'stretch', !dataGroup.stretch ? '' : dataGroup.stretch?.toString());
         this._exportUtils.exportTag(exportGroup, 'hideEmptyRows', dataGroup.hideEmptyRows?.toString() ?? '');
         this._exportUtils.exportTag(exportGroup, 'compactDirection', dataGroup.compactDirection?.toString() ?? '');
-        dataGroup.getDataRefs().forEach(dataRef => this.exportDataRef(exportGroup, dataRef));
+        dataGroup.getDataRefs().sort(this.dataRefOrder).forEach(dataRef => this.exportDataRef(exportGroup, dataRef));
         element.appendChild(exportGroup);
     }
 
@@ -433,9 +439,9 @@ export class ExportService {
         model.getArcs().forEach(arc => {
             const exportArc = this.xmlConstructor.createElement('arc');
             this._exportUtils.exportTag(exportArc, 'id', arc.id, true);
-            this._exportUtils.exportTag(exportArc, 'type', arc.type);
-            this._exportUtils.exportTag(exportArc, 'sourceId', arc.source);
-            this._exportUtils.exportTag(exportArc, 'destinationId', arc.destination);
+            this._exportUtils.exportTag(exportArc, 'type', this._exportUtils.exportArcType(arc.type));
+            this._exportUtils.exportTag(exportArc, 'sourceId', arc.source.id);
+            this._exportUtils.exportTag(exportArc, 'destinationId', arc.destination.id);
             this._exportUtils.exportTag(exportArc, 'multiplicity', arc.multiplicity?.toString());
             this._exportUtils.exportTag(exportArc, 'reference', arc.reference ?? '');
             if (arc.breakpoints !== undefined) {
@@ -445,12 +451,25 @@ export class ExportService {
         });
     }
 
-    public exportBreakpoints(exportArc: Element, arc: Arc): void {
+    public exportBreakpoints(exportArc: Element, arc: Arc<NodeElement, NodeElement>): void {
         arc.breakpoints.forEach((point) => {
             const breakPoint = this.xmlConstructor.createElement('breakpoint');
             this._exportUtils.exportTag(breakPoint, 'x', point.x?.toString());
             this._exportUtils.exportTag(breakPoint, 'y', point.y?.toString());
             exportArc.appendChild(breakPoint);
         });
+    }
+
+    public dataRefOrder(a: DataRef, b: DataRef): number {
+        if (a?.layout?.y < b?.layout?.y) {
+            return -1;
+        }
+        if (a?.layout?.y > b?.layout?.y) {
+            return 1;
+        }
+        if (a?.layout?.x < b?.layout?.x) {
+            return -1;
+        }
+        return 1;
     }
 }
