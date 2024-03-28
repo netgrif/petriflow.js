@@ -33,7 +33,8 @@ import {
     Template,
     Trigger,
     TriggerType,
-    UserRef, XmlArcType
+    UserRef,
+    XmlArcType
 } from '../model';
 
 export class ImportUtils {
@@ -110,18 +111,16 @@ export class ImportUtils {
                     continue;
                 }
                 definition += '<!--' + node.nodeValue + '-->';
-            } else if (node.nodeName === '#cdata-section') {
-                definition += '<![CDATA[' + node.nodeValue + ']]>';
             } else {
-                definition += node.nodeValue?.trim();
+                definition += node.nodeValue;
             }
         }
         return this.removeExcessiveIndents(definition);
     }
 
     public removeExcessiveIndents(action: string): string {
-        action = action.trim().replace(/\t/g, '    ');
-        const lines = action.split('\n');
+        const lines = action.split('\n')
+            .filter(line => line.trim().length !== 0);
         let commonIndent = Math.min(...(lines.map(l => l.length - l.trimStart().length)));
         if (isNaN(commonIndent) || !isFinite(commonIndent)) {
             commonIndent = 0;
