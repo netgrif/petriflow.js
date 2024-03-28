@@ -28,9 +28,7 @@ const fs = require('fs');
 
 let debug = false;
 
-const ACTION_DEFINITION_CDATA_START = '<![CDATA[';
 const ACTION_DEFINITION_CDATA_CONTENT = 'some cdata';
-const ACTION_DEFINITION_CDATA_END = ']]>';
 const MODEL_ID = 'petriflow_test';
 const MODEL_INITIALS = 'PTS';
 const MODEL_TITLE_VALUE = 'Petriflow Test Model';
@@ -152,9 +150,7 @@ describe('Petriflow integration tests', () => {
         expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_XML_COMMENT);
         expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_JAVA_COMMENT);
         expect(processUploadEvent.postActions[0].definition).toContain('test("process_upload_post")');
-        expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_CDATA_START);
         expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_CDATA_CONTENT);
-        expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_CDATA_END);
         expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_ESCAPED);
         log('Model process events correct');
 

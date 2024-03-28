@@ -102,7 +102,8 @@ export class ExportUtils {
         if (action.id !== undefined && action.id != null) {
             exportAction.setAttribute('id', action.id);
         }
-        exportAction.insertAdjacentText('beforeend', action.definition);
+        const exportActionDefinition = this.xmlConstructor.createCDATASection(`\n${action.definition}\n`);
+        exportAction.appendChild(exportActionDefinition);
         element.appendChild(exportAction);
     }
 
@@ -110,7 +111,8 @@ export class ExportUtils {
         const xmlFunction = this.xmlConstructor.createElement('function');
         xmlFunction.setAttribute('scope', _function.scope);
         xmlFunction.setAttribute('name', _function.name);
-        xmlFunction.insertAdjacentText('beforeend', _function.definition);
+        const xmlFunctionDefinition = this.xmlConstructor.createCDATASection(`\n${_function.definition}\n`);
+        xmlFunction.appendChild(xmlFunctionDefinition);
         element.appendChild(xmlFunction);
     }
 

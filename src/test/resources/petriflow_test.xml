@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
+<document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
     <id>petriflow_test</id>
     <initials>PTS</initials>
     <title name="title">Petriflow Test Model</title>
@@ -99,24 +100,23 @@
             <id>process_upload</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("process_upload_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
 <!-- @formatter:off    -->
 <!-- some xml comment                    -->
                     // some java comment
                     test("process_upload_post")
-                    if (a &lt; b &amp;&amp; c) d &gt;&gt; e
-<!--                    <![CDATA[ some text-->
+                    if (a < b && c) d >> e
 <!--                        some cdata-->
-                                        <![CDATA[ some text
                                             some cdata
-                                        ]]>
-<!--                    ]]>-->
-
                     <!-- @formatter:on    -->
+                    ]]>
                 </action>
             </actions>
             <message name="process_upload_message">process_upload_message_value</message>
@@ -127,13 +127,17 @@
             <id>case_create</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("case_create_pre")
                     test("second_run_case_create_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("case_create_post")
+                    ]]>
                 </action>
             </actions>
             <message name="case_create_message">case_create_message_value</message>
@@ -142,12 +146,16 @@
             <id>case_delete</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("case_delete_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("case_delete_post")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -165,12 +173,16 @@
             <id>assign_role</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("assign_role_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("assign_role_post")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -178,12 +190,16 @@
             <id>cancel_role</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("cancel_role_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("cancel_role_post")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -206,14 +222,18 @@
     </role>
     <!-- FUNCTIONS -->
     <function scope="namespace" name="sum">
+        <![CDATA[
         { Double x, Double y ->
-        return x + y
+            return x + y
         }
+        ]]>
     </function>
     <function scope="process" name="calc">
+        <![CDATA[
         { monthly, loan, period ->
-        change monthly value { (loan + loan * 0.02 * period) / (period * 12) }
+            change monthly value { (loan + loan * 0.02 * period) / (period * 12) }
         }
+        ]]>
     </function>
     <!-- DATA -->
     <data type="text">
@@ -226,7 +246,9 @@
             <id>cdata_get</id>
             <actions phase="post">
                 <action id="cdata_get_post">
+                    <![CDATA[
                     test
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -234,7 +256,9 @@
             <id>cdata_set</id>
             <actions phase="post">
                 <action id="cdata_set_post">
+                    <![CDATA[
                     test
+                    ]]>
                 </action>
                 <actionRef>
                     <id>cdata_get_post</id>
@@ -245,7 +269,9 @@
             <id>cdata_set_duplicate</id>
             <actions phase="post">
                 <action id="cdata_set_post_duplicate">
+                    <![CDATA[
                     test
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -266,7 +292,9 @@
             <id>newVariable_1_set</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("newVariable_1_set_pre")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -274,7 +302,9 @@
             <id>newVariable_1_get</id>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("newVariable_1_get_post")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -551,12 +581,16 @@
             <message name="t1_assign_message">t1_assign_message_value</message>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("t1_assign_post")
+                    ]]>
                 </action>
             </actions>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("t1_assign_pre")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -564,12 +598,16 @@
             <id>finish</id>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("t1_finish_post")
+                    ]]>
                 </action>
             </actions>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("t1_finish_pre")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -577,12 +615,16 @@
             <id>cancel</id>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("t1_cancel_post")
+                    ]]>
                 </action>
             </actions>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("t1_cancel_pre")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -590,12 +632,16 @@
             <id>delegate</id>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("t1_delegate_post")
+                    ]]>
                 </action>
             </actions>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("t1_delegate_pre")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -665,10 +711,14 @@
                     <behavior>editable</behavior>
                     <behavior>immediate</behavior>
                     <action trigger="get">
+                        <![CDATA[
                         test("t5_newVariable_1_get")
+                        ]]>
                     </action>
                     <action trigger="set" id="t5_newVariable_1_set">
+                        <![CDATA[
                         test("t5_newVariable_1_set")
+                        ]]>
                     </action>
                     <actionRef>
                         <id>t5_newVariable_1_set</id>
@@ -687,12 +737,16 @@
                     <id>dataref_set</id>
                     <actions phase="pre">
                         <action>
+                            <![CDATA[
                             test("t5_newVariable_1_set_pre")
+                            ]]>
                         </action>
                     </actions>
                     <actions phase="post">
                         <action>
+                            <![CDATA[
                             test("t5_newVariable_1_set_post")
+                            ]]>
                         </action>
                     </actions>
                 </event>
@@ -700,12 +754,16 @@
                     <id>dataref_get</id>
                     <actions phase="pre">
                         <action>
+                            <![CDATA[
                             test("t5_newVariable_1_get_pre")
+                            ]]>
                         </action>
                     </actions>
                     <actions phase="post">
                         <action>
+                            <![CDATA[
                             test("t5_newVariable_1_get_post")
+                            ]]>
                         </action>
                     </actions>
                 </event>
@@ -1214,7 +1272,7 @@
         <y>a</y>
         <tokens>0</tokens>
     </place>
-<!-- invalid place with no id -->
+    <!-- invalid place with no id -->
     <place>
         <x>100</x>
         <y>a</y>
@@ -1344,7 +1402,7 @@
         </breakpoint>
     </arc>
     <arc>
-<!--  arc_with_no_id -->
+    <!--  arc_with_no_id -->
     </arc>
     <arc>
         <id>arc_with_no_source</id>
