@@ -61,19 +61,19 @@ export class ExportService {
         this._exportUtils.exportTag(doc, 'id', model.id, true);
         this._exportUtils.exportTag(doc, 'version', model.version);
         this._exportUtils.exportTag(doc, 'initials', model.initials, true);
-        this._exportUtils.exportTag(doc, 'title', model.title, true);
+        this._exportUtils.exportI18nString(doc, 'title', model.title, true);
         this._exportUtils.exportTag(doc, 'icon', model.icon);
         this._exportUtils.exportTag(doc, 'defaultRole', model.defaultRole !== undefined ? (model.defaultRole.toString()) : '');
         this._exportUtils.exportTag(doc, 'anonymousRole', model.anonymousRole !== undefined ? (model.anonymousRole.toString()) : '');
         this._exportUtils.exportTag(doc, 'transitionRole', model.transitionRole !== undefined ? (model.transitionRole.toString()) : '');
-        this._exportUtils.exportTag(doc, 'caseName', model.caseName);
+        this._exportUtils.exportI18nWithDynamic(doc, 'caseName', model.caseName);
     }
 
     public exportTransactions(doc: Element, model: PetriNet): void {
         model.getTransactions().forEach(item => {
             const trans = this.xmlConstructor.createElement('transaction');
             this._exportUtils.exportTag(trans, 'id', item.id, true);
-            this._exportUtils.exportTag(trans, 'title', item.title, true);
+            this._exportUtils.exportI18nString(trans, 'title', item.title, true);
             doc.appendChild(trans);
         });
     }
@@ -82,7 +82,7 @@ export class ExportService {
         model.getRoles().forEach(item => {
             const role = this.xmlConstructor.createElement('role');
             this._exportUtils.exportTag(role, 'id', item.id, true);
-            this._exportUtils.exportTag(role, 'title', item.title, true);
+            this._exportUtils.exportI18nString(role, 'title', item.title, true);
             item.getEvents().forEach(event => {
                 this.exportEvent(role, event);
             });
@@ -110,8 +110,8 @@ export class ExportService {
         this._exportUtils.exportTag(exportEvent, 'id', event.id);
         exportEvent.setAttribute('type', `${event.type}`);
         if (event instanceof TransitionEvent) {
-            this._exportUtils.exportTag(exportEvent, 'title', (event as TransitionEvent).title);
-            this._exportUtils.exportTag(exportEvent, 'message', (event as TransitionEvent).message);
+            this._exportUtils.exportI18nString(exportEvent, 'title', (event as TransitionEvent).title);
+            this._exportUtils.exportI18nString(exportEvent, 'message', (event as TransitionEvent).message);
         }
         if (event.preActions.length > 0) {
             this._exportUtils.exportActions(exportEvent, event, 'pre');
@@ -177,15 +177,12 @@ export class ExportService {
                 exportData.setAttribute('immediate', data.immediate.toString());
             }
             this._exportUtils.exportTag(exportData, 'id', data.id, true);
-            this._exportUtils.exportTag(exportData, 'title', data.title, true);
-            this._exportUtils.exportTag(exportData, 'placeholder', data.placeholder);
-            this._exportUtils.exportTag(exportData, 'desc', data.desc);
+            this._exportUtils.exportI18nString(exportData, 'title', data.title, true);
+            this._exportUtils.exportI18nString(exportData, 'placeholder', data.placeholder);
+            this._exportUtils.exportI18nString(exportData, 'desc', data.desc);
             if (data.options.length > 0) {
                 const options = this.xmlConstructor.createElement('options');
-                data.options.forEach(opt => this._exportUtils.exportTag(options, 'option', opt.value, false, [{
-                    key: 'key',
-                    value: opt.key
-                }]));
+                data.options.forEach(opt => this._exportUtils.exportOption(options, 'option', opt));
                 this._exportUtils.exportExpression(options, 'init', data.optionsInit);
                 exportData.appendChild(options);
             }
@@ -194,7 +191,7 @@ export class ExportService {
                 data.validations?.forEach(validation => {
                     const valid = this.xmlConstructor.createElement('validation');
                     this._exportUtils.exportExpression(valid, 'expression', validation.expression);
-                    this._exportUtils.exportTag(valid, 'message', validation.message);
+                    this._exportUtils.exportI18nString(valid, 'message', validation.message);
                     validations.appendChild(valid);
                 });
                 exportData.appendChild(validations);
@@ -264,7 +261,7 @@ export class ExportService {
             this._exportUtils.exportTag(exportTrans, 'id', trans.id, true);
             this._exportUtils.exportTag(exportTrans, 'x', trans.x?.toString(), true);
             this._exportUtils.exportTag(exportTrans, 'y', trans.y?.toString(), true);
-            this._exportUtils.exportTag(exportTrans, 'label', trans.label, true);
+            this._exportUtils.exportI18nString(exportTrans, 'label', trans.label, true);
             if (trans.layout && !trans.layout.empty()) {
                 this.exportTransitionLayout(exportTrans, trans.layout);
             }
@@ -413,7 +410,7 @@ export class ExportService {
         this._exportUtils.exportTag(exportGroup, 'cols', dataGroup.cols?.toString() ?? '');
         this._exportUtils.exportTag(exportGroup, 'rows', dataGroup.rows?.toString() ?? '');
         this._exportUtils.exportTag(exportGroup, 'layout', dataGroup.layout ?? '');
-        this._exportUtils.exportTag(exportGroup, 'title', dataGroup.title ?? '');
+        this._exportUtils.exportI18nString(exportGroup, 'title', dataGroup.title);
         this._exportUtils.exportTag(exportGroup, 'alignment', dataGroup.alignment ?? '');
         this._exportUtils.exportTag(exportGroup, 'stretch', !dataGroup.stretch ? '' : dataGroup.stretch?.toString());
         this._exportUtils.exportTag(exportGroup, 'hideEmptyRows', dataGroup.hideEmptyRows?.toString() ?? '');
@@ -428,7 +425,7 @@ export class ExportService {
             this._exportUtils.exportTag(exportPlace, 'id', place.id, true);
             this._exportUtils.exportTag(exportPlace, 'x', place.x?.toString(), true);
             this._exportUtils.exportTag(exportPlace, 'y', place.y?.toString(), true);
-            this._exportUtils.exportTag(exportPlace, 'label', place.label);
+            this._exportUtils.exportI18nString(exportPlace, 'label', place.label);
             this._exportUtils.exportTag(exportPlace, 'tokens', place.marking?.toString());
             this._exportUtils.exportTag(exportPlace, 'static', place.static?.toString());
             doc.appendChild(exportPlace);
