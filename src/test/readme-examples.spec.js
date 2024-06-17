@@ -8,6 +8,7 @@ describe('README Examples test', () => {
 
     test('should fetch petriflow file & import', done => {
         const https = require('https');
+        // todo file needs to be updated according to new xsd
         https.get('https://raw.githubusercontent.com/netgrif/petriflow/main/examples/order-approval.xml', (res) => {
             let body = '';
             res.on('data', chunk => body += chunk);
@@ -32,6 +33,7 @@ describe('README Examples test', () => {
 
         expect(xml).toBeDefined();
         expect(xml).toContain("<id>new_model</id>")
-        expect(xml).toContain("<initials>NEW</initials>")
+        expect(xml).not.toContain("<initials>NEW</initials>")
+        expect(xml).not.toContain("<transitionRole>false</transitionRole>")
     });
 });

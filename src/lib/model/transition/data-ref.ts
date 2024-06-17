@@ -1,5 +1,6 @@
 import {Component} from '../data-variable/component';
 import {DataEventSource} from '../data-variable/data-event-source';
+import {Property} from '../data-variable/property';
 import {DataLayout} from './data-layout';
 import {DataRefLogic} from './data-ref-logic';
 
@@ -8,6 +9,7 @@ export class DataRef extends DataEventSource {
     private _logic: DataRefLogic;
     private _layout: DataLayout;
     private _component?: Component;
+    private _properties?: Array<Property>;
 
     constructor(id: string) {
         super();
@@ -48,11 +50,20 @@ export class DataRef extends DataEventSource {
         this._component = value;
     }
 
+    get properties(): Array<Property> | undefined {
+        return this._properties;
+    }
+
+    set properties(value: Array<Property> | undefined) {
+        this._properties = value;
+    }
+
     public clone(): DataRef {
         const cloned = new DataRef(this._id);
         cloned._logic = this._logic?.clone();
         cloned._layout = this._layout?.clone();
         cloned._component = this._component?.clone();
+        cloned._properties = this._properties?.map(p => p.clone());
         this.getEvents().forEach(event => cloned.addEvent(event.clone()));
         return cloned;
     }

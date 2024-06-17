@@ -1,23 +1,20 @@
-import {Icon} from './icon';
 import {Property} from './property';
 
 export class Component {
-    private _name: string;
+    private _id: string;
     private _properties: Array<Property>;
-    private _icons: Array<Icon>;
 
-    constructor(name: string) {
-        this._name = name;
+    constructor(id: string) {
+        this._id = id;
         this._properties = new Array<Property>();
-        this._icons = new Array<Icon>();
     }
 
-    get name(): string {
-        return this._name;
+    get id(): string {
+        return this._id;
     }
 
-    set name(value: string) {
-        this._name = value;
+    set id(value: string) {
+        this._id = value;
     }
 
     get properties(): Array<Property> {
@@ -28,18 +25,9 @@ export class Component {
         this._properties = value;
     }
 
-    get icons(): Array<Icon> {
-        return this._icons;
-    }
-
-    set icons(value: Array<Icon>) {
-        this._icons = value;
-    }
-
     public clone(): Component {
-        const cloned = new Component(this._name);
+        const cloned = new Component(this._id);
         cloned.properties = this.properties.map(p => p.clone());
-        cloned.icons = this.icons.map(i => i.clone());
         return cloned;
     }
 }

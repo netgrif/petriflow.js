@@ -17,6 +17,6 @@ export class I18nWithDynamic extends I18nString {
     }
 
     public clone(): I18nWithDynamic {
-        return new I18nWithDynamic(this.value, this.name, this._dynamic);
+        return new I18nWithDynamic(this.value, this.id, this._dynamic);
     }
 }

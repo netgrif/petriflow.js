@@ -28,8 +28,8 @@ export class ExportUtils {
                 });
             }
             if (value instanceof I18nString) {
-                if (typeof value.name === 'string' && value.name !== '') {
-                    tag.setAttribute('name', value.name);
+                if (typeof value.id === 'string' && value.id !== '') {
+                    tag.setAttribute('id', value.id);
                 }
                 if (value instanceof I18nWithDynamic && typeof value.dynamic === 'boolean' && value.dynamic) {
                     tag.setAttribute('dynamic', value.dynamic.toString());
@@ -70,10 +70,10 @@ export class ExportUtils {
                 value: value.dynamic.toString()
             })
         }
-        if (value.name) {
+        if (value.id) {
             attributes.push({
-                key: 'name',
-                value: value.name
+                key: 'id',
+                value: value.id
             })
         }
         this.exportTag(doc, name, value.value, false, attributes);
@@ -125,11 +125,14 @@ export class ExportUtils {
         if (logic.assign !== undefined) {
             this.exportTag(exportLogic, 'assign', logic.assign.toString());
         }
-        if (logic.delegate !== undefined) {
-            this.exportTag(exportLogic, 'delegate', logic.delegate.toString());
+        if (logic.reassign !== undefined) {
+            this.exportTag(exportLogic, 'reassign', logic.reassign.toString());
         }
         if (logic.perform !== undefined) {
             this.exportTag(exportLogic, 'perform', logic.perform.toString());
+        }
+        if (logic.viewDisabled !== undefined) {
+            this.exportTag(exportLogic, 'view_disabled', logic.viewDisabled.toString());
         }
         element.appendChild(exportLogic);
     }

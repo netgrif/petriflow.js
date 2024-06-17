@@ -6,7 +6,6 @@ import {I18nTranslations} from './i18n/i18n-translations';
 import {I18nWithDynamic} from './i18n/i18n-with-dynamic';
 import {CaseEvent} from './petrinet/case-event';
 import {CaseEventType} from './petrinet/case-event-type.enum';
-import {Mapping} from './petrinet/mapping';
 import {NodeElement} from './petrinet/node-element';
 import {PetriflowFunction} from './petrinet/petriflow-function';
 import {Place} from './petrinet/place';
@@ -14,7 +13,6 @@ import {ProcessEvent} from './petrinet/process-event';
 import {ProcessEventType} from './petrinet/process-event-type.enum';
 import {ProcessRoleRef} from './petrinet/process-role-ref';
 import {ProcessUserRef} from './petrinet/process-user-ref';
-import {Transaction} from './petrinet/transaction';
 import {Role} from './role/role';
 import {Transition} from './transition/transition';
 
@@ -22,22 +20,18 @@ export class PetriNet {
     private _id: string;
     private _version: string;
     private _lastChanged: number;
-    private _initials: string;
     private _title: I18nString;
     private _icon: string;
     private _defaultRole: boolean;
     private _anonymousRole: boolean;
-    private _transitionRole: boolean;
     private _caseName: I18nWithDynamic;
     private _roleRefs: Map<string, ProcessRoleRef>;
     private _userRefs: Map<string, ProcessUserRef>;
     private _processEvents: Map<ProcessEventType, ProcessEvent>;
     private _caseEvents: Map<CaseEventType, CaseEvent>;
-    private _transactions: Map<string, Transaction>;
     private _roles: Map<string, Role>;
     private _functions: Array<PetriflowFunction>;
     private _data: Map<string, DataVariable>;
-    private _mappings: Map<string, Mapping>;
     private _i18ns: Map<string, I18nTranslations>;
     private _transitions: Map<string, Transition>;
     private _places: Map<string, Place>;
@@ -47,18 +41,15 @@ export class PetriNet {
         this._id = 'new_model';
         this._version = '';
         this._lastChanged = Date.now();
-        this._initials = 'NEW';
         this._title = new I18nString('New Model');
         this._icon = 'device_hub';
         this._defaultRole = true;
         this._anonymousRole = true;
-        this._transitionRole = false;
         this._caseName = new I18nWithDynamic('');
         this._transitions = new Map<string, Transition>();
         this._places = new Map<string, Place>();
         this._arcs = new Map<string, Arc<NodeElement, NodeElement>>();
         this._data = new Map<string, DataVariable>();
-        this._transactions = new Map<string, Transaction>();
         this._roles = new Map<string, Role>();
         this._functions = new Array<PetriflowFunction>();
         this._roleRefs = new Map<string, ProcessRoleRef>();
@@ -66,7 +57,6 @@ export class PetriNet {
         this._i18ns = new Map<string, I18nTranslations>();
         this._processEvents = new Map<ProcessEventType, ProcessEvent>();
         this._caseEvents = new Map<CaseEventType, CaseEvent>();
-        this._mappings = new Map<string, Mapping>();
     }
 
     get id(): string {
@@ -91,14 +81,6 @@ export class PetriNet {
 
     set lastChanged(value: number) {
         this._lastChanged = value;
-    }
-
-    get initials(): string {
-        return this._initials;
-    }
-
-    set initials(value: string) {
-        this._initials = value;
     }
 
     get title(): I18nString {
@@ -131,14 +113,6 @@ export class PetriNet {
 
     set anonymousRole(value: boolean) {
         this._anonymousRole = value;
-    }
-
-    get transitionRole(): boolean {
-        return this._transitionRole;
-    }
-
-    set transitionRole(value: boolean) {
-        this._transitionRole = value;
     }
 
     get caseName(): I18nWithDynamic {
@@ -234,25 +208,6 @@ export class PetriNet {
         this._caseEvents.delete(type);
     }
 
-    getTransactions(): Array<Transaction> {
-        return Array.from(this._transactions.values());
-    }
-
-    getTransaction(id: string): Transaction | undefined {
-        return this._transactions.get(id);
-    }
-
-    addTransaction(transaction: Transaction) {
-        if (this._transactions.has(transaction.id)) {
-            throw new Error(`Duplicate transaction with id ${transaction.id}`);
-        }
-        this._transactions.set(transaction.id, transaction);
-    }
-
-    removeTransaction(id: string) {
-        this._transactions.delete(id);
-    }
-
     getRoles(): Array<Role> {
         return Array.from(this._roles.values());
     }
@@ -301,25 +256,6 @@ export class PetriNet {
 
     removeData(id: string) {
         this._data.delete(id);
-    }
-
-    getMappings(): Array<Mapping> {
-        return Array.from(this._mappings.values());
-    }
-
-    getMapping(id: string): Mapping | undefined {
-        return this._mappings.get(id);
-    }
-
-    addMapping(mapping: Mapping) {
-        if (this._mappings.has(mapping.id)) {
-            throw new Error(`Duplicate mapping with id ${mapping.id}`);
-        }
-        this._mappings.set(mapping.id, mapping);
-    }
-
-    removeMapping(id: string) {
-        this._mappings.delete(id);
     }
 
     getI18ns(): Array<I18nTranslations> {
@@ -403,20 +339,16 @@ export class PetriNet {
         cloned._id = this._id;
         cloned._version = this._version;
         cloned._lastChanged = this._lastChanged;
-        cloned._initials = this._initials;
         cloned._title = this._title?.clone();
         cloned._icon = this._icon;
         cloned._defaultRole = this._defaultRole;
         cloned._anonymousRole = this._anonymousRole;
-        cloned._transitionRole = this._transitionRole;
         cloned._caseName = this._caseName?.clone();
         this._processEvents.forEach(e => cloned.addProcessEvent(e.clone()));
         this._caseEvents.forEach(e => cloned.addCaseEvent(e.clone()));
-        this._transactions.forEach(t => cloned.addTransaction(t.clone()));
         this._roles.forEach(r => cloned.addRole(r.clone()));
         this._functions.forEach(f => cloned.addFunction(f.clone()));
         this._data.forEach(d => cloned.addData(d.clone()));
-        this._mappings.forEach(m => cloned.addMapping(m.clone()));
         this._i18ns.forEach(i => cloned.addI18n(i.clone()));
         this._transitions.forEach(t => cloned.addTransition(t.clone()));
         this._places.forEach(p => cloned.addPlace(p.clone()));

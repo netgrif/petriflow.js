@@ -1,3 +1,4 @@
+import {Expression} from '../data-variable/expression';
 import {Element} from '../petrinet/element';
 import {NodeElement} from '../petrinet/node-element';
 import {ArcType, XmlArcType} from './arc-type.enum';
@@ -6,15 +7,14 @@ import {Breakpoint} from './breakpoint';
 export abstract class Arc<S extends NodeElement, D extends NodeElement> extends Element {
     private _source: S;
     private _destination: D;
-    private _multiplicity: number;
-    private _reference?: string;
+    private _multiplicity: Expression;
     private _breakpoints: Array<Breakpoint>;
 
     constructor(source: S, target: D, id: string) {
         super(id);
         this._source = source;
         this._destination = target;
-        this._multiplicity = 1;
+        this._multiplicity = new Expression('1', false);
         this._breakpoints = [];
     }
 
@@ -44,20 +44,12 @@ export abstract class Arc<S extends NodeElement, D extends NodeElement> extends 
         this._destination = value;
     }
 
-    get multiplicity(): number {
+    get multiplicity(): Expression {
         return this._multiplicity;
     }
 
-    set multiplicity(value: number) {
+    set multiplicity(value: Expression) {
         this._multiplicity = value;
-    }
-
-    get reference(): string | undefined {
-        return this._reference;
-    }
-
-    set reference(value: string | undefined) {
-        this._reference = value;
     }
 
     get breakpoints(): Array<Breakpoint> {
@@ -70,9 +62,16 @@ export abstract class Arc<S extends NodeElement, D extends NodeElement> extends 
 
     cloneAttributes(cloned: Arc<S, D>): void {
         cloned._multiplicity = this._multiplicity;
-        cloned._reference = this._reference;
         cloned._breakpoints = this._breakpoints?.map(bp => bp.clone());
     }
 
     abstract clone(): Arc<S, D>;
+
+    resolveMultiplicity(): number {
+        const resolvedMultiplicity: number = Number.parseInt(this.multiplicity.expression)
+        if (isNaN(resolvedMultiplicity)) {
+            throw new Error(`Cannot resolve multiplicity of arc: ${this.id}`);
+        }
+        return resolvedMultiplicity;
+    }
 }

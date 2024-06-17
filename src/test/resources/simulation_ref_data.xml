@@ -36,19 +36,17 @@
         <static>false</static>
     </place>
     <arc>
-        <id>a1</id>
+        <id>inputArc</id>
         <type>regular</type>
         <sourceId>t1</sourceId>
         <destinationId>p1</destinationId>
-        <multiplicity>1</multiplicity>
-        <reference>input</reference>
+        <multiplicity dynamic="true">input</multiplicity>
     </arc>
     <arc>
-        <id>a2</id>
+        <id>outputArc</id>
         <type>regular</type>
         <sourceId>p1</sourceId>
         <destinationId>t2</destinationId>
-        <multiplicity>1</multiplicity>
-        <reference>output</reference>
+        <multiplicity dynamic="true">output</multiplicity>
     </arc>
 </document>
