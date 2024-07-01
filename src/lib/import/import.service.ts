@@ -45,7 +45,7 @@ import {
     TransitionLayout,
     UserRef,
     Validation,
-    XmlArcType
+    XmlArcType,
 } from '../model';
 import {ImportUtils} from './import-utils';
 import {PetriNetResult} from './petri-net-result';
@@ -77,10 +77,10 @@ export class ImportService {
 
         if (parseError.length !== 0) {
             let matches = parseError.item(0)?.textContent?.match(ImportService.PARSE_ERROR_LINE_EXTRACTION_REGEX);
-            matches = !matches ? [] : matches;
+            matches = !matches ? null : matches;
             let message;
 
-            if (!!matches && matches.length === 0) {
+            if (!matches || matches.length === 0) {
                 message = parseError.item(0)?.textContent;
             } else {
                 message = `XML parsing error at line ${matches[1]} column ${matches[2]}`;
@@ -545,7 +545,7 @@ export class ImportService {
     importPlace(modelResult: PetriNetResult, xmlPlace: Element) {
         const placeId = xmlPlace.getElementsByTagName('id')?.item(0)?.childNodes[0]?.nodeValue;
         if (!placeId) {
-            throw new Error("Id of a place must be defined!");
+            throw new Error('Id of a place must be defined!');
         }
         let xx = this.importUtils.parseNumberValue(xmlPlace, 'x');
         let yy = this.importUtils.parseNumberValue(xmlPlace, 'y');
@@ -582,13 +582,13 @@ export class ImportService {
     public parseArc(result: PetriNetResult, xmlArc: Element): Arc<NodeElement, NodeElement> {
         const arcId = xmlArc.getElementsByTagName('id')?.item(0)?.childNodes[0]?.nodeValue;
         if (!arcId)
-            throw new Error("Id of an arc must be defined!");
+            throw new Error('Id of an arc must be defined!');
         const source = xmlArc.getElementsByTagName('sourceId')?.item(0)?.childNodes[0]?.nodeValue;
         if (!source)
-            throw new Error("Source of an arc must be defined!");
+            throw new Error('Source of an arc must be defined!');
         const target = xmlArc.getElementsByTagName('destinationId')?.item(0)?.childNodes[0]?.nodeValue;
         if (!target)
-            throw new Error("Target of an arc must be defined!");
+            throw new Error('Target of an arc must be defined!');
         const parsedArcType = this.importUtils.parseArcType(xmlArc);
         const arc = this.resolveArc(source, target, parsedArcType, arcId, result);
         arc.multiplicity = this.importUtils.parseNumberValue(xmlArc, 'multiplicity') ?? 0;
