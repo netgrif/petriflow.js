@@ -33,7 +33,8 @@ import {
     Template,
     Trigger,
     TriggerType,
-    UserRef, XmlArcType
+    UserRef,
+    XmlArcType
 } from '../model';
 
 export class ImportUtils {
@@ -63,7 +64,7 @@ export class ImportUtils {
     }
 
     public parseI18nWithDynamic(xmlTag: Element | Document, child: string): I18nWithDynamic {
-        const i18n = new I18nWithDynamic(this.tagValue(xmlTag, child));
+        const i18n = new I18nWithDynamic(this.removeExcessiveIndents(this.tagValue(xmlTag, child)));
         if (i18n.value !== '') {
             const name = xmlTag.getElementsByTagName(child)[0].getAttribute('name');
             i18n.name = name === null ? undefined : name;
@@ -110,18 +111,16 @@ export class ImportUtils {
                     continue;
                 }
                 definition += '<!--' + node.nodeValue + '-->';
-            } else if (node.nodeName === '#cdata-section') {
-                definition += '<![CDATA[' + node.nodeValue + ']]>';
             } else {
-                definition += node.nodeValue?.trim();
+                definition += node.nodeValue;
             }
         }
         return this.removeExcessiveIndents(definition);
     }
 
     public removeExcessiveIndents(action: string): string {
-        action = action.trim().replace(/\t/g, '    ');
-        const lines = action.split('\n');
+        const lines = action.split('\n')
+            .filter(line => line.trim().length !== 0);
         let commonIndent = Math.min(...(lines.map(l => l.length - l.trimStart().length)));
         if (isNaN(commonIndent) || !isFinite(commonIndent)) {
             commonIndent = 0;
@@ -413,7 +412,8 @@ export class ImportUtils {
         }
         const dynamic = this.tagAttribute(elementValue, 'dynamic');
         const name = this.tagAttribute(elementValue, 'name');
-        return new I18nWithDynamic(elementValue.textContent ?? '', name, dynamic === '' ? undefined : dynamic === 'true');
+        const value = this.removeExcessiveIndents(elementValue.textContent ?? '');
+        return new I18nWithDynamic(value, name, dynamic === '' ? undefined : dynamic === 'true');
     }
 
     public checkLengthAndNodes(element: Element, name: string) {
@@ -445,7 +445,7 @@ export class ImportUtils {
     }
 
     public parseExpression(xmlTag: Element, name: string): Expression | undefined {
-        const val = this.tagValue(xmlTag, name);
+        const val = this.removeExcessiveIndents(this.tagValue(xmlTag, name));
         let dynamic;
         if (xmlTag.getElementsByTagName(name).length > 0) {
             dynamic = this.tagAttribute(xmlTag.getElementsByTagName(name).item(0), 'dynamic');
