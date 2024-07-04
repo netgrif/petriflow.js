@@ -29,8 +29,7 @@ import {
     Place,
     ProcessEvent,
     ProcessEventType,
-    ProcessRoleRef,
-    ProcessUserRef,
+    ProcessPermissionRef,
     ReadArc,
     RegularPlaceTransitionArc,
     RegularTransitionPlaceArc,
@@ -42,8 +41,7 @@ import {
     Transition,
     TransitionEvent,
     TransitionEventType,
-    TransitionLayout,
-    UserRef,
+    TransitionLayout, TransitionPermissionRef,
     Validation,
     XmlArcType,
 } from '../model';
@@ -346,7 +344,7 @@ export class ImportService {
             const userRefs = Array.from(xmlTrans.getElementsByTagName('usersRef')).concat(Array.from(xmlTrans.getElementsByTagName('userRef')));
             for (const xmlUserRef of userRefs) {
                 const xmlUserRefLogic = xmlUserRef.getElementsByTagName('logic')[0];
-                const userRef = new UserRef(this.importUtils.tagValue(xmlUserRef, 'id'));
+                const userRef = new TransitionPermissionRef(this.importUtils.tagValue(xmlUserRef, 'id'));
                 this.importUtils.resolveLogic(xmlUserRefLogic, userRef);
                 trans.userRefs.push(userRef);
             }
@@ -508,7 +506,7 @@ export class ImportService {
             try {
                 const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('caseLogic')[0];
                 if (xmlRoleRefLogic !== undefined) {
-                    const roleRef = new ProcessRoleRef(this.importUtils.tagValue(xmlRoleRef, 'id'));
+                    const roleRef = new ProcessPermissionRef(this.importUtils.tagValue(xmlRoleRef, 'id'));
                     this.importUtils.resolveCaseLogic(xmlRoleRefLogic, roleRef);
                     modelResult.model.addRoleRef(roleRef);
                 }
@@ -522,7 +520,7 @@ export class ImportService {
             try {
                 const xmlUserRefLogic = xmlUserRef.getElementsByTagName('caseLogic')[0];
                 if (xmlUserRefLogic !== undefined) {
-                    const userRef = new ProcessUserRef(this.importUtils.tagValue(xmlUserRef, 'id'));
+                    const userRef = new ProcessPermissionRef(this.importUtils.tagValue(xmlUserRef, 'id'));
                     this.importUtils.resolveCaseLogic(xmlUserRefLogic, userRef);
                     modelResult.model.addUserRef(userRef);
                 }
