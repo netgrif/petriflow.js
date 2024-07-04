@@ -291,10 +291,10 @@ export class ExportService {
                 }
             });
             this._exportUtils.exportTag(exportTrans, 'transactionRef', trans.transactionRef ?? '');
-            trans.roleRefs.forEach(roleRef => {
+            trans.roleRefs.sort((a, b) => a.compare(b)).forEach(roleRef => {
                 this.exportTransitionRef(exportTrans, roleRef, 'roleRef');
             });
-            trans.userRefs.forEach(userRef => {
+            trans.userRefs.sort((a, b) => a.compare(b)).forEach(userRef => {
                 this.exportTransitionRef(exportTrans, userRef, 'userRef');
             });
             if (trans.assignedUser !== undefined) {
