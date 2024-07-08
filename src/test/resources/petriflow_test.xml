@@ -8,6 +8,10 @@
     <defaultRole>true</defaultRole>
     <anonymousRole>true</anonymousRole>
     <transitionRole>false</transitionRole>
+    <tags>
+        <tag key="First">First</tag>
+        <tag key="Second">Second</tag>
+    </tags>
     <caseName dynamic="true">${new Date() as String}</caseName>
     <!-- PROCESS ROLE REFS -->
     <roleRef>
@@ -562,6 +566,10 @@
         <x>460</x>
         <y>180</y>
         <label name="t1_label">Task escape:&amp;&lt;&gt;</label>
+        <tags>
+            <tag key="First">First</tag>
+            <tag key="Second">Second</tag>
+        </tags>
         <layout type="grid">
             <rows>4</rows>
             <cols>5</cols>

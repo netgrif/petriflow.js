@@ -65,6 +65,7 @@ export class ExportService {
         this._exportUtils.exportTag(doc, 'defaultRole', model.defaultRole !== undefined ? (model.defaultRole.toString()) : '');
         this._exportUtils.exportTag(doc, 'anonymousRole', model.anonymousRole !== undefined ? (model.anonymousRole.toString()) : '');
         this._exportUtils.exportTag(doc, 'transitionRole', model.transitionRole !== undefined ? (model.transitionRole.toString()) : '');
+        this._exportUtils.exportTags(doc, model.tags);
         this._exportUtils.exportI18nWithDynamic(doc, 'caseName', model.caseName);
     }
 
@@ -261,6 +262,7 @@ export class ExportService {
             this._exportUtils.exportTag(exportTrans, 'x', trans.x?.toString(), true);
             this._exportUtils.exportTag(exportTrans, 'y', trans.y?.toString(), true);
             this._exportUtils.exportI18nString(exportTrans, 'label', trans.label, true);
+            this._exportUtils.exportTags(exportTrans, trans.tags);
             if (trans.layout && !trans.layout.empty()) {
                 this.exportTransitionLayout(exportTrans, trans.layout);
             }

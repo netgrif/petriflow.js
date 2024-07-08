@@ -41,7 +41,8 @@ import {
     Transition,
     TransitionEvent,
     TransitionEventType,
-    TransitionLayout, TransitionPermissionRef,
+    TransitionLayout,
+    TransitionPermissionRef,
     Validation,
     XmlArcType,
 } from '../model';
@@ -125,6 +126,7 @@ export class ImportService {
             modelResult.model.transitionRole = this.importUtils.tagValue(xmlDoc, 'transitionRole') === '' ? ImportService.TRANSITION_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'transitionRole') === 'true';
             modelResult.model.title = this.importUtils.parseI18n(xmlDoc, 'title');
             modelResult.model.caseName = this.importUtils.parseI18nWithDynamic(xmlDoc, 'caseName');
+            modelResult.model.tags = this.importUtils.parseTags(xmlDoc);
         } catch (e: unknown) {
             modelResult.addError('Error happened during the importing model properties: ' + (e as Error).toString(), e as Error);
         }
@@ -326,6 +328,7 @@ export class ImportService {
         this.importTransitionEvents(xmlTrans, trans, result);
         this.importAssignedUser(xmlTrans, trans, result);
         this.importTransactionRef(xmlTrans, trans, result);
+        trans.tags = this.importUtils.parseTags(xmlTrans);
     }
 
     private importTransitionRoleRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {

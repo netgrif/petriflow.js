@@ -24,6 +24,7 @@ export class Transition extends NodeElement {
     private _dataGroups: Array<DataGroup>;
     private _assignedUser?: AssignedUser;
     private _eventSource: TransitionEventSource;
+    private _tags: Map<string, string>;
 
     constructor(x: number, y: number, id: string) {
         super(id, x, y, new I18nString(''));
@@ -35,6 +36,7 @@ export class Transition extends NodeElement {
         this._userRefs = [];
         this._dataGroups = [];
         this._eventSource = new TransitionEventSource();
+        this._tags = new Map<string, string>();
     }
 
     get layout(): TransitionLayout | undefined {
@@ -141,6 +143,14 @@ export class Transition extends NodeElement {
         this._eventSource = value;
     }
 
+    get tags(): Map<string, string> {
+        return this._tags;
+    }
+
+    set tags(value: Map<string, string>) {
+        this._tags = value;
+    }
+
     public clone(): Transition {
         const cloned = new Transition(this.x, this.y, this.id);
         cloned.label = this.label?.clone();
@@ -157,6 +167,7 @@ export class Transition extends NodeElement {
         cloned._dataGroups = this._dataGroups.map(item => item.clone());
         cloned._assignedUser = this._assignedUser?.clone();
         this.eventSource.getEvents().forEach(event => cloned.eventSource.addEvent(event.clone()));
+        this.tags.forEach((value, key) => cloned.tags.set(key, value));
         return cloned;
     }
 }
