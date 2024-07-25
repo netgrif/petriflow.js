@@ -10,6 +10,7 @@ export * from './petrinet/event-source';
 export * from './petrinet/function-scope.enum';
 export * from './petrinet/mapping';
 export * from './petrinet/node-element';
+export * from './petrinet/permission-ref';
 export * from './petrinet/petriflow-function';
 export * from './petrinet/place';
 export * from './petrinet/process-event';
