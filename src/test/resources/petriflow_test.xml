@@ -99,6 +99,14 @@
             <create>false</create>
         </caseLogic>
     </userRef>
+    <!-- duplicate userRef id -->
+    <usersRef>
+        <id>newVariable_15</id>
+        <caseLogic>
+            <create>false</create>
+            <delete>true</delete>
+        </caseLogic>
+    </usersRef>
     <processEvents>
         <event type="upload">
             <id>process_upload</id>
@@ -164,6 +172,27 @@
             </actions>
         </event>
     </caseEvents>
+    <!-- duplicate event -->
+    <caseEvents>
+        <event type="create">
+            <id>case_create</id>
+            <actions phase="post">
+                <action>
+                    invalid
+                </action>
+            </actions>
+        </event>
+    </caseEvents>
+    <processEvents>
+        <event type="upload">
+            <id>process_upload</id>
+            <actions phase="pre">
+                <action>
+                    invalid
+                </action>
+            </actions>
+        </event>
+    </processEvents>
     <!-- TRANSACTIONS -->
     <transaction>
         <id>trans1</id>
@@ -483,6 +512,7 @@
     <!-- I18NS -->
     <i18n locale="uk">
         <i18nString name="title">UK_title</i18nString>
+        <i18nString name="title">duplicate title</i18nString>
         <i18nString name="p1_label">UK_p1_label</i18nString>
         <i18nString name="t1_label">UK_t1_label</i18nString>
         <i18nString name="role_1_title">UK_role_1_title</i18nString>
