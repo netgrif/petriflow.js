@@ -1,12 +1,12 @@
 import {DataRef} from '../transition/data-ref';
 import {DataGroup} from '../transition/datagroup'; // cspell:disable-line
-import {RoleRef} from '../transition/role-ref';
+import {TransitionPermissionRef} from '../transition/transition-permission-ref';
 import {Trigger} from '../transition/trigger';
 import {Element} from './element';
 
 export class Mapping extends Element {
     private _transitionRef: string;
-    private _roleRef: Array<RoleRef>;
+    private _roleRef: Array<TransitionPermissionRef>;
     private _dataRef: Array<DataRef>;
     private _dataGroup: Array<DataGroup>;
     private _trigger: Array<Trigger>;
@@ -28,11 +28,11 @@ export class Mapping extends Element {
         this._transitionRef = value;
     }
 
-    get roleRef(): Array<RoleRef> {
+    get roleRef(): Array<TransitionPermissionRef> {
         return this._roleRef;
     }
 
-    set roleRef(value: Array<RoleRef>) {
+    set roleRef(value: Array<TransitionPermissionRef>) {
         this._roleRef = value;
     }
 

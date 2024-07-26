@@ -168,4 +168,16 @@ export class ExportUtils {
     public createCDATA(content: string): CDATASection {
         return this.xmlConstructor.createCDATASection(`\n${content}\n`);
     }
+
+    public exportTags(doc: Element, tags: Map<string, string>): void {
+        if (tags.size === 0) {
+            return;
+        }
+        const tagsElement = this.xmlConstructor.createElement('tags');
+        tags.forEach((value, key) => this.exportTag(tagsElement, 'tag', value, false, [{
+            key: 'key',
+            value: key
+        }]));
+        doc.appendChild(tagsElement);
+    }
 }

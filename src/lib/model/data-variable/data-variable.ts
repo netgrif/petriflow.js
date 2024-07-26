@@ -197,4 +197,8 @@ export class DataVariable extends DataEventSource {
         this.getEvents().forEach(event => cloned.addEvent(event.clone()));
         return cloned;
     }
+
+    public compare(other: DataVariable): number {
+        return this.id.localeCompare(other.id);
+    }
 }

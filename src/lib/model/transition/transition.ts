@@ -3,13 +3,12 @@ import {NodeElement} from '../petrinet/node-element';
 import {AssignPolicy} from './assign-policy.enum';
 import {AssignedUser} from './assigned-user';
 import {DataFocusPolicy} from './data-focus-policy.enum';
-import {DataGroup} from './datagroup'; // cspell:disable-line
+import {DataGroup} from './datagroup';
 import {FinishPolicy} from './finish-policy.enum';
-import {RoleRef} from './role-ref';
 import {TransitionEventSource} from './transition-event-source';
 import {TransitionLayout} from './transition-layout';
+import {TransitionPermissionRef} from './transition-permission-ref';
 import {Trigger} from './trigger';
-import {UserRef} from './user-ref';
 
 export class Transition extends NodeElement {
     private _layout?: TransitionLayout;
@@ -20,11 +19,12 @@ export class Transition extends NodeElement {
     private _dataFocusPolicy: DataFocusPolicy;
     private _triggers: Array<Trigger>;
     private _transactionRef?: string;
-    private _roleRefs: Array<RoleRef>;
-    private _userRefs: Array<UserRef>;
+    private _roleRefs: Array<TransitionPermissionRef>;
+    private _userRefs: Array<TransitionPermissionRef>;
     private _dataGroups: Array<DataGroup>;
     private _assignedUser?: AssignedUser;
     private _eventSource: TransitionEventSource;
+    private _tags: Map<string, string>;
 
     constructor(x: number, y: number, id: string) {
         super(id, x, y, new I18nString(''));
@@ -36,6 +36,7 @@ export class Transition extends NodeElement {
         this._userRefs = [];
         this._dataGroups = [];
         this._eventSource = new TransitionEventSource();
+        this._tags = new Map<string, string>();
     }
 
     get layout(): TransitionLayout | undefined {
@@ -102,19 +103,19 @@ export class Transition extends NodeElement {
         this._transactionRef = value;
     }
 
-    get roleRefs(): Array<RoleRef> {
+    get roleRefs(): Array<TransitionPermissionRef> {
         return this._roleRefs;
     }
 
-    set roleRefs(value: Array<RoleRef>) {
+    set roleRefs(value: Array<TransitionPermissionRef>) {
         this._roleRefs = value;
     }
 
-    get userRefs(): Array<UserRef> {
+    get userRefs(): Array<TransitionPermissionRef> {
         return this._userRefs;
     }
 
-    set userRefs(value: Array<UserRef>) {
+    set userRefs(value: Array<TransitionPermissionRef>) {
         this._userRefs = value;
     }
 
@@ -142,6 +143,14 @@ export class Transition extends NodeElement {
         this._eventSource = value;
     }
 
+    get tags(): Map<string, string> {
+        return this._tags;
+    }
+
+    set tags(value: Map<string, string>) {
+        this._tags = value;
+    }
+
     public clone(): Transition {
         const cloned = new Transition(this.x, this.y, this.id);
         cloned.label = this.label?.clone();
@@ -158,6 +167,7 @@ export class Transition extends NodeElement {
         cloned._dataGroups = this._dataGroups.map(item => item.clone());
         cloned._assignedUser = this._assignedUser?.clone();
         this.eventSource.getEvents().forEach(event => cloned.eventSource.addEvent(event.clone()));
+        this.tags.forEach((value, key) => cloned.tags.set(key, value));
         return cloned;
     }
 }
