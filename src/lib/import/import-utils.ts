@@ -26,14 +26,12 @@ import {
     PetriflowFunction,
     PetriNet,
     Place,
-    ProcessRoleRef,
-    ProcessUserRef,
+    ProcessPermissionRef,
     Property,
-    RoleRef,
     Template,
+    TransitionPermissionRef,
     Trigger,
     TriggerType,
-    UserRef,
     XmlArcType
 } from '../model';
 
@@ -190,7 +188,7 @@ export class ImportUtils {
         return new Property(key, value);
     }
 
-    public resolveLogic(xmlRoleRefLogic: Element, roleRef: RoleRef | UserRef): void {
+    public resolveLogic(xmlRoleRefLogic: Element, roleRef: TransitionPermissionRef): void {
         roleRef.logic.delegate = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delegate'));
         roleRef.logic.perform = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'perform'));
         /* @deprecated - 'this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assigned'))' is deprecated and it and following line will be removed in future versions. */
@@ -208,10 +206,10 @@ export class ImportUtils {
         return (logicValue !== undefined && logicValue !== '') ? logicValue === 'true' : undefined;
     }
 
-    public resolveCaseLogic(xmlRoleRefLogic: Element, roleRef: ProcessRoleRef | ProcessUserRef): void {
-        roleRef.caseLogic.create = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'create'));
-        roleRef.caseLogic.delete = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delete'));
-        roleRef.caseLogic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
+    public resolveCaseLogic(xmlRoleRefLogic: Element, roleRef: ProcessPermissionRef): void {
+        roleRef.logic.create = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'create'));
+        roleRef.logic.delete = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delete'));
+        roleRef.logic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
     }
 
     public checkVariability(model: PetriNet, arc: Arc<NodeElement, NodeElement>, reference: string | undefined): void {
@@ -255,9 +253,9 @@ export class ImportUtils {
         return trigger;
     }
 
-    public parseRoleRef(xmlRoleRef: Element): RoleRef {
+    public parseRoleRef(xmlRoleRef: Element): TransitionPermissionRef {
         const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('logic')[0];
-        const roleRef = new RoleRef(this.tagValue(xmlRoleRef, 'id'));
+        const roleRef = new TransitionPermissionRef(this.tagValue(xmlRoleRef, 'id'));
         this.resolveLogic(xmlRoleRefLogic, roleRef);
         return roleRef;
     }
@@ -475,5 +473,22 @@ export class ImportUtils {
     public resetIds(): void {
         this.resetEventId();
         this.resetActionId();
+    }
+
+    parseTags(xmlDoc: Element | Document): Map<string, string> {
+        const tags = new Map<string, string>();
+        const tagsElement = xmlDoc.getElementsByTagName('tags')[0];
+        if (tagsElement?.children && tagsElement.children.length > 0) {
+            for (const tagElement of Array.from(xmlDoc.getElementsByTagName('tag'))) {
+                this.parseTag(tags, tagElement);
+            }
+        }
+        return tags;
+    }
+
+    parseTag(tags: Map<string, string>, tagElement: Element): void {
+        const key = this.tagAttribute(tagElement, 'key');
+        const value = tagElement.innerHTML;
+        tags.set(key, value);
     }
 }

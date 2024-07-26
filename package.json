@@ -1,6 +1,6 @@
 {
     "name": "@netgrif/petriflow",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "description": "Javascript / Typescript library of Petriflow objects",
     "main": "dist/petriflow.js",
     "module": "dist/petriflow.esm.js",
@@ -40,6 +40,7 @@
     "scripts": {
         "build": "tsc -p tsconfig.dts.json && rollup -c",
         "build:test": "npm run build && npm run test:unit",
+        "build:test_all": "npm run build && npm run test",
         "test": "npm run test:lint && npm run test:spell && npm run test:unit",
         "test:lint": "eslint src --ext .ts",
         "test:spell": "cspell -s \"{*.md,src/**/*.ts}\"",
@@ -72,5 +73,8 @@
         "collectCoverage": true,
         "testEnvironment": "jsdom",
         "testResultsProcessor": "jest-sonar-reporter"
+    },
+    "optionalDependencies": {
+        "@rollup/rollup-linux-x64-gnu": "^4.19.0"
     }
 }

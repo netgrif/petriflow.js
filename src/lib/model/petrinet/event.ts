@@ -55,7 +55,7 @@ export abstract class Event<T> extends Element {
         }
     }
 
-    public isEmpty():boolean {
+    public isEmpty(): boolean {
         return this.preActions.length === 0 && this.postActions.length === 0 && this.message.isEmpty();
     }
 }

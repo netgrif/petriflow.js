@@ -12,4 +12,8 @@ export abstract class Element {
     set id(value: string) {
         this._id = value;
     }
+
+    public compare(other: Element): number {
+        return this.id.localeCompare(other.id);
+    }
 }
