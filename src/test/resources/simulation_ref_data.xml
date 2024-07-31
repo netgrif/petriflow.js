@@ -1,11 +1,10 @@
-<document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
+<process xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
     <id>new_model</id>
-    <initials>NEW</initials>
+    <version>1.0.0</version>
     <title>New Model</title>
     <icon>device_hub</icon>
     <defaultRole>true</defaultRole>
     <anonymousRole>true</anonymousRole>
-    <transitionRole>false</transitionRole>
     <data type="number">
         <id>input</id>
         <title/>
@@ -20,13 +19,13 @@
         <id>t1</id>
         <x>100</x>
         <y>180</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t2</id>
         <x>340</x>
         <y>180</y>
-        <label/>
+        <title/>
     </transition>
     <place>
         <id>p1</id>
@@ -49,4 +48,4 @@
         <destinationId>t2</destinationId>
         <multiplicity dynamic="true">output</multiplicity>
     </arc>
-</document>
+</process>

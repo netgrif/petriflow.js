@@ -1,5 +1,6 @@
 import {
-    Action, Arc,
+    Action,
+    Arc,
     ArcType,
     CaseLogic,
     Event,
@@ -157,5 +158,9 @@ export class ExportUtils {
             throw new Error(`Unknown export mapping for arc type ${type}`);
         }
         return xmlType;
+    }
+
+    public transformKebabCaseToCamelCase(stringToTransform: string): string {
+        return stringToTransform.replace(/-./g, x => x[1].toUpperCase());
     }
 }

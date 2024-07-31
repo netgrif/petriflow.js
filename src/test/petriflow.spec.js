@@ -1,30 +1,46 @@
 const {
-    Alignment,
-    Appearance,
     ArcType,
     AssignPolicy,
     Breakpoint,
     CaseEventType,
-    CompactDirection,
     DataEventType,
-    DataRefBehavior,
     DataType,
     FinishPolicy,
     FunctionScope,
-    HideEmptyRows,
-    IconType,
     ImportService,
     ExportService,
-    LayoutType,
     ProcessEventType,
     RoleEventType,
-    Template,
     TransitionEventType,
-    TriggerType, PetriNet, DataVariable, Expression, Place, Transition,
-    RegularPlaceTransitionArc, DataEventSource, DataEvent, Action,
-    I18nTranslations, Mapping, Property
+    TriggerType,
+    PetriNet,
+    DataVariable,
+    Place,
+    Transition,
+    RegularPlaceTransitionArc,
+    DataEvent,
+    Action,
+    I18nTranslations,
+    Property,
+    FlexDisplay,
+    FlexDirection,
+    FlexWrap,
+    FlexJustifyContent,
+    FlexAlignItems,
+    FlexAlignContent,
+    FlexItemAlignSelf,
+    JustifySelf,
+    DataRefBehavior,
+    GridItemAlignSelf,
+    JustifyItems,
+    GridAlignItems,
+    GridJustifyContent,
+    GridAlignContent,
+    GridAutoFlow,
+    GridDisplay
 } = require('../../dist/petriflow');
 const fs = require('fs');
+const {beforeEach, describe, expect, test} = require('@jest/globals');
 
 let debug = false;
 
@@ -75,7 +91,7 @@ describe('Petriflow integration tests', () => {
         exportService = new ExportService();
     });
 
-    function assertPlace(place, id, x, y, label, marking, isStatic, i18nName, scope = '', properties = undefined) {
+    function assertPlace(place, id, x, y, label, marking, isStatic, i18nName, scope = FunctionScope.USECASE, properties = undefined) {
         expect(place.id).toEqual(id);
         expect(place.x).toEqual(x);
         expect(place.y).toEqual(y);
@@ -101,7 +117,10 @@ describe('Petriflow integration tests', () => {
         expect(properties).toStrictEqual(testProperties);
     }
 
-    function assertArc(arc, id, type, source, destination, multiplicity = {dynamic: false, expression: '1'}, breakpoints) {
+    function assertArc(arc, id, type, source, destination, multiplicity = {
+        dynamic: false,
+        expression: '1'
+    }, breakpoints) {
         expect(arc.id).toEqual(id);
         expect(arc.type).toEqual(type);
         expect(arc.destination.id).toEqual(destination);
@@ -433,7 +452,6 @@ describe('Petriflow integration tests', () => {
             't1_title',
             't1_assign_message',
             't1_assign_title',
-            't5_datagroup',
             'newVariable_3_value1',
             'newVariable_3_value2',
             'newVariable_3_value3',
@@ -447,7 +465,6 @@ describe('Petriflow integration tests', () => {
         assertI18n('de', i18ns, model);
         log('Model i18n correct');
 
-        // todo change layout tests to flex / grid when implemented
         expect(model.getTransitions().length).toEqual(MODEL_TRANSITIONS_LENGTH);
         const transitionT1 = model.getTransition('t1');
         expect(transitionT1.title.id).toEqual('t1_title');
@@ -455,10 +472,6 @@ describe('Petriflow integration tests', () => {
         expect(transitionT1.icon).toEqual(MODEL_ICON);
         expect(transitionT1.assignPolicy).toEqual(AssignPolicy.AUTO);
         expect(transitionT1.finishPolicy).toEqual(FinishPolicy.AUTO_NO_DATA);
-        // expect(transitionT1.layout.rows).toEqual(4);
-        // expect(transitionT1.layout.cols).toEqual(5);
-        // expect(transitionT1.layout.offset).toEqual(0);
-        // expect(transitionT1.layout.alignment).toEqual(Alignment.CENTER);
         const t1AssignEvent = transitionT1.eventSource.getEvent(TransitionEventType.ASSIGN);
         expect(t1AssignEvent.id).toEqual('assign');
         expect(t1AssignEvent.title.value).toEqual('t1_assign_title_value');
@@ -487,147 +500,173 @@ describe('Petriflow integration tests', () => {
         expect(t1ReassignEvent.preActions[0].definition).toContain('test("t1_reassign_pre")');
         expect(t1ReassignEvent.postActions.length).toEqual(1);
         expect(t1ReassignEvent.postActions[0].definition).toContain('test("t1_reassign_post")');
-        // todo change to grid / flow layout
-        // const t5DataGroup = transitionT5.dataGroups[0];
-        // expect(t5DataGroup.id).toEqual('test_group');
-        // expect(t5DataGroup.title).not.toBeUndefined();
-        // expect(t5DataGroup.title.id).toEqual('t5_datagroup');
-        // expect(t5DataGroup.title.value).toEqual('t5_datagroup_value');
-        // expect(t5DataGroup.layout).toEqual(LayoutType.GRID);
-        // expect(t5DataGroup.getDataRefs().length).toEqual(15);
-        // expect(t5DataGroup.getDataRef('newVariable_1')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_1').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_1').logic.immediate).toEqual(true);
-        // expect(t5DataGroup.getDataRef('newVariable_1').layout.x).toEqual(0);
-        // expect(t5DataGroup.getDataRef('newVariable_1').layout.y).toEqual(0);
-        // expect(t5DataGroup.getDataRef('newVariable_1').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_1').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_1').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_1').layout.appearance).toEqual(Appearance.LEGACY);
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvents().length).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvent(DataEventType.SET).preActions.length).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvent(DataEventType.SET).preActions[0].definition).toContain('test("t5_newVariable_1_set_pre")');
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvent(DataEventType.SET).postActions.length).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvent(DataEventType.SET).postActions[0].definition).toContain('test("t5_newVariable_1_set_post")');
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvent(DataEventType.SET).postActions[1].definition).toContain('test("t5_newVariable_1_set")');
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvent(DataEventType.GET).preActions.length).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvent(DataEventType.GET).preActions[0].definition).toContain('test("t5_newVariable_1_get_pre")');
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvent(DataEventType.GET).preActions[1].definition).toContain('test("t5_newVariable_1_get")');
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvent(DataEventType.GET).postActions.length).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_1').getEvent(DataEventType.GET).postActions[0].definition).toContain('test("t5_newVariable_1_get_post")');
-        // expect(t5DataGroup.getDataRef('newVariable_4')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_4').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_4').layout.x).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_4').layout.y).toEqual(0);
-        // expect(t5DataGroup.getDataRef('newVariable_4').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_4').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_4').layout.template).toEqual(Template.NETGRIF);
-        // expect(t5DataGroup.getDataRef('newVariable_4').layout.appearance).toEqual(Appearance.OUTLINE);
-        // expect(t5DataGroup.getDataRef('newVariable_6')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_6').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_6').layout.x).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_6').layout.y).toEqual(0);
-        // expect(t5DataGroup.getDataRef('newVariable_6').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_6').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_6').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_6').layout.appearance).toEqual(Appearance.STANDARD);
-        // expect(t5DataGroup.getDataRef('newVariable_8')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_8').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_8').layout.x).toEqual(0);
-        // expect(t5DataGroup.getDataRef('newVariable_8').layout.y).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_8').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_8').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_8').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_8').layout.appearance).toEqual(Appearance.FILL);
-        // expect(t5DataGroup.getDataRef('newVariable_3')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_3').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_3').layout.x).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_3').layout.y).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_3').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_3').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_3').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_3').layout.appearance).toEqual(Appearance.FILL);
-        // expect(t5DataGroup.getDataRef('newVariable_5')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_5').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_5').logic.required).toBeFalsy();
-        // expect(t5DataGroup.getDataRef('newVariable_5').layout.x).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_5').layout.y).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_5').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_5').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_5').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_5').layout.appearance).toEqual(Appearance.OUTLINE);
-        // expect(t5DataGroup.getDataRef('newVariable_11')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_11').logic.behavior).toEqual(DataRefBehavior.HIDDEN);
-        // expect(t5DataGroup.getDataRef('newVariable_11').layout.x).toEqual(3);
-        // expect(t5DataGroup.getDataRef('newVariable_11').layout.y).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_11').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_11').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_11').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_11').layout.appearance).toEqual(Appearance.OUTLINE);
-        // expect(t5DataGroup.getDataRef('newVariable_7')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_7').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_7').layout.x).toEqual(3);
-        // expect(t5DataGroup.getDataRef('newVariable_7').layout.y).toEqual(0);
-        // expect(t5DataGroup.getDataRef('newVariable_7').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_7').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_7').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_2')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_2').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_2').layout.x).toEqual(0);
-        // expect(t5DataGroup.getDataRef('newVariable_2').layout.y).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_2').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_2').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_2').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_2').layout.appearance).toEqual(Appearance.OUTLINE);
-        // expect(t5DataGroup.getDataRef('newVariable_12')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_12').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_12').layout.x).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_12').layout.y).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_12').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_12').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_12').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_12').layout.appearance).toEqual(Appearance.OUTLINE);
-        // expect(t5DataGroup.getDataRef('newVariable_13')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_13').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_13').layout.x).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_13').layout.y).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_13').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_13').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_13').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_13').layout.appearance).toEqual(Appearance.OUTLINE);
-        // expect(t5DataGroup.getDataRef('newVariable_9')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_9').logic.behavior).toEqual(DataRefBehavior.VISIBLE);
-        // expect(t5DataGroup.getDataRef('newVariable_9').logic.required).toBeTruthy();
-        // expect(t5DataGroup.getDataRef('newVariable_9').layout.x).toEqual(3);
-        // expect(t5DataGroup.getDataRef('newVariable_9').layout.y).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_9').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_9').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_9').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_10')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_10').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_10').logic.required).toBeTruthy();
-        // expect(t5DataGroup.getDataRef('newVariable_10').layout.x).toEqual(0);
-        // expect(t5DataGroup.getDataRef('newVariable_10').layout.y).toEqual(3);
-        // expect(t5DataGroup.getDataRef('newVariable_10').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_10').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_10').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_10').layout.appearance).toEqual(Appearance.OUTLINE);
-        // expect(t5DataGroup.getDataRef('newVariable_14')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_14').logic.behavior).toEqual(DataRefBehavior.VISIBLE);
-        // expect(t5DataGroup.getDataRef('newVariable_14').layout.x).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_14').layout.y).toEqual(3);
-        // expect(t5DataGroup.getDataRef('newVariable_14').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_14').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_14').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_14').layout.appearance).toEqual(Appearance.OUTLINE);
-        // expect(t5DataGroup.getDataRef('newVariable_15')).not.toBeUndefined();
-        // expect(t5DataGroup.getDataRef('newVariable_15').logic.behavior).toEqual(DataRefBehavior.EDITABLE);
-        // expect(t5DataGroup.getDataRef('newVariable_15').layout.x).toEqual(2);
-        // expect(t5DataGroup.getDataRef('newVariable_15').layout.y).toEqual(3);
-        // expect(t5DataGroup.getDataRef('newVariable_15').layout.rows).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_15').layout.cols).toEqual(1);
-        // expect(t5DataGroup.getDataRef('newVariable_15').layout.template).toEqual(Template.MATERIAL);
-        // expect(t5DataGroup.getDataRef('newVariable_15').layout.appearance).toEqual(Appearance.OUTLINE);
+
+        const transitionT5 = model.getTransition('t5');
+        const t5Flex = transitionT5.flex;
+        expect(t5Flex).toBeDefined();
+        expect(transitionT5.grid).toBeUndefined();
+
+        expect(t5Flex.id).toEqual('test_flex');
+
+        // flex
+        expect(t5Flex.items).toBeDefined();
+        expect(t5Flex.items.length).toEqual(7);
+        expect(t5Flex.getItemById('newVariable_1').dataRef).not.toBeUndefined();
+        expect(t5Flex.getItemById('newVariable_1').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t5Flex.getItemById('newVariable_1').dataRef.logic.immediate).toBeTruthy();
+        expect(t5Flex.getItemById('newVariable_1').dataRef.getEvents().length).toEqual(2);
+        expect(t5Flex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.SET).preActions.length).toEqual(1);
+        expect(t5Flex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.SET).preActions[0].definition).toContain('test("t5_newVariable_1_set_pre")');
+        expect(t5Flex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.SET).postActions.length).toEqual(1);
+        expect(t5Flex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.SET).postActions[0].definition).toContain('test("t5_newVariable_1_set_post")');
+        expect(t5Flex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.GET).preActions.length).toEqual(1);
+        expect(t5Flex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.GET).preActions[0].definition).toContain('test("t5_newVariable_1_get_pre")');
+        expect(t5Flex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.GET).postActions.length).toEqual(1);
+        expect(t5Flex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.GET).postActions[0].definition).toContain('test("t5_newVariable_1_get_post")');
+
+        expect(t5Flex.getItemById('newVariable_2').dataRef).not.toBeUndefined();
+        expect(t5Flex.getItemById('newVariable_2').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t5Flex.getItemById('newVariable_2').properties.order).toEqual(0);
+        expect(t5Flex.getItemById('newVariable_2').properties.flexGrow).toEqual(0);
+        expect(t5Flex.getItemById('newVariable_2').properties.flexShrink).toEqual(1);
+        expect(t5Flex.getItemById('newVariable_2').properties.flexBasis).toEqual('auto');
+        expect(t5Flex.getItemById('newVariable_2').properties.flex).toEqual('2 2 10%');
+        expect(t5Flex.getItemById('newVariable_2').properties.alignSelf).toEqual(FlexItemAlignSelf.AUTO);
+
+        expect(t5Flex.getItemById('newVariable_3').dataRef).not.toBeUndefined();
+        expect(t5Flex.getItemById('newVariable_3').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t5Flex.getItemById('newVariable_3').properties.flex).toBeUndefined();
+        expect(t5Flex.getItemById('newVariable_3').properties.alignSelf).toEqual(FlexItemAlignSelf.BASELINE);
+
+        expect(t5Flex.getItemById('newVariable_4').dataRef).not.toBeUndefined();
+        expect(t5Flex.getItemById('newVariable_4').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t5Flex.getItemById('newVariable_4').properties).toBeDefined();
+        expect(t5Flex.getItemById('newVariable_4').properties.order).toEqual(0);
+        expect(t5Flex.getItemById('newVariable_4').properties.flexGrow).toEqual(0);
+        expect(t5Flex.getItemById('newVariable_4').properties.flexShrink).toEqual(1);
+        expect(t5Flex.getItemById('newVariable_4').properties.flexBasis).toEqual('auto');
+        expect(t5Flex.getItemById('newVariable_4').properties.flex).toBeUndefined();
+        expect(t5Flex.getItemById('newVariable_4').properties.alignSelf).toEqual(FlexItemAlignSelf.AUTO);
+
+        expect(t5Flex.getItemById('newVariable_5').dataRef).not.toBeUndefined();
+        expect(t5Flex.getItemById('newVariable_5').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t5Flex.getItemById('newVariable_5').dataRef.logic.required).toBeFalsy();
+        expect(t5Flex.getItemById('newVariable_5').dataRef.properties).toHaveLength(1);
+        expect(t5Flex.getItemById('newVariable_5').dataRef.properties).toBeDefined();
+        expect(t5Flex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key')).toBeDefined();
+        expect(t5Flex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key').value).toBeDefined();
+        expect(t5Flex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key').value).toEqual('test dataRef property value');
+
+        expect(t5Flex.getItemById('newVariable_6').dataRef).not.toBeUndefined();
+        expect(t5Flex.getItemById('newVariable_6').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t5Flex.getItemById('newVariable_6').dataRef.logic.required).toBeFalsy();
+        expect(t5Flex.getItemById('newVariable_6').properties.order).toEqual(10);
+        expect(t5Flex.getItemById('newVariable_6').properties.flexGrow).toEqual(2);
+        expect(t5Flex.getItemById('newVariable_6').properties.flexShrink).toEqual(5);
+        expect(t5Flex.getItemById('newVariable_6').properties.flexBasis).toEqual('10%');
+        expect(t5Flex.getItemById('newVariable_6').properties.flex).toBeUndefined();
+        expect(t5Flex.getItemById('newVariable_6').properties.alignSelf).toEqual(FlexItemAlignSelf.AUTO);
+
+        expect(t5Flex.properties).toBeDefined();
+        expect(t5Flex.properties.flexFlow).toEqual('test');
+        expect(t5Flex.properties.gap).toEqual('10 10');
+        expect(t5Flex.properties.rowGap).toEqual('15');
+        expect(t5Flex.properties.columnGap).toEqual('5');
+        expect(t5Flex.properties.display).toEqual(FlexDisplay.FLEX);
+        expect(t5Flex.properties.flexDirection).toEqual(FlexDirection.ROW);
+        expect(t5Flex.properties.flexWrap).toEqual(FlexWrap.NOWRAP);
+        expect(t5Flex.properties.justifyContent).toEqual(FlexJustifyContent.FLEX_START);
+        expect(t5Flex.properties.alignContent).toEqual(FlexAlignContent.NORMAL);
+        expect(t5Flex.properties.alignItems).toEqual(FlexAlignItems.STRETCH);
+
+        // grid
+        const t5NestedGrid = t5Flex.getItemById('nested_grid_test').grid;
+        expect(t5NestedGrid.items.length).toEqual(5);
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef).not.toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.logic.immediate).toBeTruthy();
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.getEvents().length).toEqual(2);
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.SET).preActions.length).toEqual(1);
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.SET).preActions[0].definition).toContain('test("t5_newVariable_1_set_pre")');
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.SET).postActions.length).toEqual(1);
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.SET).postActions[0].definition).toContain('test("t5_newVariable_1_set_post")');
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.GET).preActions.length).toEqual(1);
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.GET).preActions[0].definition).toContain('test("t5_newVariable_1_get_pre")');
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.GET).postActions.length).toEqual(1);
+        expect(t5NestedGrid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.GET).postActions[0].definition).toContain('test("t5_newVariable_1_get_post")');
+
+        expect(t5NestedGrid.getItemById('newVariable_8').dataRef).not.toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_8').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t5NestedGrid.getItemById('newVariable_8').properties).toBeDefined();
+        expect(t5NestedGrid.getItemById('newVariable_8').properties.gridColumnStart).toEqual('2');
+        expect(t5NestedGrid.getItemById('newVariable_8').properties.gridColumnEnd).toEqual('5');
+        expect(t5NestedGrid.getItemById('newVariable_8').properties.gridColumn).toEqual('2 / 5');
+        expect(t5NestedGrid.getItemById('newVariable_8').properties.gridRowStart).toEqual('row1-start');
+        expect(t5NestedGrid.getItemById('newVariable_8').properties.gridRowEnd).toEqual('3');
+        expect(t5NestedGrid.getItemById('newVariable_8').properties.gridRow).toEqual('row1-start / 3');
+        expect(t5NestedGrid.getItemById('newVariable_8').properties.gridArea).toEqual('row1-start / 2 / 3 / 5');
+        expect(t5NestedGrid.getItemById('newVariable_8').properties.justifySelf).toEqual(JustifySelf.STRETCH);
+        expect(t5NestedGrid.getItemById('newVariable_8').properties.alignSelf).toEqual(GridItemAlignSelf.STRETCH);
+        expect(t5NestedGrid.getItemById('newVariable_8').properties.placeSelf).toEqual('auto');
+
+        expect(t5NestedGrid.getItemById('newVariable_9').dataRef).not.toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_9').dataRef.logic.behavior).toEqual(DataRefBehavior.VISIBLE);
+        expect(t5NestedGrid.getItemById('newVariable_9').dataRef.logic.required).toBeTruthy();
+        expect(t5NestedGrid.getItemById('newVariable_9').properties).toBeDefined();
+        expect(t5NestedGrid.getItemById('newVariable_9').properties.gridColumnStart).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_9').properties.gridColumnEnd).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_9').properties.gridColumn).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_9').properties.gridRowStart).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_9').properties.gridRowEnd).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_9').properties.gridRow).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_9').properties.gridArea).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_9').properties.justifySelf).toEqual(JustifySelf.END);
+        expect(t5NestedGrid.getItemById('newVariable_9').properties.alignSelf).toEqual(GridItemAlignSelf.END);
+        expect(t5NestedGrid.getItemById('newVariable_9').properties.placeSelf).toEqual('test');
+
+        expect(t5NestedGrid.getItemById('newVariable_10').dataRef).not.toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.logic.required).toBeTruthy();
+        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.properties).toBeDefined();
+        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key')).toBeDefined();
+        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key').value).toBeDefined();
+        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key').value).toEqual('test dataRef property value');
+
+        expect(t5NestedGrid.getItemById('newVariable_11').dataRef).not.toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_11').dataRef.logic.behavior).toEqual(DataRefBehavior.HIDDEN);
+        expect(t5NestedGrid.getItemById('newVariable_11').properties.gridColumnStart).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_11').properties.gridColumnEnd).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_11').properties.gridColumn).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_11').properties.gridRowStart).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_11').properties.gridRowEnd).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_11').properties.gridRow).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_11').properties.gridArea).toBeUndefined();
+        expect(t5NestedGrid.getItemById('newVariable_11').properties.justifySelf).toEqual(JustifySelf.STRETCH);
+        expect(t5NestedGrid.getItemById('newVariable_11').properties.alignSelf).toEqual(GridItemAlignSelf.STRETCH);
+        expect(t5NestedGrid.getItemById('newVariable_11').properties.placeSelf).toEqual('auto');
+
+        expect(t5NestedGrid.properties).toBeDefined();
+        expect(t5NestedGrid.properties.gridTemplateColumns).toEqual('100px 50px 100px');
+        expect(t5NestedGrid.properties.gridTemplateRows).toEqual('80px auto 80px');
+        expect(t5NestedGrid.properties.gridTemplateAreas).toEqual('header header header header');
+        expect(t5NestedGrid.properties.gridTemplate).toEqual('[row1-start] "header header header" 25px [row1-end]');
+        expect(t5NestedGrid.properties.columnGap).toEqual('10px');
+        expect(t5NestedGrid.properties.rowGap).toEqual('15px');
+        expect(t5NestedGrid.properties.gridColumnGap).toBeUndefined();
+        expect(t5NestedGrid.properties.gridRowGap).toBeUndefined();
+        expect(t5NestedGrid.properties.rowGap).toEqual('15px');
+        expect(t5NestedGrid.properties.gap).toEqual('15px 10px');
+        expect(t5NestedGrid.properties.justifyItems).toEqual(JustifyItems.CENTER);
+        expect(t5NestedGrid.properties.alignItems).toEqual(GridAlignItems.BASELINE);
+        expect(t5NestedGrid.properties.placeItems).toEqual('center');
+        expect(t5NestedGrid.properties.justifyContent).toEqual(GridJustifyContent.START);
+        expect(t5NestedGrid.properties.alignContent).toEqual(GridAlignContent.SPACE_BETWEEN);
+        expect(t5NestedGrid.properties.placeContent).toEqual('space-between start');
+        expect(t5NestedGrid.properties.gridAutoColumns).toEqual('60px 60px');
+        expect(t5NestedGrid.properties.gridAutoRows).toEqual('90px 90px');
+        expect(t5NestedGrid.properties.gridAutoFlow).toEqual(GridAutoFlow.DENSE);
+        expect(t5NestedGrid.properties.grid).toEqual('80px auto 80px / 100px 50px 100px');
+
         const transitionT6 = model.getTransition('t6');
         expect(transitionT6.triggers.length === 1);
         const transitionT6AutoTrigger = transitionT6.triggers[0];
@@ -638,45 +677,213 @@ describe('Petriflow integration tests', () => {
         expect(transitionT7AutoTrigger.type).toEqual(TriggerType.TIME);
         expect(transitionT7AutoTrigger.exact).toEqual(new Date(TIME_TRIGGER_EXACT));
         const transitionT8 = model.getTransition('t8');
-        // TODO: check references after import
-        // expect(transitionWithoutDataGroup.roleRefs.length).toEqual(0);
         expect(transitionT8.triggers.length === 1);
         const transitionT8AutoTrigger = transitionT8.triggers[0];
         expect(transitionT8AutoTrigger.type).toEqual(TriggerType.TIME);
         expect(transitionT8AutoTrigger.delay).toEqual(TIME_TRIGGER_DELAY);
-        const transitionWithoutDataGroup = model.getTransition('t9_datarefs_without_group');
-        // todo change dataGroup tests
-        // expect(transitionWithoutDataGroup.dataGroups.length).toEqual(1);
-        // expect(transitionWithoutDataGroup.dataGroups[0].getDataRefs().length).toEqual(3);
-        expect(transitionWithoutDataGroup.roleRefs.length).toEqual(2);
-        const transitionT9RoleRef1 = transitionWithoutDataGroup.roleRefs.find(r => r.id === ROLE_1_ID);
+
+        const transitionT9 = model.getTransition('t9');
+        expect(transitionT9.roleRefs.length).toEqual(2);
+        const transitionT9RoleRef1 = transitionT9.roleRefs.find(r => r.id === ROLE_1_ID);
         assertRoleRefLogic(transitionT9RoleRef1, false, false, true, true, true);
-        const transitionT9RoleRef2 = transitionWithoutDataGroup.roleRefs.find(r => r.id === ROLE_2_ID);
+        const transitionT9RoleRef2 = transitionT9.roleRefs.find(r => r.id === ROLE_2_ID);
         assertRoleRefLogic(transitionT9RoleRef2, undefined, undefined, false, true, undefined);
+
+        const t9Grid = transitionT9.grid;
+        expect(t9Grid).toBeDefined();
+        expect(transitionT9.flex).toBeUndefined();
+        expect(t9Grid.id).toEqual('test_grid')
+        expect(t9Grid.items.length).toEqual(6);
+
+        // grid
+        expect(t9Grid.getItemById('newVariable_7').dataRef).not.toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_7').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t9Grid.getItemById('newVariable_7').dataRef.logic.immediate).toBeTruthy();
+        expect(t9Grid.getItemById('newVariable_7').dataRef.getEvents().length).toEqual(2);
+        expect(t9Grid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.SET).preActions.length).toEqual(1);
+        expect(t9Grid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.SET).preActions[0].definition).toContain('test("t5_newVariable_1_set_pre")');
+        expect(t9Grid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.SET).postActions.length).toEqual(1);
+        expect(t9Grid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.SET).postActions[0].definition).toContain('test("t5_newVariable_1_set_post")');
+        expect(t9Grid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.GET).preActions.length).toEqual(1);
+        expect(t9Grid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.GET).preActions[0].definition).toContain('test("t5_newVariable_1_get_pre")');
+        expect(t9Grid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.GET).postActions.length).toEqual(1);
+        expect(t9Grid.getItemById('newVariable_7').dataRef.getEvent(DataEventType.GET).postActions[0].definition).toContain('test("t5_newVariable_1_get_post")');
+
+        expect(t9Grid.getItemById('newVariable_8').dataRef).not.toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_8').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t9Grid.getItemById('newVariable_8').properties).toBeDefined();
+        expect(t9Grid.getItemById('newVariable_8').properties.gridColumnStart).toEqual('2');
+        expect(t9Grid.getItemById('newVariable_8').properties.gridColumnEnd).toEqual('5');
+        expect(t9Grid.getItemById('newVariable_8').properties.gridColumn).toEqual('2 / 5');
+        expect(t9Grid.getItemById('newVariable_8').properties.gridRowStart).toEqual('row1-start');
+        expect(t9Grid.getItemById('newVariable_8').properties.gridRowEnd).toEqual('3');
+        expect(t9Grid.getItemById('newVariable_8').properties.gridRow).toEqual('row1-start / 3');
+        expect(t9Grid.getItemById('newVariable_8').properties.gridArea).toEqual('row1-start / 2 / 3 / 5');
+        expect(t9Grid.getItemById('newVariable_8').properties.justifySelf).toEqual(JustifySelf.STRETCH);
+        expect(t9Grid.getItemById('newVariable_8').properties.alignSelf).toEqual(GridItemAlignSelf.STRETCH);
+        expect(t9Grid.getItemById('newVariable_8').properties.placeSelf).toEqual('auto');
+
+        expect(t9Grid.getItemById('newVariable_9').dataRef).not.toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_9').dataRef.logic.behavior).toEqual(DataRefBehavior.VISIBLE);
+        expect(t9Grid.getItemById('newVariable_9').dataRef.logic.required).toBeTruthy();
+        expect(t9Grid.getItemById('newVariable_9').properties).toBeDefined();
+        expect(t9Grid.getItemById('newVariable_9').properties.gridColumnStart).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_9').properties.gridColumnEnd).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_9').properties.gridColumn).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_9').properties.gridRowStart).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_9').properties.gridRowEnd).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_9').properties.gridRow).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_9').properties.gridArea).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_9').properties.justifySelf).toEqual(JustifySelf.END);
+        expect(t9Grid.getItemById('newVariable_9').properties.alignSelf).toEqual(GridItemAlignSelf.END);
+        expect(t9Grid.getItemById('newVariable_9').properties.placeSelf).toEqual('test');
+
+        expect(t9Grid.getItemById('newVariable_10').dataRef).not.toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_10').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t9Grid.getItemById('newVariable_10').dataRef.logic.required).toBeTruthy();
+        expect(t9Grid.getItemById('newVariable_10').dataRef.properties).toBeDefined();
+        expect(t9Grid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key')).toBeDefined();
+        expect(t9Grid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key').value).toBeDefined();
+        expect(t9Grid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key').value).toEqual('test dataRef property value');
+
+        expect(t9Grid.getItemById('newVariable_11').dataRef).not.toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_11').dataRef.logic.behavior).toEqual(DataRefBehavior.HIDDEN);
+        expect(t9Grid.getItemById('newVariable_11').properties.gridColumnStart).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_11').properties.gridColumnEnd).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_11').properties.gridColumn).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_11').properties.gridRowStart).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_11').properties.gridRowEnd).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_11').properties.gridRow).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_11').properties.gridArea).toBeUndefined();
+        expect(t9Grid.getItemById('newVariable_11').properties.justifySelf).toEqual(JustifySelf.STRETCH);
+        expect(t9Grid.getItemById('newVariable_11').properties.alignSelf).toEqual(GridItemAlignSelf.STRETCH);
+        expect(t9Grid.getItemById('newVariable_11').properties.placeSelf).toEqual('auto');
+
+        expect(t9Grid.properties).toBeDefined();
+        expect(t9Grid.properties.gridTemplateColumns).toEqual('100px 50px 100px');
+        expect(t9Grid.properties.gridTemplateRows).toEqual('80px auto 80px');
+        expect(t9Grid.properties.gridTemplateAreas).toEqual('header header header header');
+        expect(t9Grid.properties.gridTemplate).toEqual('[row1-start] "header header header" 25px [row1-end]');
+        expect(t9Grid.properties.columnGap).toEqual('10px');
+        expect(t9Grid.properties.rowGap).toEqual('15px');
+        expect(t9Grid.properties.gridColumnGap).toBeUndefined();
+        expect(t9Grid.properties.gridRowGap).toBeUndefined();
+        expect(t9Grid.properties.rowGap).toEqual('15px');
+        expect(t9Grid.properties.gap).toEqual('15px 10px');
+        expect(t9Grid.properties.justifyItems).toEqual(JustifyItems.CENTER);
+        expect(t9Grid.properties.alignItems).toEqual(GridAlignItems.BASELINE);
+        expect(t9Grid.properties.placeItems).toEqual('center');
+        expect(t9Grid.properties.justifyContent).toEqual(GridJustifyContent.START);
+        expect(t9Grid.properties.alignContent).toEqual(GridAlignContent.SPACE_BETWEEN);
+        expect(t9Grid.properties.placeContent).toEqual('space-between start');
+        expect(t9Grid.properties.gridAutoColumns).toEqual('60px 60px');
+        expect(t9Grid.properties.gridAutoRows).toEqual('90px 90px');
+        expect(t9Grid.properties.gridAutoFlow).toEqual(GridAutoFlow.DENSE);
+        expect(t9Grid.properties.grid).toEqual('80px auto 80px / 100px 50px 100px');
+
+        // flex
+        const t9NestedFlex = t9Grid.getItemById('nested_flex_test').flex
+        expect(t9NestedFlex.items).toBeDefined();
+        expect(t9NestedFlex.items.length).toEqual(6);
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef).not.toBeUndefined();
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.logic.immediate).toBeTruthy();
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.getEvents().length).toEqual(2);
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.SET).preActions.length).toEqual(1);
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.SET).preActions[0].definition).toContain('test("t5_newVariable_1_set_pre")');
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.SET).postActions.length).toEqual(1);
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.SET).postActions[0].definition).toContain('test("t5_newVariable_1_set_post")');
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.GET).preActions.length).toEqual(1);
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.GET).preActions[0].definition).toContain('test("t5_newVariable_1_get_pre")');
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.GET).postActions.length).toEqual(1);
+        expect(t9NestedFlex.getItemById('newVariable_1').dataRef.getEvent(DataEventType.GET).postActions[0].definition).toContain('test("t5_newVariable_1_get_post")');
+
+        expect(t9NestedFlex.getItemById('newVariable_2').dataRef).not.toBeUndefined();
+        expect(t9NestedFlex.getItemById('newVariable_2').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t9NestedFlex.getItemById('newVariable_2').properties.order).toEqual(0);
+        expect(t9NestedFlex.getItemById('newVariable_2').properties.flexGrow).toEqual(0);
+        expect(t9NestedFlex.getItemById('newVariable_2').properties.flexShrink).toEqual(1);
+        expect(t9NestedFlex.getItemById('newVariable_2').properties.flexBasis).toEqual('auto');
+        expect(t9NestedFlex.getItemById('newVariable_2').properties.flex).toEqual('2 2 10%');
+        expect(t9NestedFlex.getItemById('newVariable_2').properties.alignSelf).toEqual(FlexItemAlignSelf.AUTO);
+
+        expect(t9NestedFlex.getItemById('newVariable_3').dataRef).not.toBeUndefined();
+        expect(t9NestedFlex.getItemById('newVariable_3').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t9NestedFlex.getItemById('newVariable_3').properties.flex).toBeUndefined();
+        expect(t9NestedFlex.getItemById('newVariable_3').properties.alignSelf).toEqual(FlexItemAlignSelf.BASELINE);
+
+        expect(t9NestedFlex.getItemById('newVariable_4').dataRef).not.toBeUndefined();
+        expect(t9NestedFlex.getItemById('newVariable_4').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t9NestedFlex.getItemById('newVariable_4').properties).toBeDefined();
+        expect(t9NestedFlex.getItemById('newVariable_4').properties.order).toEqual(0);
+        expect(t9NestedFlex.getItemById('newVariable_4').properties.flexGrow).toEqual(0);
+        expect(t9NestedFlex.getItemById('newVariable_4').properties.flexShrink).toEqual(1);
+        expect(t9NestedFlex.getItemById('newVariable_4').properties.flexBasis).toEqual('auto');
+        expect(t9NestedFlex.getItemById('newVariable_4').properties.flex).toBeUndefined();
+        expect(t9NestedFlex.getItemById('newVariable_4').properties.alignSelf).toEqual(FlexItemAlignSelf.AUTO);
+
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef).not.toBeUndefined();
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.logic.required).toBeFalsy();
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.properties).toHaveLength(1);
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.properties).toBeDefined();
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key')).toBeDefined();
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key').value).toBeDefined();
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key').value).toEqual('test dataRef property value');
+
+        expect(t9NestedFlex.getItemById('newVariable_6').dataRef).not.toBeUndefined();
+        expect(t9NestedFlex.getItemById('newVariable_6').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
+        expect(t9NestedFlex.getItemById('newVariable_6').dataRef.logic.required).toBeFalsy();
+        expect(t9NestedFlex.getItemById('newVariable_6').properties.order).toEqual(10);
+        expect(t9NestedFlex.getItemById('newVariable_6').properties.flexGrow).toEqual(2);
+        expect(t9NestedFlex.getItemById('newVariable_6').properties.flexShrink).toEqual(5);
+        expect(t9NestedFlex.getItemById('newVariable_6').properties.flexBasis).toEqual('10%');
+        expect(t9NestedFlex.getItemById('newVariable_6').properties.flex).toBeUndefined();
+        expect(t9NestedFlex.getItemById('newVariable_6').properties.alignSelf).toEqual(FlexItemAlignSelf.AUTO);
+
+        expect(t9NestedFlex.properties).toBeDefined();
+        expect(t9NestedFlex.properties.flexFlow).toEqual('test');
+        expect(t9NestedFlex.properties.gap).toEqual('10 10');
+        expect(t9NestedFlex.properties.rowGap).toEqual('15');
+        expect(t9NestedFlex.properties.columnGap).toEqual('5');
+        expect(t9NestedFlex.properties.display).toEqual(FlexDisplay.FLEX);
+        expect(t9NestedFlex.properties.flexDirection).toEqual(FlexDirection.ROW);
+        expect(t9NestedFlex.properties.flexWrap).toEqual(FlexWrap.NOWRAP);
+        expect(t9NestedFlex.properties.justifyContent).toEqual(FlexJustifyContent.FLEX_START);
+        expect(t9NestedFlex.properties.alignContent).toEqual(FlexAlignContent.NORMAL);
+        expect(t9NestedFlex.properties.alignItems).toEqual(FlexAlignItems.STRETCH);
+
         const transitionT10 = model.getTransition('t10');
         expect(transitionT10).toBeDefined();
-        const transitionT10DataGroup = transitionT10.dataGroups[0];
-        // expect(transitionT10DataGroup).toBeDefined();
-        // expect(transitionT10DataGroup.hideEmptyRows).toEqual(HideEmptyRows.COMPACTED);
-        // expect(transitionT10DataGroup.compactDirection).toEqual(CompactDirection.UP);
+        expect(transitionT10.flex).toBeUndefined();
+        const t10grid = transitionT10.grid;
+        expect(t10grid).toBeDefined();
+        expect(t10grid.id).toEqual('empty_grid');
+        expect(t10grid.properties.display).toEqual(GridDisplay.GRID);
+        expect(t10grid.properties.justifyItems).toEqual(JustifyItems.STRETCH);
+        expect(t10grid.properties.alignItems).toEqual(GridAlignItems.STRETCH);
+        expect(t10grid.properties.justifyContent).toEqual(GridJustifyContent.STRETCH);
+        expect(t10grid.properties.alignContent).toEqual(GridAlignContent.START);
+        expect(t10grid.properties.gridAutoFlow).toEqual(GridAutoFlow.ROW);
+
         const transitionT11 = model.getTransition('t11');
         expect(transitionT11).toBeDefined();
-        // const transitionT11Layout = transitionT11.layout;
-        // expect(transitionT11Layout.hideEmptyRows).toEqual(HideEmptyRows.ALL);
-        // expect(transitionT11Layout.compactDirection).toEqual(CompactDirection.NONE);
-        // const transitionT11DataGroup = transitionT11.dataGroups[0];
-        // expect(transitionT11DataGroup).toBeDefined();
-        // expect(transitionT11DataGroup.hideEmptyRows).toEqual(HideEmptyRows.ALL);
-        // expect(transitionT11DataGroup.compactDirection).toEqual(CompactDirection.NONE);
+        expect(transitionT11.grid).toBeUndefined();
+        const t11flex = transitionT11.flex;
+        expect(t11flex).toBeDefined();
+        expect(t11flex.id).toEqual('empty_flex');
+        expect(t11flex.properties.display).toEqual(FlexDisplay.FLEX);
+        expect(t11flex.properties.flexDirection).toEqual(FlexDirection.ROW);
+        expect(t11flex.properties.flexWrap).toEqual(FlexWrap.NOWRAP);
+        expect(t11flex.properties.justifyContent).toEqual(FlexJustifyContent.FLEX_START);
+        expect(t11flex.properties.alignItems).toEqual(FlexAlignItems.STRETCH);
+        expect(t11flex.properties.alignContent).toEqual(FlexAlignContent.NORMAL);
+
         const transitionT12 = model.getTransition('t12');
         expect(transitionT12).toBeDefined();
-        // const transitionT12Layout = transitionT12.layout;
-        // expect(transitionT12Layout.hideEmptyRows).toEqual(HideEmptyRows.NONE);
-        // expect(transitionT12Layout.compactDirection).toEqual(CompactDirection.NONE);
-        // const transitionT12DataGroup = transitionT12.dataGroups[0];
-        // expect(transitionT12DataGroup).toBeDefined();
-        // expect(transitionT12DataGroup.hideEmptyRows).toEqual(HideEmptyRows.NONE);
-        // expect(transitionT12DataGroup.compactDirection).toEqual(CompactDirection.UP);
+        expect(transitionT12.flex).toBeUndefined();
+        expect(transitionT12.grid).toBeUndefined();
+
         const transitionPredefinedRoles = model.getTransition('predefined_roles');
         const transitionPredefinedRolesDefault = transitionPredefinedRoles.roleRefs.find(r => r.id === 'default');
         assertRoleRefLogic(transitionPredefinedRolesDefault, false, false, true, true, undefined);
@@ -688,22 +895,31 @@ describe('Petriflow integration tests', () => {
         assertPlace(model.getPlace('p1'), 'p1', 300, 180, 'place 1', 0, false, 'p1_title', FunctionScope.NAMESPACE);
         assertPlace(model.getPlace('p2'), 'p2', 380, 100, '', 3, false, '', FunctionScope.PROCESS);
         assertPlace(model.getPlace('p3'), 'p3', 620, 180, '', 0, false, '', FunctionScope.USECASE);
-        assertPlace(model.getPlace('p4'), 'p4', 300, 260, '', 2, false);
-        assertPlace(model.getPlace('p5'), 'p5', 300, 340, '', 0, false);
-        assertPlace(model.getPlace('p6'), 'p6', 300, 420, '', 0, false);
-        assertPlace(model.getPlace('p7'), 'p7', 620, 260, '', 0, false);
-        assertPlace(model.getPlace('p8'), 'p8', 620, 340, '', 0, false);
-        assertPlace(model.getPlace('p9'), 'p9', 620, 420, '', 0, false);
-        assertPlace(model.getPlace('p10'), 'p10', 540, 100, '', 0, false);
+        assertPlace(model.getPlace('p4'), 'p4', 300, 260, '', 2, false, '');
+        assertPlace(model.getPlace('p5'), 'p5', 300, 340, '', 0, false, '');
+        assertPlace(model.getPlace('p6'), 'p6', 300, 420, '', 0, false, '');
+        assertPlace(model.getPlace('p7'), 'p7', 620, 260, '', 0, false, '');
+        assertPlace(model.getPlace('p8'), 'p8', 620, 340, '', 0, false, '');
+        assertPlace(model.getPlace('p9'), 'p9', 620, 420, '', 0, false, '');
+        assertPlace(model.getPlace('p10'), 'p10', 540, 100, '', 0, false, '');
         log('Model places correct');
 
         expect(model.getArcs().length).toEqual(MODEL_ARCS_LENGTH);
-        assertArc(model.getArc('a1'), 'a1', ArcType.REGULAR_PT, 'p1', 't1', {dynamic: true, expression: 'p2'});
-        assertArc(model.getArc('a2'), 'a2', ArcType.REGULAR_TP, 't1', 'p3', {dynamic: true, expression: 'newVariable_1'});
+        assertArc(model.getArc('a1'), 'a1', ArcType.REGULAR_PT, 'p1', 't1', {
+            dynamic: true,
+            expression: 'p2'
+        });
+        assertArc(model.getArc('a2'), 'a2', ArcType.REGULAR_TP, 't1', 'p3', {
+            dynamic: true,
+            expression: 'newVariable_1'
+        });
         assertArc(model.getArc('a3'), 'a3', ArcType.RESET, 'p4', 't2');
         assertArc(model.getArc('a4'), 'a4', ArcType.INHIBITOR, 'p5', 't3');
         assertArc(model.getArc('a5'), 'a5', ArcType.READ, 'p6', 't4');
-        assertArc(model.getArc('a6'), 'a6', ArcType.REGULAR_TP, 't2', 'p7', {dynamic: false, expression: '20'});
+        assertArc(model.getArc('a6'), 'a6', ArcType.REGULAR_TP, 't2', 'p7', {
+            dynamic: false,
+            expression: '20'
+        });
         assertArc(model.getArc('a7'), 'a7', ArcType.REGULAR_TP, 't3', 'p8');
         assertArc(model.getArc('a8'), 'a8', ArcType.REGULAR_TP, 't4', 'p9');
         assertArc(model.getArc('a9'), 'a9', ArcType.REGULAR_PT, 'p1', 't2');

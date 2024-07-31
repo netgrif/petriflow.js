@@ -1,22 +1,21 @@
 import {I18nString} from '../i18n/i18n-string';
 import {NodeElement} from '../petrinet/node-element';
 import {AssignPolicy} from './assign-policy.enum';
-import {DataGroup} from './datagroup'; // cspell:disable-line
 import {FinishPolicy} from './finish-policy.enum';
+import {FlexContainer} from './flex-layout/container/flex-container';
+import {GridContainer} from './grid-layout/container/grid-container';
 import {RoleRef} from './role-ref';
 import {TransitionEventSource} from './transition-event-source';
-import {TransitionLayout} from './transition-layout';
 import {Trigger} from './trigger';
 
 export class Transition extends NodeElement {
-    private _layout?: TransitionLayout;
     private _icon?: string;
     private _assignPolicy: AssignPolicy;
     private _finishPolicy: FinishPolicy;
     private _triggers: Array<Trigger>;
     private _roleRefs: Array<RoleRef>;
-    // todo refactor from dataGroup to form
-    private _dataGroups: Array<DataGroup>;
+    private _grid?: GridContainer;
+    private _flex?: FlexContainer;
     private _eventSource: TransitionEventSource;
 
     constructor(x: number, y: number, id: string) {
@@ -25,16 +24,7 @@ export class Transition extends NodeElement {
         this._finishPolicy = FinishPolicy.MANUAL;
         this._triggers = [];
         this._roleRefs = [];
-        this._dataGroups = [];
         this._eventSource = new TransitionEventSource();
-    }
-
-    get layout(): TransitionLayout | undefined {
-        return this._layout;
-    }
-
-    set layout(value: TransitionLayout | undefined) {
-        this._layout = value;
     }
 
     get icon(): string | undefined {
@@ -77,14 +67,6 @@ export class Transition extends NodeElement {
         this._roleRefs = value;
     }
 
-    get dataGroups(): Array<DataGroup> {
-        return this._dataGroups;
-    }
-
-    set dataGroups(value: Array<DataGroup>) {
-        this._dataGroups = value;
-    }
-
     get eventSource(): TransitionEventSource {
         return this._eventSource;
     }
@@ -93,16 +75,32 @@ export class Transition extends NodeElement {
         this._eventSource = value;
     }
 
+    get grid(): GridContainer | undefined {
+        return this._grid;
+    }
+
+    set grid(value: GridContainer | undefined) {
+        this._grid = value;
+    }
+
+    get flex(): FlexContainer | undefined {
+        return this._flex;
+    }
+
+    set flex(value: FlexContainer | undefined) {
+        this._flex = value;
+    }
+
     public clone(): Transition {
         const cloned = new Transition(this.x, this.y, this.id);
         cloned.title = this.title?.clone();
-        cloned._layout = this._layout?.clone();
         cloned._icon = this._icon;
         cloned._assignPolicy = this._assignPolicy;
         cloned._finishPolicy = this._finishPolicy;
         cloned._triggers = this._triggers.map(item => item.clone());
         cloned._roleRefs = this._roleRefs.map(item => item.clone());
-        cloned._dataGroups = this._dataGroups.map(item => item.clone());
+        cloned._flex = this._flex?.clone();
+        cloned._grid = this._grid?.clone();
         cloned.properties = this.properties?.map(p => p.clone());
         this.eventSource.getEvents().forEach(event => cloned.eventSource.addEvent(event.clone()));
         return cloned;

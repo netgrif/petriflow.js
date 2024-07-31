@@ -1,32 +1,48 @@
 import {
     Action,
-    Alignment,
-    Appearance,
-    CompactDirection,
     Component,
     DataEvent,
     DataEventType,
-    DataGroup,
-    DataLayout,
     DataRef,
     DataRefBehavior,
     Event,
     EventPhase,
     Expression,
+    FlexAlignContent,
+    FlexAlignItems,
+    FlexContainer,
+    FlexContainerProperties,
+    FlexDirection,
+    FlexDisplay,
+    FlexItem,
+    FlexItemAlignSelf,
+    FlexItemProperties,
+    FlexJustifyContent,
+    FlexWrap,
     FunctionScope,
-    HideEmptyRows,
+    GridAlignContent,
+    GridAlignItems,
+    GridAutoFlow,
+    GridContainer,
+    GridContainerProperties,
+    GridDisplay,
+    GridItem,
+    GridItemAlignSelf,
+    GridItemProperties,
+    GridJustifyContent,
     I18nString,
     I18nWithDynamic,
-    LayoutType,
+    JustifyItems,
+    JustifySelf,
     PetriflowFunction,
     ProcessRoleRef,
     ProcessUserRef,
     Property,
     RoleRef,
-    Template,
     Trigger,
     TriggerType,
-    UserRef, XmlArcType
+    UserRef,
+    XmlArcType
 } from '../model';
 
 export class ImportUtils {
@@ -215,7 +231,7 @@ export class ImportUtils {
         return roleRef;
     }
 
-    public parseDataRef(xmlDataRef: Element, index: number): DataRef {
+    public parseDataRef(xmlDataRef: Element): DataRef {
         const dataRef = new DataRef(this.tagValue(xmlDataRef, 'id'));
         for (const xmlEvent of Array.from(xmlDataRef.getElementsByTagName('event'))) {
             const event = new DataEvent(this.tagAttribute(xmlEvent, 'type') as DataEventType, '');
@@ -224,79 +240,351 @@ export class ImportUtils {
         }
         const xmlDataRefLogic = xmlDataRef.getElementsByTagName('logic')[0];
         if (xmlDataRefLogic) {
-            const actionTags = Array.from(xmlDataRefLogic.getElementsByTagName('action'));
-            if (actionTags.length > 0) {
-                for (const actionTag of actionTags) {
-                    const action = this.parseAction(actionTag);
-                    const actionTrigger = actionTag.getAttribute('trigger') as DataEventType;
-                    dataRef.addAction(action, actionTrigger);
-                }
+            const elementName = 'behavior';
+            if (this.isElementValueDefined(xmlDataRefLogic, elementName)) {
+                dataRef.logic.behavior = this.tagValue(xmlDataRefLogic, elementName) as DataRefBehavior;
             }
-            for (const logic of Array.from(xmlDataRefLogic.getElementsByTagName('behavior'))) {
-                if (logic.childNodes[0].nodeValue as DataRefBehavior === DataRefBehavior.REQUIRED) {
-                    dataRef.logic.required = true;
-                } else if (logic.childNodes[0].nodeValue as DataRefBehavior === DataRefBehavior.IMMEDIATE) {
-                    dataRef.logic.immediate = true;
-                } else if (logic.childNodes[0].nodeValue as DataRefBehavior !== DataRefBehavior.OPTIONAL) {
-                    dataRef.logic.behavior = logic.childNodes[0].nodeValue as DataRefBehavior;
-                }
-            }
+            dataRef.logic.immediate = this.tagValue(xmlDataRefLogic, 'immediate') === 'true'
+            dataRef.logic.required = this.tagValue(xmlDataRefLogic, 'required') === 'true'
         }
         dataRef.component = this.parseComponent(xmlDataRef);
         dataRef.properties = this.parseProperties(xmlDataRef)
-        const xmlLayout = xmlDataRef.getElementsByTagName('layout');
-        if (xmlLayout.length !== 0) {
-            dataRef.layout = this.parseDataLayout(xmlLayout.item(0));
-        } else {
-            dataRef.layout = new DataLayout();
-            dataRef.layout.x = 0;
-            dataRef.layout.y = index;
-            dataRef.layout.rows = 1;
-            dataRef.layout.cols = 2;
-        }
         return dataRef;
     }
 
-    public parseDataLayout(xmlLayout: Element | null): DataLayout {
-        const layout = new DataLayout();
-        if (!xmlLayout) {
-            return layout;
+    public parseGrid(xmlGrid: Element): GridContainer {
+        const grid = new GridContainer(this.tagValue(xmlGrid, 'id'));
+
+        const properties = this.getChildElementByName(xmlGrid.children, 'properties');
+        if (properties) {
+            grid.properties = this.parseGridContainerProperties(properties);
         }
-        layout.x = this.parseNumberValue(xmlLayout, 'x') ?? 0;
-        layout.y = this.parseNumberValue(xmlLayout, 'y') ?? 0;
-        layout.rows = this.parseNumberValue(xmlLayout, 'rows') ?? 0;
-        layout.cols = this.parseNumberValue(xmlLayout, 'cols') ?? 0;
-        layout.template = this.tagValue(xmlLayout, 'template') as Template;
-        layout.appearance = this.tagValue(xmlLayout, 'appearance') as Appearance;
-        layout.offset = this.parseNumberValue(xmlLayout, 'offset');
-        layout.alignment = this.tagValue(xmlLayout, 'alignment') as Alignment;
-        return layout;
+
+        this.getAllChildElementsByName(xmlGrid.children, 'item').forEach(xmlGridItem => {
+            grid.addItem(this.parseGridItem(xmlGridItem));
+        });
+        return grid;
     }
 
-    public parseDataGroup(xmlDataGroup: Element): DataGroup {
-        const dataGroup = new DataGroup(this.tagValue(xmlDataGroup, 'id'));
-        dataGroup.alignment = this.tagValue(xmlDataGroup, 'alignment') as Alignment;
-        dataGroup.layout = this.tagValue(xmlDataGroup, 'layout') as LayoutType;
-        if (dataGroup.layout && dataGroup.layout !== LayoutType.LEGACY) {
-            const cols = this.parseNumberValue(xmlDataGroup, 'cols');
-            if (cols && cols > 0) {
-                dataGroup.cols = cols;
-            }
-            const rows = this.parseNumberValue(xmlDataGroup, 'rows');
-            if (rows && rows > 0 || rows === 0) {
-                dataGroup.rows = rows;
-            }
+    public parseGridContainerProperties(xmlGridProperties: Element): GridContainerProperties {
+        const gridProperties = new GridContainerProperties();
+
+        let elementName = 'display';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.display = this.tagValue(xmlGridProperties, elementName) as GridDisplay;
         }
-        dataGroup.stretch = this.tagValue(xmlDataGroup, 'stretch') === 'true';
-        dataGroup.hideEmptyRows = this.tagValue(xmlDataGroup, 'hideEmptyRows') as HideEmptyRows;
-        dataGroup.compactDirection = this.tagValue(xmlDataGroup, 'compactDirection') as CompactDirection;
-        dataGroup.title = this.parseI18n(xmlDataGroup, 'title');
-        const xmlDataRefs = Array.from(xmlDataGroup.getElementsByTagName('dataRef'));
-        for (let i = 0; i < xmlDataRefs.length; i++) {
-            const xmlDataRef = xmlDataRefs[i];
-            dataGroup.addDataRef(this.parseDataRef(xmlDataRef, i));
+
+        elementName = 'grid-template-columns';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gridTemplateColumns = this.tagValue(xmlGridProperties, 'grid-template-columns');
         }
-        return dataGroup;
+
+        elementName = 'grid-template-rows';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gridTemplateRows = this.tagValue(xmlGridProperties, 'grid-template-rows');
+        }
+
+        elementName = 'grid-template-areas';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gridTemplateAreas = this.tagValue(xmlGridProperties, 'grid-template-areas');
+        }
+
+        elementName = 'grid-template';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gridTemplate = this.tagValue(xmlGridProperties, 'grid-template');
+        }
+
+        elementName = 'grid-column-gap';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gridColumnGap = this.tagValue(xmlGridProperties, 'grid-column-gap');
+        }
+
+        elementName = 'column-gap';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.columnGap = this.tagValue(xmlGridProperties, 'column-gap');
+        }
+
+        elementName = 'row-gap';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.rowGap = this.tagValue(xmlGridProperties, 'row-gap');
+        }
+
+        elementName = 'grid-row-gap';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gridRowGap = this.tagValue(xmlGridProperties, 'grid-row-gap');
+        }
+
+        elementName = 'grid-gap';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gridGap = this.tagValue(xmlGridProperties, 'grid-gap');
+        }
+
+        elementName = 'gap';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gap = this.tagValue(xmlGridProperties, 'gap');
+        }
+
+        elementName = 'justify-items';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.justifyItems = this.tagValue(xmlGridProperties, elementName) as JustifyItems;
+        }
+
+        elementName = 'align-items';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.alignItems = this.tagValue(xmlGridProperties, elementName) as GridAlignItems;
+        }
+
+        elementName = 'place-items';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.placeItems = this.tagValue(xmlGridProperties, 'place-items');
+        }
+        elementName = 'justify-content';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.justifyContent = this.tagValue(xmlGridProperties, elementName) as GridJustifyContent;
+        }
+        elementName = 'align-content';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.alignContent = this.tagValue(xmlGridProperties, elementName) as GridAlignContent;
+        }
+
+        elementName = 'place-content';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.placeContent = this.tagValue(xmlGridProperties, 'place-content');
+        }
+
+        elementName = 'grid-auto-columns';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gridAutoColumns = this.tagValue(xmlGridProperties, 'grid-auto-columns');
+        }
+
+        elementName = 'grid-auto-rows';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gridAutoRows = this.tagValue(xmlGridProperties, 'grid-auto-rows');
+        }
+
+        elementName = 'grid-auto-flow';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.gridAutoFlow = this.tagValue(xmlGridProperties, elementName) as GridAutoFlow;
+        }
+
+        elementName = 'grid';
+        if (this.isElementValueDefined(xmlGridProperties, elementName)) {
+            gridProperties.grid = this.tagValue(xmlGridProperties, 'grid');
+        }
+        return gridProperties;
+    }
+
+    public parseGridItem(xmlGridItem: Element): GridItem {
+        const gridItem = new GridItem();
+
+        let xmlElement = this.getChildElementByName(xmlGridItem.children, 'properties');
+        if (xmlElement) {
+            gridItem.properties = this.parseGridItemProperties(xmlElement);
+        }
+
+        xmlElement = this.getChildElementByName(xmlGridItem.children, 'dataRef');
+        if (xmlElement) {
+            gridItem.dataRef = this.parseDataRef(xmlElement);
+        }
+
+        xmlElement = this.getChildElementByName(xmlGridItem.children, 'grid');
+        if (xmlElement) {
+            gridItem.grid = this.parseGrid(xmlElement);
+        }
+
+        xmlElement = this.getChildElementByName(xmlGridItem.children, 'flex');
+        if (xmlElement) {
+            gridItem.flex = this.parseFlex(xmlElement);
+        }
+
+        return gridItem;
+    }
+
+    public parseGridItemProperties(xmlGridItemProperties: Element) {
+        const gridItemProperties = new GridItemProperties();
+
+        let elementName = 'grid-column-start';
+        if (this.isElementValueDefined(xmlGridItemProperties, elementName)) {
+            gridItemProperties.gridColumnStart = this.tagValue(xmlGridItemProperties, 'grid-column-start');
+        }
+
+        elementName = 'grid-column-end';
+        if (this.isElementValueDefined(xmlGridItemProperties, elementName)) {
+            gridItemProperties.gridColumnEnd = this.tagValue(xmlGridItemProperties, 'grid-column-end');
+        }
+
+        elementName = 'grid-row-start';
+        if (this.isElementValueDefined(xmlGridItemProperties, elementName)) {
+            gridItemProperties.gridRowStart = this.tagValue(xmlGridItemProperties, 'grid-row-start');
+        }
+
+        elementName = 'grid-row-end';
+        if (this.isElementValueDefined(xmlGridItemProperties, elementName)) {
+            gridItemProperties.gridRowEnd = this.tagValue(xmlGridItemProperties, 'grid-row-end');
+        }
+
+        elementName = 'grid-column';
+        if (this.isElementValueDefined(xmlGridItemProperties, elementName)) {
+            gridItemProperties.gridColumn = this.tagValue(xmlGridItemProperties, 'grid-column');
+        }
+
+        elementName = 'grid-row';
+        if (this.isElementValueDefined(xmlGridItemProperties, elementName)) {
+            gridItemProperties.gridRow = this.tagValue(xmlGridItemProperties, 'grid-row');
+        }
+
+        elementName = 'grid-area';
+        if (this.isElementValueDefined(xmlGridItemProperties, elementName)) {
+            gridItemProperties.gridArea = this.tagValue(xmlGridItemProperties, 'grid-area');
+        }
+        elementName = 'justify-self';
+        if (this.isElementValueDefined(xmlGridItemProperties, elementName)) {
+            gridItemProperties.justifySelf = this.tagValue(xmlGridItemProperties, elementName) as JustifySelf;
+        }
+
+        elementName = 'align-self';
+        if (this.isElementValueDefined(xmlGridItemProperties, elementName)) {
+            gridItemProperties.alignSelf = this.tagValue(xmlGridItemProperties, elementName) as GridItemAlignSelf;
+        }
+
+        elementName = 'place-self';
+        if (this.isElementValueDefined(xmlGridItemProperties, elementName)) {
+            gridItemProperties.placeSelf = this.tagValue(xmlGridItemProperties, elementName);
+        }
+
+        return gridItemProperties;
+    }
+
+    private isElementValueDefined(xmlElement: Element, elementName: string): boolean {
+        if (xmlElement.getElementsByTagName(elementName).length < 1) {
+            return false;
+        }
+        const elementValue = this.tagValue(xmlElement, elementName);
+        return !!elementValue && elementValue !== '';
+    }
+
+    public parseFlex(xmlFlex: Element) {
+        const flex = new FlexContainer(this.tagValue(xmlFlex, 'id'));
+        const properties = this.getChildElementByName(xmlFlex.children, 'properties');
+        if (properties) {
+            flex.properties = this.parseFlexContainerProperties(properties);
+        }
+        this.getAllChildElementsByName(xmlFlex.children, 'item').forEach(xmlFlexItem => {
+            flex.addItem(this.parseFlexItem(xmlFlexItem));
+        });
+        return flex;
+    }
+
+    public parseFlexContainerProperties(xmlFlexProperties: Element): FlexContainerProperties {
+        const flexProperties: FlexContainerProperties = new FlexContainerProperties();
+        let elementName = 'display';
+        if (this.isElementValueDefined(xmlFlexProperties, elementName)) {
+            flexProperties.display = this.tagValue(xmlFlexProperties, elementName) as FlexDisplay;
+        }
+
+        elementName = 'flex-direction';
+        if (this.isElementValueDefined(xmlFlexProperties, elementName)) {
+            flexProperties.flexDirection = this.tagValue(xmlFlexProperties, elementName) as FlexDirection;
+        }
+
+        elementName = 'flex-wrap';
+        if (this.isElementValueDefined(xmlFlexProperties, elementName)) {
+            flexProperties.flexWrap = this.tagValue(xmlFlexProperties, elementName) as FlexWrap;
+        }
+
+        elementName = 'flex-flow';
+        if (this.isElementValueDefined(xmlFlexProperties, elementName)) {
+            flexProperties.flexFlow = this.tagValue(xmlFlexProperties, 'flex-flow');
+        }
+
+        elementName = 'justify-content';
+        if (this.isElementValueDefined(xmlFlexProperties, elementName)) {
+            flexProperties.justifyContent = this.tagValue(xmlFlexProperties, elementName) as FlexJustifyContent;
+        }
+
+        elementName = 'align-items';
+        if (this.isElementValueDefined(xmlFlexProperties, elementName)) {
+            flexProperties.alignItems = this.tagValue(xmlFlexProperties, elementName) as FlexAlignItems;
+        }
+
+        elementName = 'align-content';
+        if (this.isElementValueDefined(xmlFlexProperties, elementName)) {
+            flexProperties.alignContent = this.tagValue(xmlFlexProperties, elementName) as FlexAlignContent;
+        }
+
+        elementName = 'gap';
+        if (this.isElementValueDefined(xmlFlexProperties, elementName)) {
+            flexProperties.gap = this.tagValue(xmlFlexProperties, 'gap');
+        }
+
+        elementName = 'row-gap';
+        if (this.isElementValueDefined(xmlFlexProperties, elementName)) {
+            flexProperties.rowGap = this.tagValue(xmlFlexProperties, 'row-gap');
+        }
+
+        elementName = 'column-gap';
+        if (this.isElementValueDefined(xmlFlexProperties, elementName)) {
+            flexProperties.columnGap = this.tagValue(xmlFlexProperties, 'column-gap');
+        }
+
+        return flexProperties;
+    }
+
+    public parseFlexItem(xmlFlexItem: Element): FlexItem {
+        const flexItem = new FlexItem();
+
+        let xmlElement = this.getChildElementByName(xmlFlexItem.children, 'properties');
+        if (xmlElement) {
+            flexItem.properties = this.parseFlexItemProperties(xmlElement);
+        }
+
+        xmlElement = this.getChildElementByName(xmlFlexItem.children, 'dataRef');
+        if (xmlElement) {
+            flexItem.dataRef = this.parseDataRef(xmlElement);
+        }
+
+        xmlElement = this.getChildElementByName(xmlFlexItem.children, 'grid');
+        if (xmlElement) {
+            flexItem.grid = this.parseGrid(xmlElement);
+        }
+
+        xmlElement = this.getChildElementByName(xmlFlexItem.children, 'flex');
+        if (xmlElement) {
+            flexItem.flex = this.parseFlex(xmlElement);
+        }
+        return flexItem;
+    }
+
+    public getChildElementByName(children: HTMLCollection, name: string): Element | undefined {
+        return this.getAllChildElementsByName(children, name)[0]
+    }
+
+    public getAllChildElementsByName(children: HTMLCollection, name: string): Array<Element> {
+        return Array.from(children).filter(childElement => childElement.localName === name)
+    }
+
+    public parseFlexItemProperties(xmlFlexItemProperties: Element): FlexItemProperties {
+        const flexItemProperties = new FlexItemProperties();
+
+        flexItemProperties.order = this.parseNumberValue(xmlFlexItemProperties, 'order') ?? 0;
+        flexItemProperties.flexGrow = this.parseNumberValue(xmlFlexItemProperties, 'flex-grow') ?? 0;
+        flexItemProperties.flexShrink = this.parseNumberValue(xmlFlexItemProperties, 'flex-shrink') ?? 1;
+
+        let xmlElement = xmlFlexItemProperties.getElementsByTagName('flex-basis')[0];
+        if (xmlElement) {
+            flexItemProperties.flexBasis = this.tagValue(xmlFlexItemProperties, 'flex-basis');
+        }
+
+        xmlElement = xmlFlexItemProperties.getElementsByTagName('flex')[0];
+        if (xmlElement) {
+            flexItemProperties.flex = this.tagValue(xmlFlexItemProperties, 'flex');
+        }
+
+        xmlElement = xmlFlexItemProperties.getElementsByTagName('align-self')[0];
+        if (xmlElement) {
+            flexItemProperties.alignSelf = this.tagValue(xmlFlexItemProperties, 'align-self') as FlexItemAlignSelf;
+        }
+        return flexItemProperties;
     }
 
     public parsePlaceStatic(xmlPlace: Element): boolean {

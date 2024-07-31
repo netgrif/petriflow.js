@@ -5,13 +5,12 @@ import {NodeElement} from './node-element';
 export class Place extends NodeElement {
     private _static: boolean;
     private _marking: number;
-    private _scope: FunctionScope;
+    private _scope: FunctionScope = FunctionScope.USECASE;
 
-    constructor(x: number, y: number, isStatic: boolean, id: string, _scope: FunctionScope) {
+    constructor(x: number, y: number, isStatic: boolean, id: string) {
         super(id, x, y, new I18nString(''));
         this._static = isStatic;
         this._marking = 0;
-        this._scope = _scope;
     }
 
     get static(): boolean {
@@ -39,9 +38,10 @@ export class Place extends NodeElement {
     }
 
     public clone(): Place {
-        const cloned = new Place(this.x, this.y, this.static, this.id, this.scope);
+        const cloned = new Place(this.x, this.y, this.static, this.id);
         cloned.title = this.title?.clone();
         cloned._marking = this._marking;
+        cloned.scope = this._scope;
         this.properties?.forEach(property => cloned.properties?.push(property.clone()))
         return cloned;
     }

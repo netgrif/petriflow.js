@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--todo schema change-->
-<document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
+<process xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
     <id>petriflow_test</id>
+    <version>1</version>
     <title id="title">Petriflow Test Model</title>
     <icon>home</icon>
     <defaultRole>true</defaultRole>
@@ -423,7 +424,6 @@
         <i18nString id="newVariable_2_valid_email">UK_newVariable_2_valid_email</i18nString>
         <i18nString id="t1_assign_message">UK_t1_assign_message</i18nString>
         <i18nString id="t1_assign_title">UK_t1_assign_title</i18nString>
-        <i18nString id="t5_datagroup">UK_t5_datagroup</i18nString>
         <i18nString id="newVariable_3_value1">UK_newVariable_3_value1</i18nString>
         <i18nString id="newVariable_3_value2">UK_newVariable_3_value2</i18nString>
         <i18nString id="newVariable_3_value3">UK_newVariable_3_value3</i18nString>
@@ -447,7 +447,6 @@
         <i18nString id="newVariable_2_valid_email">DE_newVariable_2_valid_email</i18nString>
         <i18nString id="t1_assign_message">DE_t1_assign_message</i18nString>
         <i18nString id="t1_assign_title">DE_t1_assign_title</i18nString>
-        <i18nString id="t5_datagroup">DE_t5_datagroup</i18nString>
         <i18nString id="newVariable_3_value1">DE_newVariable_3_value1</i18nString>
         <i18nString id="newVariable_3_value2">DE_newVariable_3_value2</i18nString>
         <i18nString id="newVariable_3_value3">DE_newVariable_3_value3</i18nString>
@@ -528,7 +527,7 @@
         <id>t2</id>
         <x>460</x>
         <y>260</y>
-        <title></title>
+        <title/>
         <event type="finish">
             <id>t2_finish</id>
         </event>
@@ -543,13 +542,13 @@
         <id>t3</id>
         <x>460</x>
         <y>340</y>
-        <title></title>
+        <title/>
     </transition>
     <transition>
         <id>t4</id>
         <x>460</x>
         <y>420</y>
-        <title></title>
+        <title/>
     </transition>
     <transition>
         <id>t5</id>
@@ -559,274 +558,217 @@
         <icon>home</icon>
         <assignPolicy>auto</assignPolicy>
         <finishPolicy>auto_no_data</finishPolicy>
-<!--        todo change to form-->
-<!--        <dataGroup>-->
-<!--            <id>test_group</id>-->
-<!--            <title id="t5_datagroup">t5_datagroup_value</title>-->
-<!--            <layout>grid</layout>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_1</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                    <behavior>immediate</behavior>-->
-<!--                    <action trigger="get">-->
-<!--                        test("t5_newVariable_1_get")-->
-<!--                    </action>-->
-<!--                    <action trigger="set" id="t5_newVariable_1_set">-->
-<!--                        test("t5_newVariable_1_set")-->
-<!--                    </action>-->
-<!--                    <actionRef>-->
-<!--                        <id>t5_newVariable_1_set</id>-->
-<!--                    </actionRef>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>0</x>-->
-<!--                    <y>0</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>legacy</appearance>-->
-<!--                </layout>-->
-<!--                <event type="set">-->
-<!--                    <id>dataref_set</id>-->
-<!--                    <actions phase="pre">-->
-<!--                        <action>-->
-<!--                            test("t5_newVariable_1_set_pre")-->
-<!--                        </action>-->
-<!--                    </actions>-->
-<!--                    <actions phase="post">-->
-<!--                        <action>-->
-<!--                            test("t5_newVariable_1_set_post")-->
-<!--                        </action>-->
-<!--                    </actions>-->
-<!--                </event>-->
-<!--                <event type="get">-->
-<!--                    <id>dataref_get</id>-->
-<!--                    <actions phase="pre">-->
-<!--                        <action>-->
-<!--                            test("t5_newVariable_1_get_pre")-->
-<!--                        </action>-->
-<!--                    </actions>-->
-<!--                    <actions phase="post">-->
-<!--                        <action>-->
-<!--                            test("t5_newVariable_1_get_post")-->
-<!--                        </action>-->
-<!--                    </actions>-->
-<!--                </event>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_4</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>1</x>-->
-<!--                    <y>0</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>netgrif</template>-->
-<!--                    <appearance>outline</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_6</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>2</x>-->
-<!--                    <y>0</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>standard</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_8</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>0</x>-->
-<!--                    <y>1</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>fill</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_3</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>1</x>-->
-<!--                    <y>1</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>fill</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_5</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                    <behavior>optional</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>2</x>-->
-<!--                    <y>1</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>outline</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_11</id>-->
-<!--                <logic>-->
-<!--                    <behavior>hidden</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>3</x>-->
-<!--                    <y>1</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>outline</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_7</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>3</x>-->
-<!--                    <y>0</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_2</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>0</x>-->
-<!--                    <y>2</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>outline</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_12</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>1</x>-->
-<!--                    <y>2</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>outline</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_13</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>2</x>-->
-<!--                    <y>2</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>outline</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_9</id>-->
-<!--                <logic>-->
-<!--                    <behavior>visible</behavior>-->
-<!--                    <behavior>required</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>3</x>-->
-<!--                    <y>2</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_10</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                    <behavior>required</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>0</x>-->
-<!--                    <y>3</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>outline</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_14</id>-->
-<!--                <logic>-->
-<!--                    <behavior>visible</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>1</x>-->
-<!--                    <y>3</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>outline</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--            <dataRef>-->
-<!--                <id>newVariable_15</id>-->
-<!--                <logic>-->
-<!--                    <behavior>editable</behavior>-->
-<!--                </logic>-->
-<!--                <layout>-->
-<!--                    <x>2</x>-->
-<!--                    <y>3</y>-->
-<!--                    <rows>1</rows>-->
-<!--                    <cols>1</cols>-->
-<!--                    <offset>0</offset>-->
-<!--                    <template>material</template>-->
-<!--                    <appearance>outline</appearance>-->
-<!--                </layout>-->
-<!--            </dataRef>-->
-<!--        </dataGroup>-->
+        <flex>
+            <id>test_flex</id>
+            <item>
+                <dataRef>
+                    <id>newVariable_1</id>
+                    <logic>
+                        <behavior>editable</behavior>
+                        <immediate>true</immediate>
+                    </logic>
+                    <event type="set">
+                        <id>dataref_set</id>
+                        <actions phase="pre">
+                            <action>
+                                test("t5_newVariable_1_set_pre")
+                            </action>
+                        </actions>
+                        <actions phase="post">
+                            <action>
+                                test("t5_newVariable_1_set_post")
+                            </action>
+                        </actions>
+                    </event>
+                    <event type="get">
+                        <id>dataref_get</id>
+                        <actions phase="pre">
+                            <action>
+                                test("t5_newVariable_1_get_pre")
+                            </action>
+                        </actions>
+                        <actions phase="post">
+                            <action>
+                                test("t5_newVariable_1_get_post")
+                            </action>
+                        </actions>
+                    </event>
+                </dataRef>
+            </item>
+            <item>
+                <dataRef>
+                    <id>newVariable_2</id>
+                    <logic>
+                        <behavior>editable</behavior>
+                    </logic>
+                </dataRef>
+                <properties>
+                    <flex>2 2 10%</flex>
+                </properties>
+            </item>
+            <item>
+                <dataRef>
+                    <id>newVariable_3</id>
+                    <logic>
+                        <behavior>editable</behavior>
+                    </logic>
+                </dataRef>
+                <properties>
+                    <align-self>baseline</align-self>
+                </properties>
+            </item>
+            <item>
+                <dataRef>
+                    <id>newVariable_4</id>
+                    <logic>
+                        <behavior>editable</behavior>
+                    </logic>
+                </dataRef>
+            </item>
+            <item>
+                <dataRef>
+                    <id>newVariable_5</id>
+                    <logic>
+                        <behavior>editable</behavior>
+                        <required>false</required>
+                    </logic>
+                    <properties>
+                        <property key="test_dataRef_property_key">test dataRef property value</property>
+                    </properties>
+                </dataRef>
+
+            </item>
+            <item>
+                <dataRef>
+                    <id>newVariable_6</id>
+                    <logic>
+                        <behavior>editable</behavior>
+                    </logic>
+                </dataRef>
+                <properties>
+                    <order>10</order>
+                    <flex-grow>2</flex-grow>
+                    <flex-shrink>5</flex-shrink>
+                    <flex-basis>10%</flex-basis>
+                </properties>
+            </item>
+            <item>
+                <grid>
+                    <id>nested_grid_test</id>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_7</id>
+                            <logic>
+                                <behavior>editable</behavior>
+                                <immediate>true</immediate>
+                            </logic>
+                            <event type="set">
+                                <id>grid_dataref_set</id>
+                                <actions phase="pre">
+                                    <action>
+                                        test("t5_newVariable_1_set_pre")
+                                    </action>
+                                </actions>
+                                <actions phase="post">
+                                    <action>
+                                        test("t5_newVariable_1_set_post")
+                                    </action>
+                                </actions>
+                            </event>
+                            <event type="get">
+                                <id>grid_dataref_get</id>
+                                <actions phase="pre">
+                                    <action>
+                                        test("t5_newVariable_1_get_pre")
+                                    </action>
+                                </actions>
+                                <actions phase="post">
+                                    <action>
+                                        test("t5_newVariable_1_get_post")
+                                    </action>
+                                </actions>
+                            </event>
+                        </dataRef>
+                    </item>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_8</id>
+                            <logic>
+                                <behavior>editable</behavior>
+                            </logic>
+                        </dataRef>
+                        <properties>
+                            <grid-column-start>2</grid-column-start>
+                            <grid-column-end>5</grid-column-end>
+                            <grid-row-start>row1-start</grid-row-start>
+                            <grid-row-end>3</grid-row-end>
+                            <grid-column>2 / 5</grid-column>
+                            <grid-row>row1-start / 3</grid-row>
+                            <grid-area>row1-start / 2 / 3 / 5</grid-area>
+                        </properties>
+                    </item>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_9</id>
+                            <logic>
+                                <behavior>visible</behavior>
+                                <required>true</required>
+                            </logic>
+                        </dataRef>
+                        <properties>
+                            <justify-self>end</justify-self>
+                            <align-self>end</align-self>
+                            <place-self>test</place-self>
+                        </properties>
+                    </item>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_10</id>
+                            <logic>
+                                <behavior>editable</behavior>
+                                <required>true</required>
+                            </logic>
+                            <properties>
+                                <property key="test_dataRef_property_key">test dataRef property value</property>
+                            </properties>
+                        </dataRef>
+                    </item>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_11</id>
+                            <logic>
+                                <behavior>hidden</behavior>
+                            </logic>
+                        </dataRef>
+                    </item>
+                    <properties>
+                        <grid-template-columns>100px 50px 100px</grid-template-columns>
+                        <grid-template-rows>80px auto 80px</grid-template-rows>
+                        <grid-template-areas>header header header header</grid-template-areas>
+                        <grid-template>[row1-start] "header header header" 25px [row1-end]</grid-template>
+                        <column-gap>10px</column-gap>
+                        <row-gap>15px</row-gap>
+                        <gap>15px 10px</gap>
+                        <justify-items>center</justify-items>
+                        <align-items>baseline</align-items>
+                        <place-items>center</place-items>
+                        <justify-content>start</justify-content>
+                        <align-content>space-between</align-content>
+                        <place-content>space-between start</place-content>
+                        <grid-auto-columns>60px 60px</grid-auto-columns>
+                        <grid-auto-rows>90px 90px</grid-auto-rows>
+                        <grid-auto-flow>dense</grid-auto-flow>
+                        <grid>80px auto 80px / 100px 50px 100px</grid>
+                    </properties>
+                </grid>
+            </item>
+            <properties>
+                <flex-flow>test</flex-flow>
+                <gap>10 10</gap>
+                <row-gap>15</row-gap>
+                <column-gap>5</column-gap>
+            </properties>
+        </flex>
     </transition>
     <transition>
         <id>t6</id>
@@ -865,7 +807,7 @@
         </roleRef>
     </transition>
     <transition>
-        <id>t9_datarefs_without_group</id>
+        <id>t9</id>
         <x>860</x>
         <y>100</y>
         <title/>
@@ -875,8 +817,8 @@
                 <perform>false</perform>
                 <view>true</view>
                 <assign>true</assign>
-                <reassign>false</reassign>
                 <cancel>true</cancel>
+                <reassign>false</reassign>
             </logic>
         </roleRef>
         <roleRef>
@@ -886,78 +828,253 @@
                 <cancel>false</cancel>
             </logic>
         </roleRef>
-<!--        todo wrap with form element-->
-<!--        <dataRef>-->
-<!--            <id>newVariable_1</id>-->
-<!--            <logic>-->
-<!--                <behavior>editable</behavior>-->
-<!--            </logic>-->
-<!--        </dataRef>-->
-<!--        <dataRef>-->
-<!--            <id>newVariable_2</id>-->
-<!--            <logic>-->
-<!--                <behavior>editable</behavior>-->
-<!--            </logic>-->
-<!--        </dataRef>-->
-<!--        <dataRef>-->
-<!--            <id>newVariable_3</id>-->
-<!--            <logic>-->
-<!--                <behavior>editable</behavior>-->
-<!--            </logic>-->
-<!--        </dataRef>-->
+        <grid>
+            <id>test_grid</id>
+            <item>
+                <dataRef>
+                    <id>newVariable_7</id>
+                    <logic>
+                        <behavior>editable</behavior>
+                        <immediate>true</immediate>
+                    </logic>
+                    <event type="set">
+                        <id>grid_dataref_set</id>
+                        <actions phase="pre">
+                            <action>
+                                test("t5_newVariable_1_set_pre")
+                            </action>
+                        </actions>
+                        <actions phase="post">
+                            <action>
+                                test("t5_newVariable_1_set_post")
+                            </action>
+                        </actions>
+                    </event>
+                    <event type="get">
+                        <id>grid_dataref_get</id>
+                        <actions phase="pre">
+                            <action>
+                                test("t5_newVariable_1_get_pre")
+                            </action>
+                        </actions>
+                        <actions phase="post">
+                            <action>
+                                test("t5_newVariable_1_get_post")
+                            </action>
+                        </actions>
+                    </event>
+                </dataRef>
+            </item>
+            <item>
+                <dataRef>
+                    <id>newVariable_8</id>
+                    <logic>
+                        <behavior>editable</behavior>
+                    </logic>
+                </dataRef>
+                <properties>
+                    <grid-column-start>2</grid-column-start>
+                    <grid-column-end>5</grid-column-end>
+                    <grid-row-start>row1-start</grid-row-start>
+                    <grid-row-end>3</grid-row-end>
+                    <grid-column>2 / 5</grid-column>
+                    <grid-row>row1-start / 3</grid-row>
+                    <grid-area>row1-start / 2 / 3 / 5</grid-area>
+                </properties>
+            </item>
+            <item>
+                <dataRef>
+                    <id>newVariable_9</id>
+                    <logic>
+                        <behavior>visible</behavior>
+                        <required>true</required>
+                    </logic>
+                </dataRef>
+                <properties>
+                    <justify-self>end</justify-self>
+                    <align-self>end</align-self>
+                    <place-self>test</place-self>
+                </properties>
+            </item>
+            <item>
+                <dataRef>
+                    <id>newVariable_10</id>
+                    <logic>
+                        <behavior>editable</behavior>
+                        <required>true</required>
+                    </logic>
+                    <properties>
+                        <property key="test_dataRef_property_key">test dataRef property value</property>
+                    </properties>
+                </dataRef>
+            </item>
+            <item>
+                <dataRef>
+                    <id>newVariable_11</id>
+                    <logic>
+                        <behavior>hidden</behavior>
+                    </logic>
+                </dataRef>
+            </item>
+            <item>
+                <flex>
+                    <id>nested_flex_test</id>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_1</id>
+                            <logic>
+                                <behavior>editable</behavior>
+                                <immediate>true</immediate>
+                            </logic>
+                            <event type="set">
+                                <id>dataref_set</id>
+                                <actions phase="pre">
+                                    <action>
+                                        test("t5_newVariable_1_set_pre")
+                                    </action>
+                                </actions>
+                                <actions phase="post">
+                                    <action>
+                                        test("t5_newVariable_1_set_post")
+                                    </action>
+                                </actions>
+                            </event>
+                            <event type="get">
+                                <id>dataref_get</id>
+                                <actions phase="pre">
+                                    <action>
+                                        test("t5_newVariable_1_get_pre")
+                                    </action>
+                                </actions>
+                                <actions phase="post">
+                                    <action>
+                                        test("t5_newVariable_1_get_post")
+                                    </action>
+                                </actions>
+                            </event>
+                        </dataRef>
+                    </item>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_2</id>
+                            <logic>
+                                <behavior>editable</behavior>
+                            </logic>
+                        </dataRef>
+                        <properties>
+                            <flex>2 2 10%</flex>
+                        </properties>
+                    </item>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_3</id>
+                            <logic>
+                                <behavior>editable</behavior>
+                            </logic>
+                        </dataRef>
+                        <properties>
+                            <align-self>baseline</align-self>
+                        </properties>
+                    </item>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_4</id>
+                            <logic>
+                                <behavior>editable</behavior>
+                            </logic>
+                        </dataRef>
+                    </item>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_5</id>
+                            <logic>
+                                <behavior>editable</behavior>
+                                <required>false</required>
+                            </logic>
+                            <properties>
+                                <property key="test_dataRef_property_key">test dataRef property value</property>
+                            </properties>
+                        </dataRef>
+                    </item>
+                    <item>
+                        <dataRef>
+                            <id>newVariable_6</id>
+                            <logic>
+                                <behavior>editable</behavior>
+                            </logic>
+                        </dataRef>
+                        <properties>
+                            <order>10</order>
+                            <flex-grow>2</flex-grow>
+                            <flex-shrink>5</flex-shrink>
+                            <flex-basis>10%</flex-basis>
+                        </properties>
+                    </item>
+                    <properties>
+                        <flex-flow>test</flex-flow>
+                        <gap>10 10</gap>
+                        <row-gap>15</row-gap>
+                        <column-gap>5</column-gap>
+                    </properties>
+                </flex>
+            </item>
+            <properties>
+                <grid-template-columns>100px 50px 100px</grid-template-columns>
+                <grid-template-rows>80px auto 80px</grid-template-rows>
+                <grid-template-areas>header header header header</grid-template-areas>
+                <grid-template>[row1-start] "header header header" 25px [row1-end]</grid-template>
+                <column-gap>10px</column-gap>
+                <row-gap>15px</row-gap>
+                <gap>15px 10px</gap>
+                <justify-items>center</justify-items>
+                <align-items>baseline</align-items>
+                <place-items>center</place-items>
+                <justify-content>start</justify-content>
+                <align-content>space-between</align-content>
+                <place-content>space-between start</place-content>
+                <grid-auto-columns>60px 60px</grid-auto-columns>
+                <grid-auto-rows>90px 90px</grid-auto-rows>
+                <grid-auto-flow>dense</grid-auto-flow>
+                <grid>80px auto 80px / 100px 50px 100px</grid>
+            </properties>
+        </grid>
     </transition>
     <transition>
         <id>t10</id>
         <x>900</x>
         <y>260</y>
         <title>compact</title>
-<!--        todo refactor to form-->
-<!--        <dataGroup>-->
-<!--            <id>compact_up</id>-->
-<!--            <layout>grid</layout>-->
-<!--            <hideEmptyRows>compacted</hideEmptyRows>-->
-<!--            <compactDirection>up</compactDirection>-->
-<!--        </dataGroup>-->
+        <grid>
+            <id>empty_grid</id>
+        </grid>
     </transition>
     <transition>
         <id>t11</id>
         <x>900</x>
         <y>300</y>
         <title>all</title>
-        <!--        todo refactor to form-->
-<!--        <dataGroup>-->
-<!--            <id>compact_up</id>-->
-<!--            <layout>grid</layout>-->
-<!--            <hideEmptyRows>all</hideEmptyRows>-->
-<!--            <compactDirection>none</compactDirection>-->
-<!--        </dataGroup>-->
+        <flex>
+            <id>empty_flex</id>
+        </flex>
     </transition>
     <transition>
         <id>t12</id>
         <x>900</x>
         <y>340</y>
         <title>all</title>
-        <!--        todo refactor to form-->
-<!--        <dataGroup>-->
-<!--            <id>compact_up</id>-->
-<!--            <layout>grid</layout>-->
-<!--            <hideEmptyRows>none</hideEmptyRows>-->
-<!--            <compactDirection>up</compactDirection>-->
-<!--        </dataGroup>-->
     </transition>
     <transition>
         <id>predefined_roles</id>
         <x>460</x>
         <y>260</y>
         <title></title>
-        <!--        todo refactor to form-->
         <roleRef>
             <id>default</id>
             <logic>
                 <perform>false</perform>
-                <reassign>false</reassign>
                 <assign>true</assign>
                 <cancel>true</cancel>
+                <reassign>false</reassign>
             </logic>
         </roleRef>
         <roleRef>

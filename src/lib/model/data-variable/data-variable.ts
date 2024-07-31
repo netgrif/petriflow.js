@@ -20,7 +20,6 @@ export class DataVariable extends DataEventSource {
     private _type: DataType;
     private _immediate: boolean;
     private _encryption?: string;
-    private _actionRef: Array<string>;
     private _allowedNets: Array<string>;
     private _properties?: Array<Property>;
 
@@ -34,7 +33,6 @@ export class DataVariable extends DataEventSource {
         this._options = new Array<Option>();
         this._validations = [];
         this._immediate = false;
-        this._actionRef = [];
         this._allowedNets = [];
     }
 
@@ -134,14 +132,6 @@ export class DataVariable extends DataEventSource {
         this._encryption = value;
     }
 
-    get actionRef(): Array<string> {
-        return this._actionRef;
-    }
-
-    set actionRef(value: Array<string>) {
-        this._actionRef = value;
-    }
-
     get allowedNets(): Array<string> {
         return this._allowedNets;
     }
@@ -170,7 +160,6 @@ export class DataVariable extends DataEventSource {
         cloned._component = this._component?.clone();
         cloned._immediate = this._immediate;
         cloned._encryption = this._encryption;
-        cloned._actionRef = [...this._actionRef];
         cloned._allowedNets = [...this._allowedNets];
         cloned._properties = this._properties?.map(p => p.clone());
         this.getEvents().forEach(event => cloned.addEvent(event.clone()));

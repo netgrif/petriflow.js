@@ -1,25 +1,21 @@
 import {
-    Alignment,
     Arc,
     AssignPolicy,
     Breakpoint,
     CaseEvent,
     CaseEventType,
-    CompactDirection,
     Component,
     DataEvent,
     DataEventType,
-    DataGroup,
     DataType,
     DataVariable,
     Expression,
-    FinishPolicy, FunctionScope,
-    HideEmptyRows,
+    FinishPolicy,
+    FunctionScope,
     I18nString,
     I18nTranslations,
     I18nWithDynamic,
     InhibitorArc,
-    LayoutType,
     NodeElement,
     Option,
     PetriNet,
@@ -38,7 +34,6 @@ import {
     Transition,
     TransitionEvent,
     TransitionEventType,
-    TransitionLayout,
     Validation,
     XmlArcType
 } from '../model';
@@ -240,13 +235,6 @@ export class ImportService {
                 data.options.push(Option.of(key, value));
             }
         }
-        const valid = this.importUtils.tagValue(xmlData, 'valid');
-        if (valid !== '') {
-            const validation = new Validation();
-            validation.expression = new Expression(valid, xmlData.getElementsByTagName('valid')?.item(0)?.getAttribute('dynamic') === 'true');
-            data.validations.push(validation);
-            result.addInfo(`Tags <valid> of field ${data.id} changed to validations`);
-        }
         if (xmlData.getElementsByTagName('validations').length > 0) {
             for (const val of Array.from(xmlData.getElementsByTagName('validations')[0]?.children)) {
                 const validation = new Validation();
@@ -254,9 +242,6 @@ export class ImportService {
                 validation.message = this.importUtils.parseI18n((val as HTMLDataElement), 'message');
                 data.validations.push(validation);
             }
-        }
-        for (const actionRef of Array.from(xmlData.getElementsByTagName('actionRef'))) {
-            data.actionRef.push(this.importUtils.tagValue(actionRef, 'id'));
         }
         for (const xmlEvent of Array.from(xmlData.getElementsByTagName('event'))) {
             const event = new DataEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as DataEventType, '');
@@ -306,11 +291,25 @@ export class ImportService {
         result.model.addTransition(trans);
 
         this.importTransitionMetadata(xmlTrans, trans, result);
-        this.importTransitionLayout(xmlTrans, trans, result);
         this.importTransitionRoleRefs(xmlTrans, trans, result);
-        this.importTransitionDataGroups(xmlTrans, trans, result);
         this.importTransitionTriggers(xmlTrans, trans, result);
+        this.importTransitionContent(xmlTrans, trans, result)
         this.importTransitionEvents(xmlTrans, trans, result);
+    }
+
+    public importTransitionContent(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
+        try {
+            let transitionContentContainer = this.importUtils.getChildElementByName(xmlTrans.children, 'flex');
+            if (transitionContentContainer) {
+                trans.flex = this.importUtils.parseFlex(transitionContentContainer);
+            }
+            transitionContentContainer = this.importUtils.getChildElementByName(xmlTrans.children, 'grid');
+            if (transitionContentContainer) {
+                trans.grid = this.importUtils.parseGrid(transitionContentContainer);
+            }
+        } catch (e) {
+            result.addError('Importing of transtion content failed', e as Error);
+        }
     }
 
     private importTransitionRoleRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
@@ -330,64 +329,6 @@ export class ImportService {
             }
         } catch (e) {
             result.addError('Importing transition triggers failed', e as Error);
-        }
-    }
-
-    private importTransitionDataGroups(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
-        try {
-            for (const xmlDataGroup of Array.from(xmlTrans.getElementsByTagName('dataGroup'))) {
-                const id = this.importUtils.tagValue(xmlDataGroup, 'id');
-                try {
-                    trans.dataGroups.push(this.importUtils.parseDataGroup(xmlDataGroup));
-                } catch (e) {
-                    result.addError(`Importing data group '${id}' failed`, e as Error);
-                }
-            }
-            const xmlDataRefs = Array.from(xmlTrans.getElementsByTagName('dataRef'));
-            if (trans.dataGroups.length === 0 && xmlDataRefs.length > 0) {
-                const dataGroup = new DataGroup('NewDataGroup');
-                dataGroup.stretch = true;
-                for (let i = 0; i < xmlDataRefs.length; i++) {
-                    const xmlDataRef = xmlDataRefs[i];
-                    if (xmlDataRef?.parentElement?.tagName !== 'transition') {
-                        continue;
-                    }
-                    dataGroup.addDataRef(this.importUtils.parseDataRef(xmlDataRef, i));
-                }
-                trans.dataGroups.push(dataGroup);
-                result.addInfo(`Data references of transition '${trans.id}' wrapped with new data group`);
-            }
-        } catch (e) {
-            result.addError('Importing transition data groups failed', e as Error);
-        }
-    }
-
-    private importTransitionLayout(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
-        try {
-            const xmlLayout = xmlTrans.getElementsByTagName('layout');
-            if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode?.isSameNode(xmlTrans)) {
-                if (!trans.layout)
-                    trans.layout = new TransitionLayout();
-                trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
-                if (!trans.layout.type) {
-                    trans.layout.type = LayoutType.LEGACY;
-                } else if (trans.layout.type !== LayoutType.LEGACY) {
-                    const cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols');
-                    if (cols && cols > 0) {
-                        trans.layout.cols = cols;
-                    }
-                    const rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows');
-                    if (rows && rows > 0 || rows === 0) {
-                        trans.layout.rows = rows;
-                    }
-                }
-                trans.layout.offset = this.importUtils.parseNumberValue(xmlLayout.item(0), 'offset') ?? 0;
-                trans.layout.alignment = this.importUtils.tagValue(xmlLayout.item(0), 'fieldAlignment') as Alignment;
-                trans.layout.hideEmptyRows = this.importUtils.tagValue(xmlLayout.item(0), 'hideEmptyRows') as HideEmptyRows;
-                trans.layout.compactDirection = this.importUtils.tagValue(xmlLayout.item(0), 'compactDirection') as CompactDirection;
-            }
-        } catch (e) {
-            result.addError('Importing transition layout failed', e as Error);
         }
     }
 
@@ -484,7 +425,11 @@ export class ImportService {
             yy = yy ?? 0;
         }
         const isStatic = this.importUtils.parsePlaceStatic(xmlPlace);
-        const place = new Place(xx, yy, isStatic, placeId, this.importUtils.tagAttribute(xmlPlace, 'scope') as FunctionScope);
+        const place = new Place(xx, yy, isStatic, placeId);
+        const scopeValue = this.importUtils.tagAttribute(xmlPlace, 'scope');
+        if(scopeValue !== '') {
+            place.scope = scopeValue as FunctionScope;
+        }
         this.parsePlace(modelResult.model, xmlPlace, place);
     }
 
@@ -623,9 +568,6 @@ export class ImportService {
             });
             model.getTransitions().forEach(t => {
                 ImportService.checkI18n(t.title, i18ns, modelResult);
-                t.dataGroups.forEach(g => {
-                    ImportService.checkI18n(g.title, i18ns, modelResult);
-                });
                 t.eventSource.getEvents().forEach(e => {
                     ImportService.checkI18n(e.title, i18ns, modelResult);
                     ImportService.checkI18n(e.message, i18ns, modelResult);

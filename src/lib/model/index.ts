@@ -54,12 +54,10 @@ export * from './transition/appearance.enum';
 export * from './transition/assign-policy.enum';
 export * from './transition/compact-direction.enum'
 export * from './transition/data-focus-policy.enum';
-export * from './transition/data-layout';
 export * from './transition/data-ref';
 export * from './transition/data-ref-behavior.enum';
 export * from './transition/data-ref-logic';
 export * from './transition/data-ref-logic-util';
-export * from './transition/datagroup'; // cspell:disable-line
 export * from './transition/finish-policy.enum';
 export * from './transition/hide-empty-rows.enum';
 export * from './transition/layout';
@@ -71,7 +69,35 @@ export * from './transition/transition';
 export * from './transition/transition-event';
 export * from './transition/transition-event-source';
 export * from './transition/transition-event-type.enum';
-export * from './transition/transition-layout';
 export * from './transition/trigger';
 export * from './transition/trigger-type.enum';
 export * from './transition/user-ref';
+
+// flex layout
+export * from './transition/flex-layout/container/flex-container';
+export * from './transition/flex-layout/container/flex-container-properties';
+export * from './transition/flex-layout/container/enums/flex-direction.enum';
+export * from './transition/flex-layout/container/enums/flex-align-content.enum';
+export * from './transition/flex-layout/container/enums/flex-align-items.enum';
+export * from './transition/flex-layout/container/enums/flex-display.enum';
+export * from './transition/flex-layout/container/enums/flex-wrap.enum';
+export * from './transition/flex-layout/container/enums/flex-justify-content.enum';
+
+export * from './transition/flex-layout/item/flex-item';
+export * from './transition/flex-layout/item/flex-item-properties';
+export * from './transition/flex-layout/item/enums/flex-item-align-self.enum';
+
+// grid layout
+export * from './transition/grid-layout/container/grid-container'
+export * from './transition/grid-layout/container/grid-container-properties'
+export * from './transition/grid-layout/container/enums/grid-align-content.enum'
+export * from './transition/grid-layout/container/enums/grid-align-items.enum'
+export * from './transition/grid-layout/container/enums/grid-auto-flow.enum'
+export * from './transition/grid-layout/container/enums/grid-display.enum'
+export * from './transition/grid-layout/container/enums/grid-justify-content.enum'
+export * from './transition/grid-layout/container/enums/justify-items.enum'
+
+export * from './transition/grid-layout/item/grid-item'
+export * from './transition/grid-layout/item/grid-item-properties'
+export * from './transition/grid-layout/item/enums/grid-item-align-self.enum'
+export * from './transition/grid-layout/item/enums/justify-self.enum'
