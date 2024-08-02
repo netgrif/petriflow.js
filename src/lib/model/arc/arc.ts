@@ -1,5 +1,6 @@
 import {Expression} from '../data-variable/expression';
 import {Element} from '../petrinet/element';
+import {FunctionScope} from '../petrinet/function-scope.enum';
 import {NodeElement} from '../petrinet/node-element';
 import {ArcType, XmlArcType} from './arc-type.enum';
 import {Breakpoint} from './breakpoint';
@@ -9,6 +10,7 @@ export abstract class Arc<S extends NodeElement, D extends NodeElement> extends 
     private _destination: D;
     private _multiplicity: Expression;
     private _breakpoints: Array<Breakpoint>;
+    private _scope: FunctionScope = FunctionScope.USECASE;
 
     constructor(source: S, target: D, id: string) {
         super(id);
@@ -60,9 +62,18 @@ export abstract class Arc<S extends NodeElement, D extends NodeElement> extends 
         this._breakpoints = value;
     }
 
+    get scope(): FunctionScope {
+        return this._scope;
+    }
+
+    set scope(value: FunctionScope) {
+        this._scope = value;
+    }
+
     cloneAttributes(cloned: Arc<S, D>): void {
         cloned._multiplicity = this._multiplicity;
         cloned._breakpoints = this._breakpoints?.map(bp => bp.clone());
+        cloned._scope = this._scope;
     }
 
     abstract clone(): Arc<S, D>;

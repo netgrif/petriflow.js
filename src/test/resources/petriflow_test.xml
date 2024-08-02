@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--todo schema change-->
-<process xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
+<process noNamespaceSchemaLocation="file:///C:/netgrif/engine/petriflow/petriflow.schema.xsd">
     <id>petriflow_test</id>
-    <version>1</version>
     <title id="title">Petriflow Test Model</title>
     <icon>home</icon>
     <defaultRole>true</defaultRole>
     <anonymousRole>true</anonymousRole>
     <caseName dynamic="true">${new Date() as String}</caseName>
+    <version>1</version>
     <!-- PROCESS ROLE REFS -->
     <roleRef>
         <id>anonymous</id>
@@ -121,7 +121,7 @@
         </event>
     </caseEvents>
     <!-- ROLES -->
-    <role>
+    <role scope="process">
         <id>newRole_1</id>
         <title id="role_1_title">title</title>
         <event type="assign">
@@ -179,7 +179,7 @@
         }
     </function>
     <!-- DATA -->
-    <data type="text">
+    <data type="text" scope="process">
         <id>cdata_escape</id>
         <title>CDATA &amp;&lt;&gt;</title>
         <init>
@@ -210,7 +210,7 @@
             </actions>
         </event>
     </data>
-    <data type="number">
+    <data type="number" >
         <id>newVariable_1</id>
         <title>title</title>
         <validations>
@@ -459,7 +459,7 @@
     <i18n locale="sk">
     </i18n>
     <!-- TRANSITIONS -->
-    <transition>
+    <transition scope="process">
         <id>t1</id>
         <x>460</x>
         <y>180</y>
@@ -1190,7 +1190,7 @@
         <static>false</static>
     </place>
     <!-- ARCS -->
-    <arc>
+    <arc scope="namespace">
         <id>a1</id>
         <type>regular</type>
         <sourceId>p1</sourceId>

@@ -207,6 +207,7 @@ describe('Petriflow integration tests', () => {
         expect(role1.title.value).toEqual(ROLE_TITLE_VALUE);
         expect(role1.title.id).toEqual(ROLE_1_TITLE_NAME);
         expect(role1.getEvents().length).toEqual(2);
+        expect(role1.scope).toEqual(FunctionScope.PROCESS);
         const roleAssignEvent = role1.getEvent(RoleEventType.ASSIGN);
         expect(roleAssignEvent.id).toEqual('assign_role');
         expect(roleAssignEvent.preActions.length).toEqual(1);
@@ -220,6 +221,7 @@ describe('Petriflow integration tests', () => {
         expect(roleCancelEvent.postActions.length).toEqual(1);
         expect(roleCancelEvent.postActions[0].definition).toContain('test("cancel_role_post")');
         expect(role2.title).not.toBeUndefined();
+        expect(role2.scope).toEqual(FunctionScope.USECASE);
         expect(role2.title.value).toEqual(ROLE_TITLE_VALUE);
         expect(role2.title.id).toEqual('role_2_title');
         expect(role3.title).not.toBeUndefined();
@@ -271,11 +273,13 @@ describe('Petriflow integration tests', () => {
 
         expect(model.getDataSet().length).toEqual(MODEL_DATA_LENGTH);
         const cdataField = model.getData('cdata_escape');
+        expect(cdataField.scope).toEqual(FunctionScope.PROCESS);
         expect(cdataField.title.value).toEqual('CDATA &<>');
         expect(cdataField.init.value).toContain('<p>CDATA &amp;&lt;&gt;</p>');
         expect(cdataField.getEvent(DataEventType.SET).postActions.length).toEqual(2);
         const numberField = model.getData('newVariable_1');
         expect(numberField.type).toEqual(DataType.NUMBER);
+        expect(cdataField.scope).toEqual(FunctionScope.PROCESS);
         expect(numberField.title.value).toEqual('title');
         expect(numberField.init.value).toEqual('5');
         expect(numberField.init.dynamic).toEqual(false);
@@ -467,6 +471,7 @@ describe('Petriflow integration tests', () => {
 
         expect(model.getTransitions().length).toEqual(MODEL_TRANSITIONS_LENGTH);
         const transitionT1 = model.getTransition('t1');
+        expect(transitionT1.scope).toEqual(FunctionScope.PROCESS);
         expect(transitionT1.title.id).toEqual('t1_title');
         expect(transitionT1.title.value).toEqual('Task escape:&<>');
         expect(transitionT1.icon).toEqual(MODEL_ICON);
@@ -504,6 +509,7 @@ describe('Petriflow integration tests', () => {
         const transitionT5 = model.getTransition('t5');
         const t5Flex = transitionT5.flex;
         expect(t5Flex).toBeDefined();
+        expect(transitionT5.scope).toEqual(FunctionScope.USECASE);
         expect(transitionT5.grid).toBeUndefined();
 
         expect(t5Flex.id).toEqual('test_flex');
@@ -905,6 +911,8 @@ describe('Petriflow integration tests', () => {
         log('Model places correct');
 
         expect(model.getArcs().length).toEqual(MODEL_ARCS_LENGTH);
+        expect(model.getArc('a1').scope).toEqual(FunctionScope.NAMESPACE);
+        expect(model.getArc('a2').scope).toEqual(FunctionScope.USECASE);
         assertArc(model.getArc('a1'), 'a1', ArcType.REGULAR_PT, 'p1', 't1', {
             dynamic: true,
             expression: 'p2'

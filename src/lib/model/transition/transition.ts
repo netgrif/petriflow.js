@@ -1,4 +1,5 @@
 import {I18nString} from '../i18n/i18n-string';
+import {FunctionScope} from '../petrinet/function-scope.enum';
 import {NodeElement} from '../petrinet/node-element';
 import {AssignPolicy} from './assign-policy.enum';
 import {FinishPolicy} from './finish-policy.enum';
@@ -17,6 +18,7 @@ export class Transition extends NodeElement {
     private _grid?: GridContainer;
     private _flex?: FlexContainer;
     private _eventSource: TransitionEventSource;
+    private _scope: FunctionScope = FunctionScope.USECASE;
 
     constructor(x: number, y: number, id: string) {
         super(id, x, y, new I18nString(''));
@@ -91,6 +93,14 @@ export class Transition extends NodeElement {
         this._flex = value;
     }
 
+    get scope(): FunctionScope {
+        return this._scope;
+    }
+
+    set scope(value: FunctionScope) {
+        this._scope = value;
+    }
+
     public clone(): Transition {
         const cloned = new Transition(this.x, this.y, this.id);
         cloned.title = this.title?.clone();
@@ -102,6 +112,7 @@ export class Transition extends NodeElement {
         cloned._flex = this._flex?.clone();
         cloned._grid = this._grid?.clone();
         cloned.properties = this.properties?.map(p => p.clone());
+        cloned._scope = this._scope;
         this.eventSource.getEvents().forEach(event => cloned.eventSource.addEvent(event.clone()));
         return cloned;
     }

@@ -93,7 +93,7 @@ export class ExportService {
             if (item.properties !== undefined) {
                 this.exportProperties(role, item.properties)
             }
-            role.setAttribute("scope", item.scope.toString());
+            role.setAttribute('scope', item.scope.toString());
             doc.appendChild(role);
         });
     }
@@ -210,6 +210,7 @@ export class ExportService {
             this._exportUtils.exportTag(exportData, 'title', data.title, true);
             this._exportUtils.exportTag(exportData, 'placeholder', data.placeholder);
             this._exportUtils.exportTag(exportData, 'desc', data.desc);
+            exportData.setAttribute('scope', data.scope?.toString());
             if (data.options.length > 0) {
                 const options = this.xmlConstructor.createElement('options');
                 data.options.forEach(opt => this._exportUtils.exportTag(options, 'option', opt.value, false, [{
@@ -281,6 +282,7 @@ export class ExportService {
             this._exportUtils.exportTag(exportTrans, 'icon', trans.icon ?? '');
             this._exportUtils.exportTag(exportTrans, 'assignPolicy', trans.assignPolicy === AssignPolicy.MANUAL ? '' : trans.assignPolicy);
             this._exportUtils.exportTag(exportTrans, 'finishPolicy', trans.finishPolicy === FinishPolicy.MANUAL ? '' : trans.finishPolicy);
+            exportTrans.setAttribute('scope', trans.scope?.toString());
             trans.triggers.forEach(trigger => {
                 if (trigger.type !== TriggerType.TIME) {
                     const exportTrigger = this.xmlConstructor.createElement('trigger');
@@ -663,7 +665,7 @@ export class ExportService {
             if (place.properties !== undefined) {
                 this.exportProperties(exportPlace, place.properties)
             }
-            exportPlace.setAttribute("scope", place.scope?.toString());
+            exportPlace.setAttribute('scope', place.scope?.toString());
             doc.appendChild(exportPlace);
         });
     }
@@ -679,6 +681,7 @@ export class ExportService {
             if (arc.breakpoints !== undefined) {
                 this.exportBreakpoints(exportArc, arc);
             }
+            exportArc.setAttribute('scope', arc.scope?.toString());
             doc.appendChild(exportArc);
         });
     }

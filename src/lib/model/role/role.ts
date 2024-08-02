@@ -11,10 +11,10 @@ export class Role extends EventSource<RoleEvent, RoleEventType> {
 
     private _id: string;
     private _title: I18nString;
-    private _scope: FunctionScope = FunctionScope.USECASE;
+    private _scope: FunctionScope;
     private _properties?: Array<Property>;
 
-    constructor(id: string, _scope: FunctionScope) {
+    constructor(id: string, _scope: FunctionScope = FunctionScope.USECASE) {
         super();
         this._id = id;
         this._title = new I18nString('');
