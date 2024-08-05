@@ -1,5 +1,6 @@
 import {
     Action,
+    ActionType,
     Component,
     DataEvent,
     DataEventType,
@@ -44,7 +45,6 @@ import {
     UserRef,
     XmlArcType
 } from '../model';
-import {ActionType} from '../model/petrinet/action-type.enum';
 
 export class ImportUtils {
 

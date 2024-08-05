@@ -1,5 +1,6 @@
 import {
     Action,
+    ActionType,
     Arc,
     ArcType,
     CaseLogic,
@@ -11,7 +12,6 @@ import {
     PetriflowFunction,
     XmlArcType
 } from '../model';
-import {ActionType} from '../model/petrinet/action-type.enum';
 
 export class ExportUtils {
 
