@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--todo schema change-->
-<process noNamespaceSchemaLocation="file:///C:/netgrif/engine/petriflow/petriflow.schema.xsd">
+<process xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
     <id>petriflow_test</id>
     <title id="title">Petriflow Test Model</title>
     <icon>home</icon>
