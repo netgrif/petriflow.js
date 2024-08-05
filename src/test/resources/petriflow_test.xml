@@ -68,7 +68,7 @@
                 </action>
             </actions>
             <actions phase="post">
-                <action>
+                <action type="any">
 <!-- @formatter:off    -->
 <!-- some xml comment                    -->
                     // some java comment
@@ -91,7 +91,7 @@
         <event type="create">
             <id>case_create</id>
             <actions phase="pre">
-                <action>
+                <action type="component">
                     test("case_create_pre")
                     test("second_run_case_create_pre")
                 </action>
@@ -127,7 +127,7 @@
         <event type="assign">
             <id>assign_role</id>
             <actions phase="pre">
-                <action>
+                <action type="any">
                     test("assign_role_pre")
                 </action>
             </actions>
@@ -188,7 +188,7 @@
         <event type="get">
             <id>cdata_get</id>
             <actions phase="post">
-                <action id="cdata_get_post">
+                <action id="cdata_get_post" type="any">
                     test
                 </action>
             </actions>

@@ -44,6 +44,7 @@ import {
     UserRef,
     XmlArcType
 } from '../model';
+import {ActionType} from '../model/petrinet/action-type.enum';
 
 export class ImportUtils {
 
@@ -101,7 +102,12 @@ export class ImportUtils {
     public parseAction(actionTag: Element): Action {
         const actionId = actionTag.getAttribute('id') ?? 'action_' + this.getNextActionId();
         const definition = this.parseDefinition(actionTag);
-        return new Action(actionId, definition.trim());
+        const action = new Action(actionId, definition.trim());
+        const actionType = this.tagAttribute(actionTag, 'type');
+        if (actionType !== '') {
+            action.actionType = actionType as ActionType;
+        }
+        return action;
     }
 
     parseFunction(xmlFunction: Element) {

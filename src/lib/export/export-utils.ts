@@ -11,6 +11,7 @@ import {
     PetriflowFunction,
     XmlArcType
 } from '../model';
+import {ActionType} from '../model/petrinet/action-type.enum';
 
 export class ExportUtils {
 
@@ -102,6 +103,9 @@ export class ExportUtils {
         const exportAction = this.xmlConstructor.createElement('action');
         if (action.id !== undefined && action.id != null) {
             exportAction.setAttribute('id', action.id);
+        }
+        if (action.actionType !== undefined && action.actionType !== ActionType.VALUE) {
+            exportAction.setAttribute('type', action.actionType.toString());
         }
         exportAction.insertAdjacentText('beforeend', action.definition);
         element.appendChild(exportAction);

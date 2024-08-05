@@ -29,6 +29,7 @@ export * from './i18n/i18n-translations';
 export * from './i18n/i18n-with-dynamic';
 
 export * from './petrinet/action';
+export * from './petrinet/action-type.enum';
 export * from './petrinet/case-event';
 export * from './petrinet/case-event-type.enum';
 export * from './petrinet/case-logic';
