@@ -40,7 +40,6 @@ import {
     TransitionPermissionRef,
     Trigger,
     TriggerType,
-    UserRef,
     XmlArcType
 } from '../model';
 

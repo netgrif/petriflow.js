@@ -2,13 +2,10 @@ import {I18nString} from '../i18n/i18n-string';
 import {FunctionScope} from '../petrinet/function-scope.enum';
 import {NodeElement} from '../petrinet/node-element';
 import {AssignPolicy} from './assign-policy.enum';
-import {DataGroup} from './datagroup';
 import {FinishPolicy} from './finish-policy.enum';
 import {FlexContainer} from './flex-layout/container/flex-container';
 import {GridContainer} from './grid-layout/container/grid-container';
-import {RoleRef} from './role-ref';
 import {TransitionEventSource} from './transition-event-source';
-import {TransitionLayout} from './transition-layout';
 import {TransitionPermissionRef} from './transition-permission-ref';
 import {Trigger} from './trigger';
 

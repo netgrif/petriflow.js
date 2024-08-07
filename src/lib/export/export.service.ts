@@ -35,7 +35,6 @@ import {
     Property,
     Transition,
     TransitionEvent,
-    TransitionLayout,
     TransitionPermissionRef,
     TriggerType
 } from '../model';

@@ -56,7 +56,6 @@ export * from './transition/data-focus-policy.enum';
 export * from './transition/data-ref';
 export * from './transition/data-ref-behavior.enum';
 export * from './transition/data-ref-logic';
-export * from './transition/data-ref-logic-util';
 export * from './transition/finish-policy.enum';
 export * from './transition/hide-empty-rows.enum';
 export * from './transition/layout';
