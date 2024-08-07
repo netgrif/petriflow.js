@@ -8,7 +8,6 @@ export * from './petrinet/event';
 export * from './petrinet/event-phase.enum';
 export * from './petrinet/event-source';
 export * from './petrinet/function-scope.enum';
-export * from './petrinet/mapping';
 export * from './petrinet/node-element';
 export * from './petrinet/permission-ref';
 export * from './petrinet/petriflow-function';
@@ -16,7 +15,6 @@ export * from './petrinet/place';
 export * from './petrinet/process-event';
 export * from './petrinet/process-event-type.enum';
 export * from './petrinet/process-permission-ref';
-export * from './petrinet/transaction';
 
 export * from './arc/arc';
 export * from './arc/arc-type.enum';
@@ -53,14 +51,11 @@ export * from './role/role-event-type.enum';
 export * from './transition/alignment.enum';
 export * from './transition/appearance.enum';
 export * from './transition/assign-policy.enum';
-export * from './transition/assigned-user';
 export * from './transition/compact-direction.enum'
 export * from './transition/data-focus-policy.enum';
-export * from './transition/data-layout';
 export * from './transition/data-ref';
 export * from './transition/data-ref-behavior.enum';
 export * from './transition/data-ref-logic';
-export * from './transition/datagroup';
 export * from './transition/finish-policy.enum';
 export * from './transition/hide-empty-rows.enum';
 export * from './transition/layout';
@@ -72,6 +67,34 @@ export * from './transition/transition';
 export * from './transition/transition-event';
 export * from './transition/transition-event-source';
 export * from './transition/transition-event-type.enum';
-export * from './transition/transition-layout';
 export * from './transition/trigger';
 export * from './transition/trigger-type.enum';
+
+// flex layout
+export * from './transition/flex-layout/container/flex-container';
+export * from './transition/flex-layout/container/flex-container-properties';
+export * from './transition/flex-layout/container/enums/flex-direction.enum';
+export * from './transition/flex-layout/container/enums/flex-align-content.enum';
+export * from './transition/flex-layout/container/enums/flex-align-items.enum';
+export * from './transition/flex-layout/container/enums/flex-display.enum';
+export * from './transition/flex-layout/container/enums/flex-wrap.enum';
+export * from './transition/flex-layout/container/enums/flex-justify-content.enum';
+
+export * from './transition/flex-layout/item/flex-item';
+export * from './transition/flex-layout/item/flex-item-properties';
+export * from './transition/flex-layout/item/enums/flex-item-align-self.enum';
+
+// grid layout
+export * from './transition/grid-layout/container/grid-container'
+export * from './transition/grid-layout/container/grid-container-properties'
+export * from './transition/grid-layout/container/enums/grid-align-content.enum'
+export * from './transition/grid-layout/container/enums/grid-align-items.enum'
+export * from './transition/grid-layout/container/enums/grid-auto-flow.enum'
+export * from './transition/grid-layout/container/enums/grid-display.enum'
+export * from './transition/grid-layout/container/enums/grid-justify-content.enum'
+export * from './transition/grid-layout/container/enums/justify-items.enum'
+
+export * from './transition/grid-layout/item/grid-item'
+export * from './transition/grid-layout/item/grid-item-properties'
+export * from './transition/grid-layout/item/enums/grid-item-align-self.enum'
+export * from './transition/grid-layout/item/enums/justify-self.enum'

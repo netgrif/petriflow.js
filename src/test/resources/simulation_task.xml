@@ -1,46 +1,45 @@
-<document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
+<process xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
     <id>new_model</id>
-    <initials>NEW</initials>
+    <version>1.0.0</version>
     <title>New Model</title>
     <icon>device_hub</icon>
     <defaultRole>true</defaultRole>
     <anonymousRole>true</anonymousRole>
-    <transitionRole>false</transitionRole>
     <transition>
         <id>t1</id>
         <x>420</x>
         <y>100</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t2</id>
         <x>420</x>
         <y>340</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t3</id>
         <x>460</x>
         <y>220</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t4</id>
         <x>140</x>
         <y>220</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t5</id>
         <x>300</x>
         <y>100</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t6</id>
         <x>300</x>
         <y>340</y>
-        <label/>
+        <title/>
     </transition>
     <place>
         <id>p1</id>
@@ -91,4 +90,4 @@
         <destinationId>t6</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
-</document>
+</process>

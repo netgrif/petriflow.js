@@ -1,101 +1,100 @@
-<document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<process xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
     <id>new_model</id>
-    <initials>NEW</initials>
+    <version>1.0.0</version>
     <title>New Model</title>
     <icon>device_hub</icon>
     <defaultRole>true</defaultRole>
     <anonymousRole>true</anonymousRole>
-    <transitionRole>false</transitionRole>
     <transition>
         <id>t1</id>
         <x>180</x>
         <y>60</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t2</id>
         <x>180</x>
         <y>140</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t3</id>
         <x>180</x>
         <y>220</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t4</id>
         <x>180</x>
         <y>300</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t5</id>
         <x>180</x>
         <y>380</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t6</id>
         <x>420</x>
         <y>60</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t7</id>
         <x>420</x>
         <y>140</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t8</id>
         <x>420</x>
         <y>220</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t9</id>
         <x>420</x>
         <y>300</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t10</id>
         <x>660</x>
         <y>60</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t11</id>
         <x>660</x>
         <y>140</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t12</id>
         <x>900</x>
         <y>60</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t13</id>
         <x>900</x>
         <y>140</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t14</id>
         <x>900</x>
         <y>220</y>
-        <label/>
+        <title/>
     </transition>
     <transition>
         <id>t15</id>
         <x>900</x>
         <y>300</y>
-        <label/>
+        <title/>
     </transition>
     <place>
         <id>p1</id>
@@ -307,4 +306,4 @@
         <destinationId>t15</destinationId>
         <multiplicity>5</multiplicity>
     </arc>
-</document>
+</process>

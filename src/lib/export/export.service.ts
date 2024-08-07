@@ -3,23 +3,40 @@ import {
     AssignPolicy,
     CaseEvent,
     Component,
-    DataFocusPolicy,
-    DataGroup,
-    DataLayout,
     DataRef,
-    DataRefBehavior,
     Event,
     FinishPolicy,
-    IconType,
-    LayoutType,
+    FlexAlignContent,
+    FlexAlignItems,
+    FlexContainer,
+    FlexContainerProperties,
+    FlexDirection,
+    FlexDisplay,
+    FlexItem,
+    FlexItemAlignSelf,
+    FlexItemProperties,
+    FlexJustifyContent,
+    FlexWrap,
+    GridAlignContent,
+    GridAlignItems,
+    GridContainer,
+    GridContainerProperties,
+    GridDisplay,
+    GridItem,
+    GridItemAlignSelf,
+    GridItemProperties,
+    GridJustifyContent,
+    JustifyItems,
+    JustifySelf,
     NodeElement,
     PetriNet,
     ProcessEvent,
     ProcessPermissionRef,
+    Property,
+    Transition,
     TransitionEvent,
-    TransitionLayout,
     TransitionPermissionRef,
-    TriggerType,
+    TriggerType
 } from '../model';
 import {ExportUtils} from './export-utils';
 
@@ -38,17 +55,15 @@ export class ExportService {
     }
 
     public generateXml(model: PetriNet): Element {
-        const doc = this.xmlConstructor.createElement('document');
+        const doc = this.xmlConstructor.createElement('process');
         doc.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
         doc.setAttribute('xsi:noNamespaceSchemaLocation', ExportService.PETRIFLOW_SCHEMA_URL);
         this.exportModel(doc, model);
         this.exportProcessRefs(doc, model);
         this.exportProcessEvents(doc, model);
-        this.exportTransactions(doc, model);
         this.exportRoles(doc, model);
         this.exportFunctions(doc, model);
         this.exportData(doc, model);
-        // TODO mapping
         this.exportI18n(doc, model);
         this.exportTransitions(doc, model);
         this.exportPlaces(doc, model);
@@ -59,23 +74,12 @@ export class ExportService {
     public exportModel(doc: Element, model: PetriNet): void {
         this._exportUtils.exportTag(doc, 'id', model.id, true);
         this._exportUtils.exportTag(doc, 'version', model.version);
-        this._exportUtils.exportTag(doc, 'initials', model.initials, true);
         this._exportUtils.exportI18nString(doc, 'title', model.title, true);
         this._exportUtils.exportTag(doc, 'icon', model.icon);
         this._exportUtils.exportTag(doc, 'defaultRole', model.defaultRole !== undefined ? (model.defaultRole.toString()) : '');
         this._exportUtils.exportTag(doc, 'anonymousRole', model.anonymousRole !== undefined ? (model.anonymousRole.toString()) : '');
-        this._exportUtils.exportTag(doc, 'transitionRole', model.transitionRole !== undefined ? (model.transitionRole.toString()) : '');
         this._exportUtils.exportTags(doc, model.tags);
         this._exportUtils.exportI18nWithDynamic(doc, 'caseName', model.caseName);
-    }
-
-    public exportTransactions(doc: Element, model: PetriNet): void {
-        model.getTransactions().forEach(item => {
-            const trans = this.xmlConstructor.createElement('transaction');
-            this._exportUtils.exportTag(trans, 'id', item.id, true);
-            this._exportUtils.exportI18nString(trans, 'title', item.title, true);
-            doc.appendChild(trans);
-        });
     }
 
     public exportRoles(doc: Element, model: PetriNet): void {
@@ -86,6 +90,10 @@ export class ExportService {
             item.getEvents().forEach(event => {
                 this.exportEvent(role, event);
             });
+            if (item.properties !== undefined) {
+                this.exportProperties(role, item.properties)
+            }
+            role.setAttribute('scope', item.scope.toString());
             doc.appendChild(role);
         });
     }
@@ -119,12 +127,30 @@ export class ExportService {
         if (event.postActions.length > 0) {
             this._exportUtils.exportActions(exportEvent, event, 'post');
         }
+        if (event.properties !== undefined && event.properties.length > 0) {
+            this.exportProperties(exportEvent, event.properties);
+        }
+
         if ((event instanceof ProcessEvent || event instanceof CaseEvent) && !!exportProcessEvent) {
             exportProcessEvent.appendChild(exportEvent);
             element.appendChild(exportProcessEvent);
         } else {
             element.appendChild(exportEvent);
         }
+    }
+
+    public exportProperties(element: Element, properties: Array<Property>): void {
+        if (!properties || properties.length === 0) {
+            return
+        }
+        const props = this.xmlConstructor.createElement('properties');
+        properties.forEach(property => {
+            this._exportUtils.exportTag(props, 'property', property.value, false, [{
+                key: 'key',
+                value: property.key,
+            }])
+        })
+        element.appendChild(props);
     }
 
     public exportProcessRefs(doc: Element, model: PetriNet): void {
@@ -149,13 +175,17 @@ export class ExportService {
 
     public exportTransitionRef(element: Element, ref: TransitionPermissionRef, name: string): void {
         if (ref.logic.perform !== undefined ||
+            ref.logic.reassign !== undefined ||
             ref.logic.assign !== undefined ||
             ref.logic.cancel !== undefined ||
-            ref.logic.delegate !== undefined ||
+            ref.logic.viewDisabled !== undefined ||
             ref.logic.view !== undefined) {
             const transRef = this.xmlConstructor.createElement(name);
             this._exportUtils.exportTag(transRef, 'id', ref.id, true);
             this._exportUtils.exportLogic(transRef, ref.logic, 'logic');
+            if (ref.properties !== undefined) {
+                this.exportProperties(transRef, ref.properties)
+            }
             element.appendChild(transRef);
         }
     }
@@ -180,10 +210,10 @@ export class ExportService {
             this._exportUtils.exportI18nString(exportData, 'title', data.title, true);
             this._exportUtils.exportI18nString(exportData, 'placeholder', data.placeholder);
             this._exportUtils.exportI18nString(exportData, 'desc', data.desc);
+            exportData.setAttribute('scope', data.scope?.toString());
             if (data.options.length > 0) {
                 const options = this.xmlConstructor.createElement('options');
                 data.options.forEach(opt => this._exportUtils.exportOption(options, 'option', opt));
-                this._exportUtils.exportExpression(options, 'init', data.optionsInit);
                 exportData.appendChild(options);
             }
             if (!!data.validations && (data.validations?.length ?? 0) > 0) {
@@ -197,13 +227,6 @@ export class ExportService {
                 exportData.appendChild(validations);
             }
             this._exportUtils.exportI18nWithDynamic(exportData, 'init', data.init);
-            if (data.inits.length > 0) {
-                const inits = this.xmlConstructor.createElement('inits');
-                data.inits.forEach(init => {
-                    this._exportUtils.exportI18nWithDynamic(inits, 'init', init);
-                });
-                exportData.appendChild(inits);
-            }
             if (data.component !== undefined) {
                 this.exportComponent(exportData, data.component);
             }
@@ -220,17 +243,8 @@ export class ExportService {
             data.getEvents().forEach(event => {
                 this.exportEvent(exportData, event);
             });
-            data.actionRef?.forEach(action => {
-                const ref = this.xmlConstructor.createElement('actionRef');
-                this._exportUtils.exportTag(ref, 'id', action);
-                exportData.appendChild(ref);
-            });
-            // TODO: documentRef
-            if (data.remote) {
-                this._exportUtils.exportTag(exportData, 'remote', 'true');
-            }
-            if (data.length !== undefined) {
-                this._exportUtils.exportTag(exportData, 'length', data.length?.toString());
+            if (data.properties !== undefined) {
+                this.exportProperties(exportData, data.properties)
             }
             if (data.allowedNets?.length > 0) {
                 const nets = this.xmlConstructor.createElement('allowedNets');
@@ -247,8 +261,8 @@ export class ExportService {
             i18ns.setAttribute('locale', translations.locale);
             translations.getI18ns().forEach(i18n => {
                 this._exportUtils.exportTag(i18ns, 'i18nString', i18n.value, false, [{
-                    key: 'name',
-                    value: i18n.name ?? ''
+                    key: 'id',
+                    value: i18n.id ?? ''
                 }]);
             });
             doc.appendChild(i18ns);
@@ -261,18 +275,12 @@ export class ExportService {
             this._exportUtils.exportTag(exportTrans, 'id', trans.id, true);
             this._exportUtils.exportTag(exportTrans, 'x', trans.x?.toString(), true);
             this._exportUtils.exportTag(exportTrans, 'y', trans.y?.toString(), true);
-            this._exportUtils.exportI18nString(exportTrans, 'label', trans.label, true);
+            this._exportUtils.exportI18nString(exportTrans, 'title', trans.title, true);
             this._exportUtils.exportTags(exportTrans, trans.tags);
-            if (trans.layout && !trans.layout.empty()) {
-                this.exportTransitionLayout(exportTrans, trans.layout);
-            }
             this._exportUtils.exportTag(exportTrans, 'icon', trans.icon ?? '');
-            if (trans.priority) {
-                this._exportUtils.exportTag(exportTrans, 'priority', `${trans.priority}`);
-            }
             this._exportUtils.exportTag(exportTrans, 'assignPolicy', trans.assignPolicy === AssignPolicy.MANUAL ? '' : trans.assignPolicy);
-            this._exportUtils.exportTag(exportTrans, 'dataFocusPolicy', trans.dataFocusPolicy === DataFocusPolicy.MANUAL ? '' : trans.dataFocusPolicy);
             this._exportUtils.exportTag(exportTrans, 'finishPolicy', trans.finishPolicy === FinishPolicy.MANUAL ? '' : trans.finishPolicy);
+            exportTrans.setAttribute('scope', trans.scope?.toString());
             trans.triggers.forEach(trigger => {
                 if (trigger.type !== TriggerType.TIME) {
                     const exportTrigger = this.xmlConstructor.createElement('trigger');
@@ -292,22 +300,13 @@ export class ExportService {
                     }
                 }
             });
-            this._exportUtils.exportTag(exportTrans, 'transactionRef', trans.transactionRef ?? '');
+            this.exportTransitionContent(exportTrans, trans);
             trans.roleRefs.sort((a, b) => a.compare(b)).forEach(roleRef => {
                 this.exportTransitionRef(exportTrans, roleRef, 'roleRef');
             });
-            trans.userRefs.sort((a, b) => a.compare(b)).forEach(userRef => {
-                this.exportTransitionRef(exportTrans, userRef, 'userRef');
-            });
-            if (trans.assignedUser !== undefined) {
-                const assignedUser = this.xmlConstructor.createElement('assignedUser');
-                this._exportUtils.exportTag(assignedUser, 'cancel', trans.assignedUser.cancel?.toString() ?? '');
-                this._exportUtils.exportTag(assignedUser, 'reassign', trans.assignedUser.reassign?.toString() ?? '');
-                exportTrans.appendChild(assignedUser);
+            if (trans.properties !== undefined) {
+                this.exportProperties(exportTrans, trans.properties)
             }
-            trans.dataGroups.forEach(dataGroup => {
-                this.exportDataGroup(exportTrans, dataGroup);
-            });
             trans.eventSource.getEvents().forEach(event => {
                 this.exportEvent(exportTrans, event);
             });
@@ -315,109 +314,341 @@ export class ExportService {
         });
     }
 
+    public exportTransitionContent(exportTransition: Element, transition: Transition): void {
+        if (transition.flex) {
+            this.exportFlex(exportTransition, transition.flex);
+        }
+        if (transition.grid) {
+            this.exportGrid(exportTransition, transition.grid);
+        }
+    }
+
+    public exportFlex(exportParent: Element, flexContainer: FlexContainer): void {
+        const exportFlexContainer = this.xmlConstructor.createElement('flex');
+
+        this._exportUtils.exportTag(exportFlexContainer, 'id', flexContainer.id);
+        this.exportFlexContainerProperties(exportFlexContainer, flexContainer.properties);
+        flexContainer.items?.forEach(item => {
+            this.exportFlexItem(exportFlexContainer, item);
+        })
+        exportParent.appendChild(exportFlexContainer);
+    }
+
+    public exportFlexContainerProperties(exportFlexContainer: HTMLElement, properties: FlexContainerProperties) {
+        const exportFlexProperties = this.xmlConstructor.createElement('properties');
+
+        const propertyValueMap: {
+            [exportName: string]: {
+                defaultValue: string | number | undefined
+            }
+        } = {
+            'display': {
+                defaultValue: FlexDisplay.FLEX.toString()
+            },
+            'flex-direction': {
+                defaultValue: FlexDirection.ROW.toString()
+            },
+            'flex-wrap': {
+                defaultValue: FlexWrap.NOWRAP.toString()
+            },
+            'flex-flow': {
+                defaultValue: undefined
+            },
+            'justify-content': {
+                defaultValue: FlexJustifyContent.FLEX_START.toString()
+            },
+            'align-items': {
+                defaultValue: FlexAlignItems.STRETCH.toString()
+            },
+            'align-content': {
+                defaultValue: FlexAlignContent.NORMAL.toString()
+            },
+            'gap': {
+                defaultValue: undefined
+            },
+            'row-gap': {
+                defaultValue: undefined
+            },
+            'column-gap': {
+                defaultValue: FlexDirection.ROW.toString()
+            }
+        }
+
+        this.processProperties(propertyValueMap, properties, exportFlexProperties);
+
+        if (exportFlexProperties.children.length > 0) {
+            exportFlexContainer.appendChild(exportFlexProperties);
+        }
+    }
+
+    protected resolvePropertyExport(exportParent: Element,
+                                    propertyName: string,
+                                    propertyValue: string | undefined,
+                                    propertyDefaultValue: string | number | undefined = undefined): boolean {
+        if (this.isPropertyDefinedAndHasNondefaultValue(propertyValue, propertyDefaultValue)) {
+            this._exportUtils.exportTag(exportParent, propertyName, propertyValue as string);
+            return true;
+        }
+        return false;
+    }
+
+    protected isPropertyDefinedAndHasNondefaultValue(propertyValue: string | number | undefined, defaultPropertyValue: string | number | undefined = undefined) {
+        return !!propertyValue && propertyValue !== defaultPropertyValue;
+    }
+
+    public exportFlexItem(exportFlexContainer: Element, flexItem: FlexItem): void {
+        const exportFlexItem = this.xmlConstructor.createElement('item');
+        if (flexItem.dataRef) {
+            this.exportDataRef(exportFlexItem, flexItem.dataRef);
+        }
+        if (flexItem.flex) {
+            this.exportFlex(exportFlexItem, flexItem.flex);
+        }
+        if (flexItem.grid) {
+            this.exportGrid(exportFlexItem, flexItem.grid);
+        }
+
+        this.exportFlexItemProperties(exportFlexItem, flexItem.properties);
+        exportFlexContainer.appendChild(exportFlexItem);
+    }
+
+    protected exportFlexItemProperties(exportFlexItem: Element, flexItemProperties: FlexItemProperties) {
+        const exportFlexItemProperties = this.xmlConstructor.createElement('properties');
+
+        const propertyValueMap: {
+            [exportName: string]: {
+                defaultValue: string | number | undefined
+            }
+        } = {
+            'order': {
+                defaultValue: 0
+            },
+            'flex-grow': {
+                defaultValue: 0
+            },
+            'flex-shrink': {
+                defaultValue: 1
+            },
+            'flex-basis': {
+                defaultValue: 'auto'
+            },
+            'flex': {
+                defaultValue: undefined
+            },
+            'align-self': {
+                defaultValue: FlexItemAlignSelf.AUTO.toString()
+            },
+        }
+
+        this.processProperties(propertyValueMap, flexItemProperties, exportFlexItemProperties);
+
+        if (exportFlexItemProperties.children.length > 0) {
+            exportFlexItem.appendChild(exportFlexItemProperties);
+        }
+    }
+
+    public exportGrid(exportParent: Element, gridContainer: GridContainer): void {
+        const exportGridContainer = this.xmlConstructor.createElement('grid');
+
+        this._exportUtils.exportTag(exportGridContainer, 'id', gridContainer.id);
+        this.exportGridContainerProperties(exportGridContainer, gridContainer.properties);
+        gridContainer.items?.forEach(item => {
+            this.exportGridItem(exportGridContainer, item);
+        })
+        exportParent.appendChild(exportGridContainer);
+    }
+
+    public exportGridContainerProperties(exportGridContainer: HTMLElement, properties: GridContainerProperties): void {
+        const exportGridProperties = this.xmlConstructor.createElement('properties');
+
+        const propertyValueMap: {
+            [exportName: string]: {
+                defaultValue: string | number | undefined
+            }
+        } = {
+            'display': {
+                defaultValue: GridDisplay.GRID.toString()
+            },
+            'grid-template-columns': {
+                defaultValue: undefined
+            },
+            'grid-template-rows': {
+                defaultValue: undefined
+            },
+            'grid-template-areas': {
+                defaultValue: undefined
+            },
+            'grid-template': {
+                defaultValue: undefined
+            },
+            'grid-column-gap': {
+                defaultValue: undefined
+            },
+            'column-gap': {
+                defaultValue: undefined
+            },
+            'grid-row-gap': {
+                defaultValue: undefined
+            },
+            'row-gap': {
+                defaultValue: undefined
+            },
+            'gap': {
+                defaultValue: undefined
+            },
+            'grid-gap': {
+                defaultValue: undefined
+            },
+            'justify-items': {
+                defaultValue: JustifyItems.STRETCH.toString()
+            },
+            'align-items': {
+                defaultValue: GridAlignItems.STRETCH.toString()
+            },
+            'place-items': {
+                defaultValue: undefined
+            },
+            'justify-content': {
+                defaultValue: GridJustifyContent.STRETCH.toString()
+            },
+            'align-content': {
+                defaultValue: GridAlignContent.START.toString()
+            },
+            'place-content': {
+                defaultValue: undefined
+            },
+            'grid-auto-columns': {
+                defaultValue: undefined
+            },
+            'grid-auto-rows': {
+                defaultValue: undefined
+            },
+            'grid-auto-flow': {
+                defaultValue: undefined
+            },
+            'grid': {
+                defaultValue: undefined
+            },
+        }
+
+        this.processProperties(propertyValueMap, properties, exportGridProperties);
+        if (exportGridProperties.children.length > 0) {
+            exportGridContainer.appendChild(exportGridProperties);
+        }
+    }
+
+    public exportGridItem(exportFlexContainer: Element, gridItem: GridItem) {
+        const exportGridItem = this.xmlConstructor.createElement('item');
+        if (gridItem.dataRef) {
+            this.exportDataRef(exportGridItem, gridItem.dataRef);
+        }
+        if (gridItem.flex) {
+            this.exportFlex(exportGridItem, gridItem.flex);
+        }
+        if (gridItem.grid) {
+            this.exportGrid(exportGridItem, gridItem.grid);
+        }
+
+        this.exportGridItemProperties(exportGridItem, gridItem.properties);
+        exportFlexContainer.appendChild(exportGridItem);
+    }
+
+    public exportGridItemProperties(exportGridItem: Element, gridItemProperties: GridItemProperties): void {
+        const exportGridItemProperties = this.xmlConstructor.createElement('properties');
+
+        const propertyValueMap: {
+            [exportName: string]: {
+                defaultValue: string | number | undefined
+            }
+        } = {
+            'grid-column-start': {
+                defaultValue: undefined
+            },
+            'grid-column-end': {
+                defaultValue: undefined
+            },
+            'grid-row-start': {
+                defaultValue: undefined
+            },
+            'grid-row-end': {
+                defaultValue: undefined
+            },
+            'grid-column': {
+                defaultValue: undefined
+            },
+            'grid-row': {
+                defaultValue: undefined
+            },
+            'grid-area': {
+                defaultValue: undefined
+            },
+            'justify-self': {
+                defaultValue: JustifySelf.STRETCH.toString()
+            },
+            'align-self': {
+                defaultValue: GridItemAlignSelf.STRETCH.toString()
+            },
+            'place-self': {
+                defaultValue: undefined
+            },
+        }
+
+        this.processProperties(propertyValueMap, gridItemProperties, exportGridItemProperties);
+
+        if (exportGridItemProperties.children.length > 0) {
+            exportGridItem.appendChild(exportGridItemProperties);
+        }
+    }
+
+    private processProperties(
+        propertyValueMap: {
+            [p: string]: { defaultValue: string | number | undefined }
+        },
+        properties: GridContainerProperties | GridItemProperties | FlexContainerProperties | FlexItemProperties,
+        exportElement: Element,
+    ): void {
+
+        for (const propertyName in propertyValueMap) {
+            const values = propertyValueMap[propertyName];
+            const currentValue = properties[this._exportUtils.transformKebabCaseToCamelCase(propertyName) as keyof typeof properties]?.toString();
+            this.resolvePropertyExport(exportElement, propertyName, currentValue, values.defaultValue);
+        }
+    }
+
     public exportDataRef(element: Element, dataRef: DataRef): void {
         const exportDataRef = this.xmlConstructor.createElement('dataRef');
         this._exportUtils.exportTag(exportDataRef, 'id', dataRef.id, true);
-        if (dataRef.logic.behavior || dataRef.logic.actionRefs?.length > 0) {
-            const logic = this.xmlConstructor.createElement('logic');
-            if (dataRef.logic.behavior) {
-                this._exportUtils.exportTag(logic, 'behavior', dataRef.logic.behavior);
-            }
-            if (dataRef.logic.required) {
-                this._exportUtils.exportTag(logic, 'behavior', DataRefBehavior.REQUIRED);
-            }
-            if (dataRef.logic.immediate) {
-                this._exportUtils.exportTag(logic, 'behavior', DataRefBehavior.IMMEDIATE);
-            }
-            dataRef.logic.actionRefs.forEach(ref => {
-                const actionRef = this.xmlConstructor.createElement('actionRef');
-                this._exportUtils.exportTag(actionRef, 'id', ref);
-                logic.appendChild(actionRef);
-            });
-            exportDataRef.appendChild(logic);
+        const logic = this.xmlConstructor.createElement('logic');
+        if (dataRef.logic.behavior) {
+            this._exportUtils.exportTag(logic, 'behavior', dataRef.logic.behavior);
         }
-        this.exportDataRefLayout(exportDataRef, dataRef.layout);
+        if (dataRef.logic.required) {
+            this._exportUtils.exportTag(logic, 'required', 'true');
+        }
+        if (dataRef.logic.immediate) {
+            this._exportUtils.exportTag(logic, 'immediate', 'true');
+        }
+        exportDataRef.appendChild(logic);
         if (dataRef.component !== undefined) {
             this.exportComponent(exportDataRef, dataRef.component);
         }
         dataRef.getEvents().forEach(event => {
             this.exportEvent(exportDataRef, event);
         });
+        if (dataRef.properties !== undefined) {
+            this.exportProperties(exportDataRef, dataRef.properties)
+        }
         element.appendChild(exportDataRef);
     }
 
     public exportComponent(element: Element, component: Component): void {
         const comp = this.xmlConstructor.createElement('component');
-        this._exportUtils.exportTag(comp, 'name', component.name, true);
-        if (component.icons.length > 0) {
-            const props = this.xmlConstructor.createElement('properties');
-            component.properties.forEach(prop => this._exportUtils.exportTag(props, 'property', prop.value, false, [{
-                key: 'key',
-                value: prop.key
-            }]));
-            const icons = this.xmlConstructor.createElement('option_icons');
-            component.icons.forEach(icon => {
-                const attributes = [{key: 'key', value: icon.key}];
-                if (icon.type && icon.type !== IconType.MATERIAL) {
-                    attributes.push({key: 'type', value: icon.type});
-                }
-                this._exportUtils.exportTag(icons, 'icon', icon.icon, false, attributes);
-            });
-            props.appendChild(icons);
-            comp.appendChild(props);
-        } else {
-            component.properties.forEach(prop => this._exportUtils.exportTag(comp, 'property', prop.value, false, [{
-                key: 'key',
-                value: prop.key
-            }]));
-        }
+        this._exportUtils.exportTag(comp, 'id', component.id, true);
+        component.properties.forEach(prop => this._exportUtils.exportTag(comp, 'property', prop.value, false, [{
+            key: 'key',
+            value: prop.key
+        }]));
         element.appendChild(comp);
-    }
-
-    public exportDataRefLayout(element: Element, layout: DataLayout): void {
-        if (layout !== undefined) {
-            const exportLayout = this.xmlConstructor.createElement('layout');
-            this._exportUtils.exportTag(exportLayout, 'x', layout.x?.toString());
-            this._exportUtils.exportTag(exportLayout, 'y', layout.y?.toString());
-            this._exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString() ?? '');
-            this._exportUtils.exportTag(exportLayout, 'cols', layout.cols?.toString() ?? '');
-            this._exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString() ?? '');
-            this._exportUtils.exportTag(exportLayout, 'template', layout.template);
-            this._exportUtils.exportTag(exportLayout, 'appearance', layout.appearance);
-            this._exportUtils.exportTag(exportLayout, 'alignment', layout.alignment?.toString() ?? '');
-            element.appendChild(exportLayout);
-        }
-    }
-
-    public exportTransitionLayout(element: Element, layout: TransitionLayout): void {
-        if (layout !== undefined) {
-            const exportLayout = this.xmlConstructor.createElement('layout');
-            this._exportUtils.exportTag(exportLayout, 'cols', layout.cols?.toString() ?? '');
-            this._exportUtils.exportTag(exportLayout, 'rows', layout.rows?.toString() ?? '');
-            this._exportUtils.exportTag(exportLayout, 'offset', layout.offset?.toString() ?? '');
-            this._exportUtils.exportTag(exportLayout, 'fieldAlignment', layout.alignment?.toString() ?? '');
-            this._exportUtils.exportTag(exportLayout, 'hideEmptyRows', layout.hideEmptyRows?.toString() ?? '');
-            this._exportUtils.exportTag(exportLayout, 'compactDirection', layout.compactDirection?.toString() ?? '');
-            if (layout.type && layout.type !== LayoutType.LEGACY) {
-                exportLayout.setAttribute('type', layout.type);
-            }
-            element.appendChild(exportLayout);
-        }
-    }
-
-    public exportDataGroup(element: Element, dataGroup: DataGroup): void {
-        const exportGroup = this.xmlConstructor.createElement('dataGroup');
-        this._exportUtils.exportTag(exportGroup, 'id', dataGroup.id, true);
-        this._exportUtils.exportTag(exportGroup, 'cols', dataGroup.cols?.toString() ?? '');
-        this._exportUtils.exportTag(exportGroup, 'rows', dataGroup.rows?.toString() ?? '');
-        this._exportUtils.exportTag(exportGroup, 'layout', dataGroup.layout ?? '');
-        this._exportUtils.exportI18nString(exportGroup, 'title', dataGroup.title);
-        this._exportUtils.exportTag(exportGroup, 'alignment', dataGroup.alignment ?? '');
-        this._exportUtils.exportTag(exportGroup, 'stretch', !dataGroup.stretch ? '' : dataGroup.stretch?.toString());
-        this._exportUtils.exportTag(exportGroup, 'hideEmptyRows', dataGroup.hideEmptyRows?.toString() ?? '');
-        this._exportUtils.exportTag(exportGroup, 'compactDirection', dataGroup.compactDirection?.toString() ?? '');
-        dataGroup.getDataRefs().sort(this.dataRefOrder).forEach(dataRef => this.exportDataRef(exportGroup, dataRef));
-        element.appendChild(exportGroup);
     }
 
     public exportPlaces(doc: Element, model: PetriNet): void {
@@ -426,9 +657,13 @@ export class ExportService {
             this._exportUtils.exportTag(exportPlace, 'id', place.id, true);
             this._exportUtils.exportTag(exportPlace, 'x', place.x?.toString(), true);
             this._exportUtils.exportTag(exportPlace, 'y', place.y?.toString(), true);
-            this._exportUtils.exportI18nString(exportPlace, 'label', place.label);
+            this._exportUtils.exportI18nString(exportPlace, 'title', place.title);
             this._exportUtils.exportTag(exportPlace, 'tokens', place.marking?.toString());
             this._exportUtils.exportTag(exportPlace, 'static', place.static?.toString());
+            if (place.properties !== undefined) {
+                this.exportProperties(exportPlace, place.properties)
+            }
+            exportPlace.setAttribute('scope', place.scope?.toString());
             doc.appendChild(exportPlace);
         });
     }
@@ -440,11 +675,11 @@ export class ExportService {
             this._exportUtils.exportTag(exportArc, 'type', this._exportUtils.exportArcType(arc.type));
             this._exportUtils.exportTag(exportArc, 'sourceId', arc.source.id);
             this._exportUtils.exportTag(exportArc, 'destinationId', arc.destination.id);
-            this._exportUtils.exportTag(exportArc, 'multiplicity', arc.multiplicity?.toString());
-            this._exportUtils.exportTag(exportArc, 'reference', arc.reference ?? '');
+            this._exportUtils.exportExpression(exportArc, 'multiplicity', arc.multiplicity);
             if (arc.breakpoints !== undefined) {
                 this.exportBreakpoints(exportArc, arc);
             }
+            exportArc.setAttribute('scope', arc.scope?.toString());
             doc.appendChild(exportArc);
         });
     }
@@ -456,19 +691,6 @@ export class ExportService {
             this._exportUtils.exportTag(breakPoint, 'y', point.y?.toString());
             exportArc.appendChild(breakPoint);
         });
-    }
-
-    public dataRefOrder(a: DataRef, b: DataRef): number {
-        if (a?.layout?.y < b?.layout?.y) {
-            return -1;
-        }
-        if (a?.layout?.y > b?.layout?.y) {
-            return 1;
-        }
-        if (a?.layout?.x < b?.layout?.x) {
-            return -1;
-        }
-        return 1;
     }
 
     public alphabetically(a: string, b: string): number {
