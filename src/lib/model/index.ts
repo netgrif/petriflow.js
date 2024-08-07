@@ -1,4 +1,20 @@
 export * from './petri-net';
+export * from './petrinet/action';
+export * from './petrinet/case-event';
+export * from './petrinet/case-event-type.enum';
+export * from './petrinet/case-logic';
+export * from './petrinet/element';
+export * from './petrinet/event';
+export * from './petrinet/event-phase.enum';
+export * from './petrinet/event-source';
+export * from './petrinet/function-scope.enum';
+export * from './petrinet/node-element';
+export * from './petrinet/permission-ref';
+export * from './petrinet/petriflow-function';
+export * from './petrinet/place';
+export * from './petrinet/process-event';
+export * from './petrinet/process-event-type.enum';
+export * from './petrinet/process-permission-ref';
 
 export * from './arc/arc';
 export * from './arc/arc-type.enum';
@@ -28,23 +44,6 @@ export * from './i18n/i18n-string';
 export * from './i18n/i18n-translations';
 export * from './i18n/i18n-with-dynamic';
 
-export * from './petrinet/action';
-export * from './petrinet/case-event';
-export * from './petrinet/case-event-type.enum';
-export * from './petrinet/case-logic';
-export * from './petrinet/element';
-export * from './petrinet/event';
-export * from './petrinet/event-phase.enum';
-export * from './petrinet/event-source';
-export * from './petrinet/function-scope.enum';
-export * from './petrinet/node-element';
-export * from './petrinet/petriflow-function';
-export * from './petrinet/place';
-export * from './petrinet/process-event';
-export * from './petrinet/process-event-type.enum';
-export * from './petrinet/process-role-ref';
-export * from './petrinet/process-user-ref';
-
 export * from './role/role';
 export * from './role/role-event';
 export * from './role/role-event-type.enum';
@@ -63,7 +62,7 @@ export * from './transition/hide-empty-rows.enum';
 export * from './transition/layout';
 export * from './transition/layout-type.enum';
 export * from './transition/logic';
-export * from './transition/role-ref';
+export * from './transition/transition-permission-ref';
 export * from './transition/template.enum';
 export * from './transition/transition';
 export * from './transition/transition-event';
@@ -71,7 +70,6 @@ export * from './transition/transition-event-source';
 export * from './transition/transition-event-type.enum';
 export * from './transition/trigger';
 export * from './transition/trigger-type.enum';
-export * from './transition/user-ref';
 
 // flex layout
 export * from './transition/flex-layout/container/flex-container';

@@ -2,11 +2,14 @@ import {I18nString} from '../i18n/i18n-string';
 import {FunctionScope} from '../petrinet/function-scope.enum';
 import {NodeElement} from '../petrinet/node-element';
 import {AssignPolicy} from './assign-policy.enum';
+import {DataGroup} from './datagroup';
 import {FinishPolicy} from './finish-policy.enum';
 import {FlexContainer} from './flex-layout/container/flex-container';
 import {GridContainer} from './grid-layout/container/grid-container';
 import {RoleRef} from './role-ref';
 import {TransitionEventSource} from './transition-event-source';
+import {TransitionLayout} from './transition-layout';
+import {TransitionPermissionRef} from './transition-permission-ref';
 import {Trigger} from './trigger';
 
 export class Transition extends NodeElement {
@@ -14,11 +17,12 @@ export class Transition extends NodeElement {
     private _assignPolicy: AssignPolicy;
     private _finishPolicy: FinishPolicy;
     private _triggers: Array<Trigger>;
-    private _roleRefs: Array<RoleRef>;
+    private _roleRefs: Array<TransitionPermissionRef>;
     private _grid?: GridContainer;
     private _flex?: FlexContainer;
     private _eventSource: TransitionEventSource;
     private _scope: FunctionScope = FunctionScope.USECASE;
+    private _tags: Map<string, string>;
 
     constructor(x: number, y: number, id: string) {
         super(id, x, y, new I18nString(''));
@@ -27,6 +31,7 @@ export class Transition extends NodeElement {
         this._triggers = [];
         this._roleRefs = [];
         this._eventSource = new TransitionEventSource();
+        this._tags = new Map<string, string>();
     }
 
     get icon(): string | undefined {
@@ -61,11 +66,11 @@ export class Transition extends NodeElement {
         this._triggers = value;
     }
 
-    get roleRefs(): Array<RoleRef> {
+    get roleRefs(): Array<TransitionPermissionRef> {
         return this._roleRefs;
     }
 
-    set roleRefs(value: Array<RoleRef>) {
+    set roleRefs(value: Array<TransitionPermissionRef>) {
         this._roleRefs = value;
     }
 
@@ -75,6 +80,14 @@ export class Transition extends NodeElement {
 
     set eventSource(value: TransitionEventSource) {
         this._eventSource = value;
+    }
+
+    get tags(): Map<string, string> {
+        return this._tags;
+    }
+
+    set tags(value: Map<string, string>) {
+        this._tags = value;
     }
 
     get grid(): GridContainer | undefined {
@@ -114,6 +127,7 @@ export class Transition extends NodeElement {
         cloned.properties = this.properties?.map(p => p.clone());
         cloned._scope = this._scope;
         this.eventSource.getEvents().forEach(event => cloned.eventSource.addEvent(event.clone()));
+        this.tags.forEach((value, key) => cloned.tags.set(key, value));
         return cloned;
     }
 }

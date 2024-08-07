@@ -7,7 +7,7 @@ import {
     Expression,
     I18nString,
     I18nWithDynamic,
-    Logic,
+    Logic, Option,
     PetriflowFunction,
     XmlArcType
 } from '../model';
@@ -16,68 +16,76 @@ export class ExportUtils {
 
     protected xmlConstructor = document.implementation.createDocument(null, 'document', null);
 
-    public exportTag(doc: Element, name: string, value: string | I18nString | I18nWithDynamic, force = false, attributes?: Array<{
+    public exportTag(doc: Element, name: string, value: string | undefined, force = false, attributes?: Array<{
         key: string,
         value: string
-    }>): void {
-        if ((typeof value === 'string' && value !== '') ||
-            (value instanceof I18nString && value.value !== undefined && value.value !== null && value.value !== '')) {
-            const tag = this.xmlConstructor.createElement(name);
-            if (attributes) {
-                attributes.forEach(item => {
-                    tag.setAttribute(item.key, item.value);
-                });
-            }
-            if (value instanceof I18nString) {
-                if (typeof value.id === 'string' && value.id !== '') {
-                    tag.setAttribute('id', value.id);
-                }
-                if (value instanceof I18nWithDynamic && typeof value.dynamic === 'boolean' && value.dynamic) {
-                    tag.setAttribute('dynamic', value.dynamic.toString());
-                }
-                tag.textContent = value.value;
+    }>, cdata = false): void {
+        if (value === undefined) {
+            return;
+        }
+        if (value !== '') {
+            const element = this.xmlConstructor.createElement(name);
+            attributes?.forEach(item => {
+                element.setAttribute(item.key, item.value);
+            });
+            if (cdata) {
+                element.appendChild(this.createCDATA(value));
             } else {
-                if (/<\/?[a-z][\s\S]*>/.test(value)) {
-                    tag.innerHTML = `<![CDATA[${value?.trim()}]]>`;
-                } else {
-                    tag.textContent = value;
-                }
+                element.textContent = value;
             }
-            doc.appendChild(tag);
+            doc.appendChild(element);
         } else if (force) {
             const tag = this.xmlConstructor.createElement(name);
             doc.appendChild(tag);
         }
     }
 
-    public exportExpression(doc: Element, name: string, value: Expression | undefined) {
-        if (value === undefined) {
-            return;
-        }
-        this.exportTag(doc, name, value.expression, false, value.dynamic ? [{
+    public exportExpression(doc: Element, name: string, value: Expression | undefined): void {
+        this.exportTag(doc, name, value?.expression, false, value?.dynamic ? [{
             key: 'dynamic',
             value: value.dynamic.toString()
+        }] : undefined, value?.dynamic);
+    }
+
+    public exportOption(doc: Element, name: string, value : Option | undefined): void {
+        const attributes = [];
+        if (value?.key) {
+            attributes.push({
+                key: 'key',
+                value: value?.key?.toString()
+            });
+        }
+        if (value?.value?.id) {
+            attributes.push({
+                key: 'id',
+                value: value.value.id.toString()
+            });
+        }
+        this.exportTag(doc, name, value?.value?.value, false, attributes);
+    }
+
+    public exportI18nString(doc: Element, name: string, value: I18nString | undefined, force = false): void {
+        this.exportTag(doc, name, value?.value, force, value?.id ? [{
+            key: 'id',
+            value: value?.id.toString()
         }] : undefined);
     }
 
-    public exportI18nWithDynamic(doc: Element, name: string, value: I18nWithDynamic | undefined) {
-        if (value === undefined) {
-            return;
-        }
+    public exportI18nWithDynamic(doc: Element, name: string, value: I18nWithDynamic | undefined): void {
         const attributes = [];
-        if (value.dynamic) {
+        if (value?.dynamic) {
             attributes.push({
                 key: 'dynamic',
                 value: value.dynamic.toString()
-            })
+            });
         }
-        if (value.id) {
+        if (value?.id) {
             attributes.push({
                 key: 'id',
                 value: value.id
-            })
+            });
         }
-        this.exportTag(doc, name, value.value, false, attributes);
+        this.exportTag(doc, name, value?.value, false, attributes, value?.dynamic);
     }
 
     public exportActions<T>(element: Element, event: Event<T>, phase: string): void {
@@ -103,7 +111,7 @@ export class ExportUtils {
         if (action.id !== undefined && action.id != null) {
             exportAction.setAttribute('id', action.id);
         }
-        exportAction.insertAdjacentText('beforeend', action.definition);
+        exportAction.appendChild(this.createCDATA(action.definition));
         element.appendChild(exportAction);
     }
 
@@ -111,7 +119,7 @@ export class ExportUtils {
         const xmlFunction = this.xmlConstructor.createElement('function');
         xmlFunction.setAttribute('scope', _function.scope);
         xmlFunction.setAttribute('name', _function.name);
-        xmlFunction.insertAdjacentText('beforeend', _function.definition);
+        xmlFunction.appendChild(this.createCDATA(_function.definition));
         element.appendChild(xmlFunction);
     }
 
@@ -162,5 +170,21 @@ export class ExportUtils {
 
     public transformKebabCaseToCamelCase(stringToTransform: string): string {
         return stringToTransform.replace(/-./g, x => x[1].toUpperCase());
+    }
+
+    public createCDATA(content: string): CDATASection {
+        return this.xmlConstructor.createCDATASection(`\n${content}\n`);
+    }
+
+    public exportTags(doc: Element, tags: Map<string, string>): void {
+        if (tags.size === 0) {
+            return;
+        }
+        const tagsElement = this.xmlConstructor.createElement('tags');
+        tags.forEach((value, key) => this.exportTag(tagsElement, 'tag', value, false, [{
+            key: 'key',
+            value: key
+        }]));
+        doc.appendChild(tagsElement);
     }
 }

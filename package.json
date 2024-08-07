@@ -1,6 +1,6 @@
 {
     "name": "@netgrif/petriflow",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "description": "Javascript / Typescript library of Petriflow objects",
     "main": "dist/petriflow.js",
     "module": "dist/petriflow.esm.js",
@@ -36,9 +36,11 @@
         "!**/*.spec.*",
         "!**/test"
     ],
+    "type": "module",
     "scripts": {
         "build": "tsc -p tsconfig.dts.json && rollup -c",
         "build:test": "npm run build && npm run test:unit",
+        "build:test_all": "npm run build && npm run test",
         "test": "npm run test:lint && npm run test:spell && npm run test:unit",
         "test:lint": "eslint src --ext .ts",
         "test:spell": "cspell -s \"{*.md,src/**/*.ts}\"",
@@ -46,30 +48,34 @@
         "doc": "typedoc --entryPoints src/lib/index.ts --exclude **/*.spec.* --out docs --theme default"
     },
     "devDependencies": {
-        "@rollup/plugin-typescript": "~8.2.5",
-        "@typescript-eslint/eslint-plugin": "~4.33.0",
-        "@typescript-eslint/parser": "~4.33.0",
-        "cspell": "~5.12.3",
-        "eslint": "~7.32.0",
+        "@rollup/plugin-terser": "~0.4.4",
+        "@rollup/plugin-typescript": "~11.1.6",
+        "@typescript-eslint/eslint-plugin": "~7.14.1",
+        "@typescript-eslint/parser": "~7.14.1",
+        "cspell": "~8.9.1",
+        "eslint": "~8.56.0",
         "eslint-plugin-eslint-comments": "~3.2.0",
-        "eslint-plugin-import": "~2.24.2",
-        "jest": "~27.2.5",
+        "eslint-plugin-import": "~2.29.1",
+        "jest": "~29.7.0",
+        "jest-environment-jsdom": "~29.7.0",
         "@jest/globals": "^29.7.0",
         "jest-sonar-reporter": "~2.0.0",
-        "rollup": "~2.58.0",
+        "rollup": "~4.18.0",
         "rollup-plugin-delete": "~2.0.0",
-        "rollup-plugin-dts": "~4.0.0",
-        "rollup-plugin-terser": "~7.0.2",
-        "typedoc": "~0.22.5",
-        "typescript": "~4.4.3"
+        "rollup-plugin-dts": "~6.1.1",
+        "typedoc": "~0.26.3",
+        "typescript": "~5.5.2"
     },
     "dependencies": {
-        "tslib": "~2.3.1"
+        "tslib": "~2.6.3"
     },
     "jest": {
         "verbose": true,
         "collectCoverage": true,
         "testEnvironment": "jsdom",
         "testResultsProcessor": "jest-sonar-reporter"
+    },
+    "optionalDependencies": {
+        "@rollup/rollup-linux-x64-gnu": "^4.19.0"
     }
 }
