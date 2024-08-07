@@ -17,8 +17,10 @@ import {
     ProcessUserRef,
     Property,
     RoleRef,
+    ProcessPermissionRef,
     TransitionEvent,
     TransitionLayout,
+    TransitionPermissionRef,
     TriggerType
 } from '../model';
 import {ExportUtils} from './export-utils';
@@ -58,18 +60,19 @@ export class ExportService {
     public exportModel(doc: Element, model: PetriNet): void {
         this._exportUtils.exportTag(doc, 'id', model.id, true);
         this._exportUtils.exportTag(doc, 'version', model.version);
-        this._exportUtils.exportTag(doc, 'title', model.title, true);
+        this._exportUtils.exportI18nString(doc, 'title', model.title, true);
         this._exportUtils.exportTag(doc, 'icon', model.icon);
         this._exportUtils.exportTag(doc, 'defaultRole', model.defaultRole !== undefined ? (model.defaultRole.toString()) : '');
         this._exportUtils.exportTag(doc, 'anonymousRole', model.anonymousRole !== undefined ? (model.anonymousRole.toString()) : '');
-        this._exportUtils.exportTag(doc, 'caseName', model.caseName);
+        this._exportUtils.exportTags(doc, model.tags);
+        this._exportUtils.exportI18nWithDynamic(doc, 'caseName', model.caseName);
     }
 
     public exportRoles(doc: Element, model: PetriNet): void {
-        model.getRoles().forEach(item => {
+        model.getRoles().sort((a, b) => a.compare(b)).forEach(item => {
             const role = this.xmlConstructor.createElement('role');
             this._exportUtils.exportTag(role, 'id', item.id, true);
-            this._exportUtils.exportTag(role, 'title', item.title, true);
+            this._exportUtils.exportI18nString(role, 'title', item.title, true);
             item.getEvents().forEach(event => {
                 this.exportEvent(role, event);
             });
@@ -82,7 +85,7 @@ export class ExportService {
     }
 
     public exportFunctions(doc: Element, model: PetriNet): void {
-        model.functions.forEach(_function => {
+        model.functions.sort((a, b) => a.name.localeCompare(b.name)).forEach(_function => {
             this._exportUtils.exportFunction(doc, _function);
         });
     }
@@ -101,8 +104,8 @@ export class ExportService {
         this._exportUtils.exportTag(exportEvent, 'id', event.id);
         exportEvent.setAttribute('type', `${event.type}`);
         if (event instanceof TransitionEvent) {
-            this._exportUtils.exportTag(exportEvent, 'title', (event as TransitionEvent).title);
-            this._exportUtils.exportTag(exportEvent, 'message', (event as TransitionEvent).message);
+            this._exportUtils.exportI18nString(exportEvent, 'title', (event as TransitionEvent).title);
+            this._exportUtils.exportI18nString(exportEvent, 'message', (event as TransitionEvent).message);
         }
         if (event.preActions.length > 0) {
             this._exportUtils.exportActions(exportEvent, event, 'pre');
@@ -137,33 +140,33 @@ export class ExportService {
     }
 
     public exportProcessRefs(doc: Element, model: PetriNet): void {
-        model.getRoleRefs().forEach(roleRef => {
-            this.exportProcessRef(doc, roleRef);
+        model.getRoleRefs().sort((a, b) => a.compare(b)).forEach(roleRef => {
+            this.exportProcessRef(doc, roleRef, 'roleRef');
         });
-        model.getUserRefs().forEach(userRef => {
-            this.exportProcessRef(doc, userRef);
+        model.getUserRefs().sort((a, b) => a.id.localeCompare(b.id)).forEach(userRef => {
+            this.exportProcessRef(doc, userRef, 'userRef');
         });
     }
 
-    public exportProcessRef(element: Element, ref: ProcessRoleRef | ProcessUserRef): void {
-        if (ref.caseLogic.create !== undefined ||
-            ref.caseLogic.delete !== undefined ||
-            ref.caseLogic.view !== undefined) {
-            const processRef = this.xmlConstructor.createElement(ref instanceof ProcessRoleRef ? 'roleRef' : 'userRef');
+    public exportProcessRef(element: Element, ref: ProcessPermissionRef, name: string): void {
+        if (ref.logic.create !== undefined ||
+            ref.logic.delete !== undefined ||
+            ref.logic.view !== undefined) {
+            const processRef = this.xmlConstructor.createElement(name);
             this._exportUtils.exportTag(processRef, 'id', ref.id, true);
-            this._exportUtils.exportCaseLogic(processRef, ref.caseLogic, 'caseLogic');
+            this._exportUtils.exportCaseLogic(processRef, ref.logic, 'caseLogic');
             element.appendChild(processRef);
         }
     }
 
-    public exportTransitionRef(element: Element, ref: RoleRef): void {
+    public exportTransitionRef(element: Element, ref: TransitionPermissionRef, name: string): void {
         if (ref.logic.perform !== undefined ||
             ref.logic.reassign !== undefined ||
             ref.logic.assign !== undefined ||
             ref.logic.cancel !== undefined ||
             ref.logic.viewDisabled !== undefined ||
             ref.logic.view !== undefined) {
-            const transRef = this.xmlConstructor.createElement('roleRef');
+            const transRef = this.xmlConstructor.createElement(name);
             this._exportUtils.exportTag(transRef, 'id', ref.id, true);
             this._exportUtils.exportLogic(transRef, ref.logic, 'logic');
             if (ref.properties !== undefined) {
@@ -183,22 +186,20 @@ export class ExportService {
     }
 
     public exportData(doc: Element, model: PetriNet): void {
-        model.getDataSet().forEach(data => {
+        model.getDataSet().sort((a, b) => a.compare(b)).forEach(data => {
             const exportData = this.xmlConstructor.createElement('data');
             exportData.setAttribute('type', data.type);
             if (data.immediate) {
                 exportData.setAttribute('immediate', data.immediate.toString());
             }
             this._exportUtils.exportTag(exportData, 'id', data.id, true);
-            this._exportUtils.exportTag(exportData, 'title', data.title, true);
-            this._exportUtils.exportTag(exportData, 'placeholder', data.placeholder);
-            this._exportUtils.exportTag(exportData, 'desc', data.desc);
+            this._exportUtils.exportI18nString(exportData, 'title', data.title, true);
+            this._exportUtils.exportI18nString(exportData, 'placeholder', data.placeholder);
+            this._exportUtils.exportI18nString(exportData, 'desc', data.desc);
             if (data.options.length > 0) {
                 const options = this.xmlConstructor.createElement('options');
-                data.options.forEach(opt => this._exportUtils.exportTag(options, 'option', opt.value, false, [{
-                    key: 'key',
-                    value: opt.key
-                }]));
+                data.options.forEach(opt => this._exportUtils.exportOption(options, 'option', opt));
+                this._exportUtils.exportExpression(options, 'init', data.optionsInit);
                 exportData.appendChild(options);
             }
             if (!!data.validations && (data.validations?.length ?? 0) > 0) {
@@ -206,7 +207,7 @@ export class ExportService {
                 data.validations?.forEach(validation => {
                     const valid = this.xmlConstructor.createElement('validation');
                     this._exportUtils.exportExpression(valid, 'expression', validation.expression);
-                    this._exportUtils.exportTag(valid, 'message', validation.message);
+                    this._exportUtils.exportI18nString(valid, 'message', validation.message);
                     validations.appendChild(valid);
                 });
                 exportData.appendChild(validations);
@@ -261,12 +262,13 @@ export class ExportService {
     }
 
     public exportTransitions(doc: Element, model: PetriNet): void {
-        model.getTransitions().forEach(trans => {
+        model.getTransitions().sort((a, b) => a.compare(b)).forEach(trans => {
             const exportTrans = this.xmlConstructor.createElement('transition');
             this._exportUtils.exportTag(exportTrans, 'id', trans.id, true);
             this._exportUtils.exportTag(exportTrans, 'x', trans.x?.toString(), true);
             this._exportUtils.exportTag(exportTrans, 'y', trans.y?.toString(), true);
-            this._exportUtils.exportTag(exportTrans, 'title', trans.title, true);
+            this._exportUtils.exportI18nString(exportTrans, 'title', trans.title, true);
+            this._exportUtils.exportTags(exportTrans, trans.tags);
             if (trans.layout && !trans.layout.empty()) {
                 this.exportTransitionLayout(exportTrans, trans.layout);
             }
@@ -292,8 +294,8 @@ export class ExportService {
                     }
                 }
             });
-            trans.roleRefs.forEach(roleRef => {
-                this.exportTransitionRef(exportTrans, roleRef);
+            trans.roleRefs.sort((a, b) => a.compare(b)).forEach(roleRef => {
+                this.exportTransitionRef(exportTrans, roleRef, 'roleRef');
             });
             trans.dataGroups.forEach(dataGroup => {
                 this.exportDataGroup(exportTrans, dataGroup);
@@ -384,7 +386,7 @@ export class ExportService {
         this._exportUtils.exportTag(exportGroup, 'cols', dataGroup.cols?.toString() ?? '');
         this._exportUtils.exportTag(exportGroup, 'rows', dataGroup.rows?.toString() ?? '');
         this._exportUtils.exportTag(exportGroup, 'layout', dataGroup.layout ?? '');
-        this._exportUtils.exportTag(exportGroup, 'title', dataGroup.title ?? '');
+        this._exportUtils.exportI18nString(exportGroup, 'title', dataGroup.title);
         this._exportUtils.exportTag(exportGroup, 'alignment', dataGroup.alignment ?? '');
         this._exportUtils.exportTag(exportGroup, 'stretch', !dataGroup.stretch ? '' : dataGroup.stretch?.toString());
         this._exportUtils.exportTag(exportGroup, 'hideEmptyRows', dataGroup.hideEmptyRows?.toString() ?? '');
@@ -394,12 +396,12 @@ export class ExportService {
     }
 
     public exportPlaces(doc: Element, model: PetriNet): void {
-        model.getPlaces().forEach(place => {
+        model.getPlaces().sort((a, b) => a.compare(b)).forEach(place => {
             const exportPlace = this.xmlConstructor.createElement('place');
             this._exportUtils.exportTag(exportPlace, 'id', place.id, true);
             this._exportUtils.exportTag(exportPlace, 'x', place.x?.toString(), true);
             this._exportUtils.exportTag(exportPlace, 'y', place.y?.toString(), true);
-            this._exportUtils.exportTag(exportPlace, 'title', place.title);
+            this._exportUtils.exportI18nString(exportPlace, 'title', place.title);
             this._exportUtils.exportTag(exportPlace, 'tokens', place.marking?.toString());
             this._exportUtils.exportTag(exportPlace, 'static', place.static?.toString());
             if (place.properties !== undefined) {
@@ -411,7 +413,7 @@ export class ExportService {
     }
 
     public exportArcs(doc: Element, model: PetriNet): void {
-        model.getArcs().forEach(arc => {
+        model.getArcs().sort((a, b) => a.compare(b)).forEach(arc => {
             const exportArc = this.xmlConstructor.createElement('arc');
             this._exportUtils.exportTag(exportArc, 'id', arc.id, true);
             this._exportUtils.exportTag(exportArc, 'type', this._exportUtils.exportArcType(arc.type));
@@ -445,5 +447,9 @@ export class ExportService {
             return -1;
         }
         return 1;
+    }
+
+    public alphabetically(a: string, b: string): number {
+        return a.localeCompare(b);
     }
 }

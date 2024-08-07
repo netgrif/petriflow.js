@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--todo schema change-->
-<document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
+<document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
     <id>petriflow_test</id>
     <title id="title">Petriflow Test Model</title>
     <icon>home</icon>
     <defaultRole>true</defaultRole>
     <anonymousRole>true</anonymousRole>
+    <tags>
+        <tag key="First">First</tag>
+        <tag key="Second">Second</tag>
+    </tags>
     <caseName dynamic="true">${new Date() as String}</caseName>
     <!-- PROCESS ROLE REFS -->
     <roleRef>
@@ -63,24 +67,23 @@
             <id>process_upload</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("process_upload_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
 <!-- @formatter:off    -->
 <!-- some xml comment                    -->
                     // some java comment
                     test("process_upload_post")
-                    if (a &lt; b &amp;&amp; c) d &gt;&gt; e
-<!--                    <![CDATA[ some text-->
+                    if (a < b && c) d >> e
 <!--                        some cdata-->
-                                        <![CDATA[ some text
                                             some cdata
-                                        ]]>
-<!--                    ]]>-->
-
                     <!-- @formatter:on    -->
+                    ]]>
                 </action>
             </actions>
             <message id="process_upload_message">process_upload_message_value</message>
@@ -91,13 +94,17 @@
             <id>case_create</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("case_create_pre")
                     test("second_run_case_create_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("case_create_post")
+                    ]]>
                 </action>
             </actions>
             <message id="case_create_message">case_create_message_value</message>
@@ -109,16 +116,46 @@
             <id>case_delete</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("case_delete_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("case_delete_post")
+                    ]]>
                 </action>
             </actions>
         </event>
     </caseEvents>
+    <!-- duplicate event -->
+    <caseEvents>
+        <event type="create">
+            <id>case_create</id>
+            <actions phase="post">
+                <action>
+                    invalid
+                </action>
+            </actions>
+        </event>
+    </caseEvents>
+    <processEvents>
+        <event type="upload">
+            <id>process_upload</id>
+            <actions phase="pre">
+                <action>
+                    invalid
+                </action>
+            </actions>
+        </event>
+    </processEvents>
+    <!-- TRANSACTIONS -->
+    <transaction>
+        <id>trans1</id>
+        <title>Transaction 1</title>
+    </transaction>
     <!-- ROLES -->
     <role>
         <id>newRole_1</id>
@@ -127,12 +164,16 @@
             <id>assign_role</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("assign_role_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("assign_role_post")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -140,12 +181,16 @@
             <id>cancel_role</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("cancel_role_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("cancel_role_post")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -168,14 +213,18 @@
     </role>
     <!-- FUNCTIONS -->
     <function scope="namespace" name="sum">
+        <![CDATA[
         { Double x, Double y ->
-        return x + y
+            return x + y
         }
+        ]]>
     </function>
     <function scope="process" name="calc">
+        <![CDATA[
         { monthly, loan, period ->
-        change monthly value { (loan + loan * 0.02 * period) / (period * 12) }
+            change monthly value { (loan + loan * 0.02 * period) / (period * 12) }
         }
+        ]]>
     </function>
     <!-- DATA -->
     <data type="text">
@@ -188,7 +237,9 @@
             <id>cdata_get</id>
             <actions phase="post">
                 <action id="cdata_get_post">
+                    <![CDATA[
                     test
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -196,7 +247,9 @@
             <id>cdata_set</id>
             <actions phase="post">
                 <action id="cdata_set_post">
+                    <![CDATA[
                     test
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -204,7 +257,9 @@
             <id>cdata_set_duplicate</id>
             <actions phase="post">
                 <action id="cdata_set_post_duplicate">
+                    <![CDATA[
                     test
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -231,12 +286,16 @@
             <id>newVariable_1_set</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("newVariable_1_set_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("newVariable_1_set_post")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -244,12 +303,16 @@
             <id>newVariable_1_get</id>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("newVariable_1_get_pre")
+                    ]]>
                 </action>
             </actions>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("newVariable_1_get_post")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -410,28 +473,29 @@
     </data>
     <!-- I18NS -->
     <i18n locale="uk">
-        <i18nString id="title">UK_title</i18nString>
-        <i18nString id="p1_title">UK_p1_title</i18nString>
-        <i18nString id="t1_title">UK_t1_title</i18nString>
-        <i18nString id="role_1_title">UK_role_1_title</i18nString>
-        <i18nString id="role_2_title">UK_role_2_title</i18nString>
-        <i18nString id="role_3_title">UK_role_3_title</i18nString>
-        <i18nString id="role_4_title">UK_role_4_title</i18nString>
-        <i18nString id="newVariable_2_title">UK_newVariable_2_title</i18nString>
-        <i18nString id="newVariable_2_placeholder">UK_newVariable_2_placeholder</i18nString>
-        <i18nString id="newVariable_2_desc">UK_newVariable_2_desc</i18nString>
-        <i18nString id="newVariable_2_valid_email">UK_newVariable_2_valid_email</i18nString>
-        <i18nString id="t1_assign_message">UK_t1_assign_message</i18nString>
-        <i18nString id="t1_assign_title">UK_t1_assign_title</i18nString>
-        <i18nString id="t5_datagroup">UK_t5_datagroup</i18nString>
-        <i18nString id="newVariable_3_value1">UK_newVariable_3_value1</i18nString>
-        <i18nString id="newVariable_3_value2">UK_newVariable_3_value2</i18nString>
-        <i18nString id="newVariable_3_value3">UK_newVariable_3_value3</i18nString>
-        <i18nString id="newVariable_4_option_1">UK_newVariable_4_option_1</i18nString>
-        <i18nString id="newVariable_4_option_2">UK_newVariable_4_option_2</i18nString>
-        <i18nString id="newVariable_4_option_3">UK_newVariable_4_option_3</i18nString>
-        <i18nString id="newVariable_19_title">UK_newVariable_19_title</i18nString>
-        <i18nString id="case_create_message">UK_case_create_message</i18nString>
+        <i18nString name="title">UK_title</i18nString>
+        <i18nString name="title">duplicate title</i18nString>
+        <i18nString name="p1_title">UK_p1_title</i18nString>
+        <i18nString name="t1_title">UK_t1_title</i18nString>
+        <i18nString name="role_1_title">UK_role_1_title</i18nString>
+        <i18nString name="role_2_title">UK_role_2_title</i18nString>
+        <i18nString name="role_3_title">UK_role_3_title</i18nString>
+        <i18nString name="role_4_title">UK_role_4_title</i18nString>
+        <i18nString name="newVariable_2_title">UK_newVariable_2_title</i18nString>
+        <i18nString name="newVariable_2_placeholder">UK_newVariable_2_placeholder</i18nString>
+        <i18nString name="newVariable_2_desc">UK_newVariable_2_desc</i18nString>
+        <i18nString name="newVariable_2_valid_email">UK_newVariable_2_valid_email</i18nString>
+        <i18nString name="t1_assign_message">UK_t1_assign_message</i18nString>
+        <i18nString name="t1_assign_title">UK_t1_assign_title</i18nString>
+        <i18nString name="t5_datagroup">UK_t5_datagroup</i18nString>
+        <i18nString name="newVariable_3_value1">UK_newVariable_3_value1</i18nString>
+        <i18nString name="newVariable_3_value2">UK_newVariable_3_value2</i18nString>
+        <i18nString name="newVariable_3_value3">UK_newVariable_3_value3</i18nString>
+        <i18nString name="newVariable_4_option_1">UK_newVariable_4_option_1</i18nString>
+        <i18nString name="newVariable_4_option_2">UK_newVariable_4_option_2</i18nString>
+        <i18nString name="newVariable_4_option_3">UK_newVariable_4_option_3</i18nString>
+        <i18nString name="newVariable_19_title">UK_newVariable_19_title</i18nString>
+        <i18nString name="case_create_message">UK_case_create_message</i18nString>
     </i18n>
     <i18n locale="de">
         <i18nString id="title">DE_title</i18nString>
@@ -465,6 +529,10 @@
         <x>460</x>
         <y>180</y>
         <title id="t1_title">Task escape:&amp;&lt;&gt;</title>
+        <tags>
+            <tag key="First">First</tag>
+            <tag key="Second">Second</tag>
+        </tags>
         <icon>home</icon>
         <assignPolicy>auto</assignPolicy>
         <finishPolicy>auto_no_data</finishPolicy>
@@ -472,12 +540,16 @@
             <id>assign</id>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("t1_assign_post")
+                    ]]>
                 </action>
             </actions>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("t1_assign_pre")
+                    ]]>
                 </action>
             </actions>
             <message id="t1_assign_message">t1_assign_message_value</message>
@@ -487,12 +559,16 @@
             <id>finish</id>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("t1_finish_post")
+                    ]]>
                 </action>
             </actions>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("t1_finish_pre")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -500,12 +576,16 @@
             <id>cancel</id>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("t1_cancel_post")
+                    ]]>
                 </action>
             </actions>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("t1_cancel_pre")
+                    ]]>
                 </action>
             </actions>
             <message id="t1_assign_message">t1_assign_message_value</message>
@@ -514,12 +594,16 @@
             <id>reassign</id>
             <actions phase="post">
                 <action>
+                    <![CDATA[
                     test("t1_reassign_post")
+                    ]]>
                 </action>
             </actions>
             <actions phase="pre">
                 <action>
+                    <![CDATA[
                     test("t1_reassign_pre")
+                    ]]>
                 </action>
             </actions>
         </event>
@@ -562,7 +646,7 @@
 <!--        todo change to form-->
 <!--        <dataGroup>-->
 <!--            <id>test_group</id>-->
-<!--            <title id="t5_datagroup">t5_datagroup_value</title>-->
+<!--            <title name="t5_datagroup">t5_datagroup_value</title>-->
 <!--            <layout>grid</layout>-->
 <!--            <dataRef>-->
 <!--                <id>newVariable_1</id>-->
@@ -570,10 +654,14 @@
 <!--                    <behavior>editable</behavior>-->
 <!--                    <behavior>immediate</behavior>-->
 <!--                    <action trigger="get">-->
+<!--                        <![CDATA[-->
 <!--                        test("t5_newVariable_1_get")-->
+<!--                        ]]>-->
 <!--                    </action>-->
 <!--                    <action trigger="set" id="t5_newVariable_1_set">-->
+<!--                        <![CDATA[-->
 <!--                        test("t5_newVariable_1_set")-->
+<!--                        ]]>-->
 <!--                    </action>-->
 <!--                    <actionRef>-->
 <!--                        <id>t5_newVariable_1_set</id>-->
@@ -592,12 +680,16 @@
 <!--                    <id>dataref_set</id>-->
 <!--                    <actions phase="pre">-->
 <!--                        <action>-->
+<!--                            <![CDATA[-->
 <!--                            test("t5_newVariable_1_set_pre")-->
+<!--                            ]]>-->
 <!--                        </action>-->
 <!--                    </actions>-->
 <!--                    <actions phase="post">-->
 <!--                        <action>-->
+<!--                            <![CDATA[-->
 <!--                            test("t5_newVariable_1_set_post")-->
+<!--                            ]]>-->
 <!--                        </action>-->
 <!--                    </actions>-->
 <!--                </event>-->
@@ -605,12 +697,16 @@
 <!--                    <id>dataref_get</id>-->
 <!--                    <actions phase="pre">-->
 <!--                        <action>-->
+<!--                            <![CDATA[-->
 <!--                            test("t5_newVariable_1_get_pre")-->
+<!--                            ]]>-->
 <!--                        </action>-->
 <!--                    </actions>-->
 <!--                    <actions phase="post">-->
 <!--                        <action>-->
+<!--                            <![CDATA[-->
 <!--                            test("t5_newVariable_1_get_post")-->
+<!--                            ]]>-->
 <!--                        </action>-->
 <!--                    </actions>-->
 <!--                </event>-->
@@ -1065,7 +1161,7 @@
         <tokens>0</tokens>
         <static>false</static>
     </place>
-<!-- invalid place with no id -->
+    <!-- invalid place with no id -->
     <place>
         <x>100</x>
         <y>a</y>
@@ -1195,7 +1291,7 @@
         </breakpoint>
     </arc>
     <arc>
-<!--  arc_with_no_id -->
+    <!--  arc_with_no_id -->
     </arc>
     <arc>
         <id>arc_with_no_source</id>

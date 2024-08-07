@@ -28,7 +28,8 @@
         "NETGRIF",
         "PETRIFLOW",
         "petrinet",
-        "unpatched"
+        "unpatched",
+        "datagroup"
     ],
     "flagWords": [],
     "ignorePaths": [

@@ -1,11 +1,11 @@
 import {I18nString} from '../i18n/i18n-string';
 import {NodeElement} from '../petrinet/node-element';
 import {AssignPolicy} from './assign-policy.enum';
-import {DataGroup} from './datagroup'; // cspell:disable-line
+import {DataGroup} from './datagroup';
 import {FinishPolicy} from './finish-policy.enum';
-import {RoleRef} from './role-ref';
 import {TransitionEventSource} from './transition-event-source';
 import {TransitionLayout} from './transition-layout';
+import {TransitionPermissionRef} from './transition-permission-ref';
 import {Trigger} from './trigger';
 
 export class Transition extends NodeElement {
@@ -14,10 +14,10 @@ export class Transition extends NodeElement {
     private _assignPolicy: AssignPolicy;
     private _finishPolicy: FinishPolicy;
     private _triggers: Array<Trigger>;
-    private _roleRefs: Array<RoleRef>;
-    // todo refactor from dataGroup to form
+    private _roleRefs: Array<TransitionPermissionRef>;
     private _dataGroups: Array<DataGroup>;
     private _eventSource: TransitionEventSource;
+    private _tags: Map<string, string>;
 
     constructor(x: number, y: number, id: string) {
         super(id, x, y, new I18nString(''));
@@ -27,6 +27,7 @@ export class Transition extends NodeElement {
         this._roleRefs = [];
         this._dataGroups = [];
         this._eventSource = new TransitionEventSource();
+        this._tags = new Map<string, string>();
     }
 
     get layout(): TransitionLayout | undefined {
@@ -69,11 +70,11 @@ export class Transition extends NodeElement {
         this._triggers = value;
     }
 
-    get roleRefs(): Array<RoleRef> {
+    get roleRefs(): Array<TransitionPermissionRef> {
         return this._roleRefs;
     }
 
-    set roleRefs(value: Array<RoleRef>) {
+    set roleRefs(value: Array<TransitionPermissionRef>) {
         this._roleRefs = value;
     }
 
@@ -93,6 +94,14 @@ export class Transition extends NodeElement {
         this._eventSource = value;
     }
 
+    get tags(): Map<string, string> {
+        return this._tags;
+    }
+
+    set tags(value: Map<string, string>) {
+        this._tags = value;
+    }
+
     public clone(): Transition {
         const cloned = new Transition(this.x, this.y, this.id);
         cloned.title = this.title?.clone();
@@ -105,6 +114,7 @@ export class Transition extends NodeElement {
         cloned._dataGroups = this._dataGroups.map(item => item.clone());
         cloned.properties = this.properties?.map(p => p.clone());
         this.eventSource.getEvents().forEach(event => cloned.eventSource.addEvent(event.clone()));
+        this.tags.forEach((value, key) => cloned.tags.set(key, value));
         return cloned;
     }
 }

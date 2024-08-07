@@ -26,8 +26,7 @@ import {
     Place,
     ProcessEvent,
     ProcessEventType,
-    ProcessRoleRef,
-    ProcessUserRef,
+    ProcessPermissionRef,
     ReadArc,
     RegularPlaceTransitionArc,
     RegularTransitionPlaceArc,
@@ -39,6 +38,7 @@ import {
     TransitionEvent,
     TransitionEventType,
     TransitionLayout,
+    TransitionPermissionRef,
     Validation,
     XmlArcType
 } from '../model';
@@ -71,10 +71,10 @@ export class ImportService {
 
         if (parseError.length !== 0) {
             let matches = parseError.item(0)?.textContent?.match(ImportService.PARSE_ERROR_LINE_EXTRACTION_REGEX);
-            matches = !matches ? [] : matches;
+            matches = !matches ? null : matches;
             let message;
 
-            if (!!matches && matches.length === 0) {
+            if (!matches || matches.length === 0) {
                 message = parseError.item(0)?.textContent;
             } else {
                 message = `XML parsing error at line ${matches[1]} column ${matches[2]}`;
@@ -117,6 +117,7 @@ export class ImportService {
             modelResult.model.anonymousRole = this.importUtils.tagValue(xmlDoc, 'anonymousRole') === '' ? ImportService.ANONYMOUS_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'anonymousRole') === 'true';
             modelResult.model.title = this.importUtils.parseI18n(xmlDoc, 'title');
             modelResult.model.caseName = this.importUtils.parseI18nWithDynamic(xmlDoc, 'caseName');
+            modelResult.model.tags = this.importUtils.parseTags(xmlDoc);
         } catch (e: unknown) {
             modelResult.addError('Error happened during the importing model properties: ' + (e as Error).toString(), e as Error);
         }
@@ -311,6 +312,7 @@ export class ImportService {
         this.importTransitionDataGroups(xmlTrans, trans, result);
         this.importTransitionTriggers(xmlTrans, trans, result);
         this.importTransitionEvents(xmlTrans, trans, result);
+        trans.tags = this.importUtils.parseTags(xmlTrans);
     }
 
     private importTransitionRoleRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
@@ -437,7 +439,7 @@ export class ImportService {
             try {
                 const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('caseLogic')[0];
                 if (xmlRoleRefLogic !== undefined) {
-                    const roleRef = new ProcessRoleRef(this.importUtils.tagValue(xmlRoleRef, 'id'));
+                    const roleRef = new ProcessPermissionRef(this.importUtils.tagValue(xmlRoleRef, 'id'));
                     this.importUtils.resolveCaseLogic(xmlRoleRefLogic, roleRef);
                     modelResult.model.addRoleRef(roleRef);
                 }
@@ -451,7 +453,7 @@ export class ImportService {
             try {
                 const xmlUserRefLogic = xmlUserRef.getElementsByTagName('caseLogic')[0];
                 if (xmlUserRefLogic !== undefined) {
-                    const userRef = new ProcessUserRef(this.importUtils.tagValue(xmlUserRef, 'id'));
+                    const userRef = new ProcessPermissionRef(this.importUtils.tagValue(xmlUserRef, 'id'));
                     this.importUtils.resolveCaseLogic(xmlUserRefLogic, userRef);
                     modelResult.model.addUserRef(userRef);
                 }
@@ -474,7 +476,7 @@ export class ImportService {
     importPlace(modelResult: PetriNetResult, xmlPlace: Element) {
         const placeId = xmlPlace.getElementsByTagName('id')?.item(0)?.childNodes[0]?.nodeValue;
         if (!placeId) {
-            throw new Error("Id of a place must be defined!");
+            throw new Error('Id of a place must be defined!');
         }
         let xx = this.importUtils.parseNumberValue(xmlPlace, 'x');
         let yy = this.importUtils.parseNumberValue(xmlPlace, 'y');
@@ -512,13 +514,13 @@ export class ImportService {
     public parseArc(result: PetriNetResult, xmlArc: Element): Arc<NodeElement, NodeElement> {
         const arcId = xmlArc.getElementsByTagName('id')?.item(0)?.childNodes[0]?.nodeValue;
         if (!arcId)
-            throw new Error("Id of an arc must be defined!");
+            throw new Error('Id of an arc must be defined!');
         const source = xmlArc.getElementsByTagName('sourceId')?.item(0)?.childNodes[0]?.nodeValue;
         if (!source)
-            throw new Error("Source of an arc must be defined!");
+            throw new Error('Source of an arc must be defined!');
         const target = xmlArc.getElementsByTagName('destinationId')?.item(0)?.childNodes[0]?.nodeValue;
         if (!target)
-            throw new Error("Target of an arc must be defined!");
+            throw new Error('Target of an arc must be defined!');
         const parsedArcType = this.importUtils.parseArcType(xmlArc);
         const arc = this.resolveArc(source, target, parsedArcType, arcId, result);
         arc.multiplicity = this.importUtils.parseExpression(xmlArc, 'multiplicity') ?? new Expression('1');

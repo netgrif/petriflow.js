@@ -35,7 +35,11 @@ export class PetriflowFunction {
         this._definition = value;
     }
 
-    clone() {
+    public clone(): PetriflowFunction {
         return new PetriflowFunction(this.name, this.scope, this.definition);
+    }
+
+    public compare(other: PetriflowFunction): number {
+        return this.name.localeCompare(other.name);
     }
 }

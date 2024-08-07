@@ -28,9 +28,7 @@ const fs = require('fs');
 
 let debug = false;
 
-const ACTION_DEFINITION_CDATA_START = '<![CDATA[';
 const ACTION_DEFINITION_CDATA_CONTENT = 'some cdata';
-const ACTION_DEFINITION_CDATA_END = ']]>';
 const MODEL_ID = 'petriflow_test';
 const MODEL_TITLE_VALUE = 'Petriflow Test Model';
 const MODEL_TITLE_ID = 'title';
@@ -38,6 +36,9 @@ const MODEL_ICON = 'home';
 const MODEL_DEFAULT_CASE_NAME_VALUE = '${new Date() as String}';
 const MODEL_DEFAULT_ROLE = true;
 const MODEL_ANONYMOUS_ROLE = true;
+const MODEL_TAGS_LENGTH = 2;
+const MODEL_TAGS_FIRST = 'First';
+const MODEL_TAGS_SECOND = 'Second';
 const PROCESS_EVENTS_LENGTH = 1;
 const PROCESS_EVENTS_UPLOAD_ID = 'process_upload';
 const PROCESS_EVENTS_UPLOAD_PRE_LENGTH = 1;
@@ -145,6 +146,9 @@ describe('Petriflow integration tests', () => {
         expect(model.caseName).not.toBeUndefined();
         expect(model.caseName.value).toEqual(MODEL_DEFAULT_CASE_NAME_VALUE);
         expect(model.caseName.dynamic).toEqual(true);
+        expect(model.tags.size).toEqual(MODEL_TAGS_LENGTH);
+        expect(model.tags.get(MODEL_TAGS_FIRST)).toEqual(MODEL_TAGS_FIRST);
+        expect(model.tags.get(MODEL_TAGS_SECOND)).toEqual(MODEL_TAGS_SECOND);
         log('Model metadata OK');
 
         expect(model.getProcessEvents().length).toEqual(PROCESS_EVENTS_LENGTH);
@@ -156,9 +160,7 @@ describe('Petriflow integration tests', () => {
         expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_XML_COMMENT);
         expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_JAVA_COMMENT);
         expect(processUploadEvent.postActions[0].definition).toContain('test("process_upload_post")');
-        expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_CDATA_START);
         expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_CDATA_CONTENT);
-        expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_CDATA_END);
         expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_ESCAPED);
         assertProperties(processUploadEvent.properties)
         log('Model process events correct');
@@ -213,41 +215,41 @@ describe('Petriflow integration tests', () => {
 
         expect(model.functions).toBeDefined();
         expect(model.functions.length).toEqual(2);
-        const namespaceFunction = model.functions[0];
-        expect(namespaceFunction.name).toEqual('sum');
-        expect(namespaceFunction.scope).toEqual(FunctionScope.NAMESPACE);
-        expect(namespaceFunction.definition).toContain('{ Double x, Double y ->');
-        expect(namespaceFunction.definition).toContain('return x + y');
-        expect(namespaceFunction.definition).toContain('}');
-        const processFunction = model.functions[1];
-        expect(processFunction.name).toEqual('calc');
+        const processFunction = model.functions.find(f => f.name === 'calc');
+        expect(processFunction).toBeDefined();
         expect(processFunction.scope).toEqual(FunctionScope.PROCESS);
         expect(processFunction.definition).toContain('{ monthly, loan, period ->');
         expect(processFunction.definition).toContain('change monthly value { (loan + loan * 0.02 * period) / (period * 12) }');
         expect(processFunction.definition).toContain('}');
+        const namespaceFunction = model.functions.find(f => f.name === 'sum');
+        expect(namespaceFunction).toBeDefined();
+        expect(namespaceFunction.scope).toEqual(FunctionScope.NAMESPACE);
+        expect(namespaceFunction.definition).toContain('{ Double x, Double y ->');
+        expect(namespaceFunction.definition).toContain('return x + y');
+        expect(namespaceFunction.definition).toContain('}');
         log('Model functions correct');
 
         expect(model.getRoleRefs().length).toEqual(5);
         const roleRef1 = model.getRoleRef(ROLE_1_ID);
-        expect(roleRef1.caseLogic.delete).toEqual(true);
-        expect(roleRef1.caseLogic.create).toEqual(false);
-        expect(roleRef1.caseLogic.view).toBeUndefined();
+        expect(roleRef1.logic.delete).toEqual(true);
+        expect(roleRef1.logic.create).toEqual(false);
+        expect(roleRef1.logic.view).toBeUndefined();
         const roleRef2 = model.getRoleRef(ROLE_2_ID);
-        expect(roleRef2.caseLogic.delete).toEqual(false);
-        expect(roleRef2.caseLogic.create).toBeUndefined();
-        expect(roleRef2.caseLogic.view).toEqual(false);
+        expect(roleRef2.logic.delete).toEqual(false);
+        expect(roleRef2.logic.create).toBeUndefined();
+        expect(roleRef2.logic.view).toEqual(false);
         const roleRef3 = model.getRoleRef(ROLE_3_ID);
-        expect(roleRef3.caseLogic.delete).toBeUndefined();
-        expect(roleRef3.caseLogic.create).toEqual(false);
-        expect(roleRef3.caseLogic.view).toEqual(true);
+        expect(roleRef3.logic.delete).toBeUndefined();
+        expect(roleRef3.logic.create).toEqual(false);
+        expect(roleRef3.logic.view).toEqual(true);
         const roleRefAnonymous = model.getRoleRef('anonymous');
-        expect(roleRefAnonymous.caseLogic.create).toEqual(true);
-        expect(roleRefAnonymous.caseLogic.view).toEqual(false);
-        expect(roleRefAnonymous.caseLogic.delete).toEqual(undefined);
+        expect(roleRefAnonymous.logic.create).toEqual(true);
+        expect(roleRefAnonymous.logic.view).toEqual(false);
+        expect(roleRefAnonymous.logic.delete).toEqual(undefined);
         const roleRefDefault = model.getRoleRef('default');
-        expect(roleRefDefault.caseLogic.create).toEqual(undefined);
-        expect(roleRefDefault.caseLogic.view).toEqual(true);
-        expect(roleRefDefault.caseLogic.delete).toEqual(false);
+        expect(roleRefDefault.logic.create).toEqual(undefined);
+        expect(roleRefDefault.logic.view).toEqual(true);
+        expect(roleRefDefault.logic.delete).toEqual(false);
         log('Model role refs correct');
 
         expect(model.getDataSet().length).toEqual(MODEL_DATA_LENGTH);
@@ -459,6 +461,9 @@ describe('Petriflow integration tests', () => {
         // expect(transitionT1.layout.cols).toEqual(5);
         // expect(transitionT1.layout.offset).toEqual(0);
         // expect(transitionT1.layout.alignment).toEqual(Alignment.CENTER);
+        expect(transitionT1.tags.size).toEqual(MODEL_TAGS_LENGTH);
+        expect(transitionT1.tags.get(MODEL_TAGS_FIRST)).toEqual(MODEL_TAGS_FIRST);
+        expect(transitionT1.tags.get(MODEL_TAGS_SECOND)).toEqual(MODEL_TAGS_SECOND);
         const t1AssignEvent = transitionT1.eventSource.getEvent(TransitionEventType.ASSIGN);
         expect(t1AssignEvent.id).toEqual('assign');
         expect(t1AssignEvent.title.value).toEqual('t1_assign_title_value');
@@ -750,7 +755,7 @@ describe('Petriflow integration tests', () => {
     test('should import & export', () => {
         let file = fs.readFileSync(TEST_FILE_PATH).toString();
         debug = false;
-        const model1 = importAndExport(file, 12, 22, 5);
+        const model1 = importAndExport(file, 18, 22, 9);
         expect(model1).toBeDefined();
         const model2 = importAndExport(model1, 0, 20, 0);
         expect(model2).toBeDefined();
