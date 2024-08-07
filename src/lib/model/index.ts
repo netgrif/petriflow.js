@@ -8,7 +8,6 @@ export * from './petrinet/event';
 export * from './petrinet/event-phase.enum';
 export * from './petrinet/event-source';
 export * from './petrinet/function-scope.enum';
-export * from './petrinet/mapping';
 export * from './petrinet/node-element';
 export * from './petrinet/permission-ref';
 export * from './petrinet/petriflow-function';
@@ -16,7 +15,6 @@ export * from './petrinet/place';
 export * from './petrinet/process-event';
 export * from './petrinet/process-event-type.enum';
 export * from './petrinet/process-permission-ref';
-export * from './petrinet/transaction';
 
 export * from './arc/arc';
 export * from './arc/arc-type.enum';
@@ -53,7 +51,6 @@ export * from './role/role-event-type.enum';
 export * from './transition/alignment.enum';
 export * from './transition/appearance.enum';
 export * from './transition/assign-policy.enum';
-export * from './transition/assigned-user';
 export * from './transition/compact-direction.enum'
 export * from './transition/data-focus-policy.enum';
 export * from './transition/data-layout';

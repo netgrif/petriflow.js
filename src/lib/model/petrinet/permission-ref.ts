@@ -1,6 +1,9 @@
+import {Property} from '../data-variable/property';
+
 export abstract class PermissionRef<T> {
     private _id: string;
     private _logic: T;
+    private _properties?: Array<Property>;
 
     protected constructor(id: string, logic: T) {
         this._id = id;
@@ -21,6 +24,14 @@ export abstract class PermissionRef<T> {
 
     set logic(value: T) {
         this._logic = value;
+    }
+
+    get properties(): Array<Property> | undefined {
+        return this._properties;
+    }
+
+    set properties(value: Array<Property> | undefined) {
+        this._properties = value;
     }
 
     public compare(ref: PermissionRef<T>): number {

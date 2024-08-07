@@ -19,7 +19,7 @@ export class ReadArc extends PlaceTransitionArc {
      * @returns true if place marking >= multiplicity, false otherwise
      */
     canFire(): boolean {
-        return this.source.marking >= this.multiplicity;
+        return this.source.marking >= this.resolveMultiplicity();
     }
 
     get type(): ArcType {

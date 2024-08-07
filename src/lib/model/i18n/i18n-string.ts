@@ -1,18 +1,18 @@
 export class I18nString {
-    private _name?: string;
+    private _id?: string;
     private _value: string;
 
     constructor(translation: string, name?: string) {
         this._value = translation;
-        this._name = name;
+        this._id = name;
     }
 
-    get name(): string | undefined {
-        return this._name;
+    get id(): string | undefined {
+        return this._id;
     }
 
-    set name(value: string | undefined) {
-        this._name = value;
+    set id(value: string | undefined) {
+        this._id = value;
     }
 
     get value(): string {
@@ -25,11 +25,11 @@ export class I18nString {
 
     public clone(): I18nString {
         const cloned = new I18nString(this.value);
-        cloned.name = this.name;
+        cloned.id = this.id;
         return cloned;
     }
 
     public isEmpty(): boolean {
-        return !this._name && !this._value;
+        return !this._id && !this._value;
     }
 }

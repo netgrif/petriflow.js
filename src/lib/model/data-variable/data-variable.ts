@@ -3,8 +3,8 @@ import {I18nWithDynamic} from "../i18n/i18n-with-dynamic";
 import {Component} from './component';
 import {DataEventSource} from './data-event-source';
 import {DataType} from './data-type.enum';
-import {Expression} from './expression';
 import {Option} from './option';
+import {Property} from './property';
 import {Validation} from './validation';
 
 export class DataVariable extends DataEventSource {
@@ -12,19 +12,17 @@ export class DataVariable extends DataEventSource {
     private _title: I18nString;
     private _placeholder: I18nString;
     private _desc: I18nString;
-    private _options: Array<Option>;
-    private _optionsInit?: Expression;
+    private _values?: Array<I18nWithDynamic>;
+    private _options: Array<Option>
     private _validations: Array<Validation>;
     private _init?: I18nWithDynamic;
-    private _inits: Array<I18nWithDynamic>;
     private _component?: Component;
     private _type: DataType;
     private _immediate: boolean;
     private _encryption?: string;
-    private _remote?: boolean;
     private _actionRef: Array<string>;
-    private _length?: number;
     private _allowedNets: Array<string>;
+    private _properties?: Array<Property>;
 
     constructor(id: string, type: DataType) {
         super();
@@ -35,7 +33,6 @@ export class DataVariable extends DataEventSource {
         this._type = type;
         this._options = new Array<Option>();
         this._validations = [];
-        this._inits = [];
         this._immediate = false;
         this._actionRef = [];
         this._allowedNets = [];
@@ -73,20 +70,20 @@ export class DataVariable extends DataEventSource {
         this._desc = value;
     }
 
+    get values(): Array<I18nWithDynamic> | undefined {
+        return this._values;
+    }
+
+    set values(value: Array<I18nWithDynamic> | undefined) {
+        this._values = value;
+    }
+
     get options(): Array<Option> {
         return this._options;
     }
 
     set options(value: Array<Option>) {
         this._options = value;
-    }
-
-    get optionsInit(): Expression | undefined {
-        return this._optionsInit;
-    }
-
-    set optionsInit(value: Expression | undefined) {
-        this._optionsInit = value;
     }
 
     get validations(): Array<Validation> {
@@ -103,14 +100,6 @@ export class DataVariable extends DataEventSource {
 
     set init(value: I18nWithDynamic | undefined) {
         this._init = value;
-    }
-
-    get inits(): Array<I18nWithDynamic> {
-        return this._inits;
-    }
-
-    set inits(value: Array<I18nWithDynamic>) {
-        this._inits = value;
     }
 
     get component(): Component | undefined {
@@ -145,28 +134,12 @@ export class DataVariable extends DataEventSource {
         this._encryption = value;
     }
 
-    get remote(): boolean | undefined {
-        return this._remote;
-    }
-
-    set remote(value: boolean | undefined) {
-        this._remote = value;
-    }
-
     get actionRef(): Array<string> {
         return this._actionRef;
     }
 
     set actionRef(value: Array<string>) {
         this._actionRef = value;
-    }
-
-    get length(): number | undefined {
-        return this._length;
-    }
-
-    set length(value: number | undefined) {
-        this._length = value;
     }
 
     get allowedNets(): Array<string> {
@@ -177,23 +150,29 @@ export class DataVariable extends DataEventSource {
         this._allowedNets = value;
     }
 
+    get properties(): Array<Property> | undefined {
+        return this._properties;
+    }
+
+    set properties(value: Array<Property> | undefined) {
+        this._properties = value;
+    }
+
     public clone(): DataVariable {
         const cloned = new DataVariable(this._id, this._type);
         cloned._title = this._title?.clone();
         cloned._placeholder = this._placeholder?.clone();
         cloned._desc = this._desc?.clone();
+        cloned._values = this._values?.map(value => value.clone());
         cloned._options = this._options?.map(o => o.clone());
-        cloned._optionsInit = this._optionsInit?.clone();
         cloned._validations = this._validations?.map(v => v.clone());
         cloned._init = this._init?.clone();
-        cloned._inits = this._inits?.map(i => i.clone());
         cloned._component = this._component?.clone();
         cloned._immediate = this._immediate;
         cloned._encryption = this._encryption;
-        cloned._remote = this._remote;
         cloned._actionRef = [...this._actionRef];
-        cloned._length = this._length;
         cloned._allowedNets = [...this._allowedNets];
+        cloned._properties = this._properties?.map(p => p.clone());
         this.getEvents().forEach(event => cloned.addEvent(event.clone()));
         return cloned;
     }

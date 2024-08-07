@@ -1,9 +1,10 @@
 export class Logic {
     private _perform?: boolean;
-    private _delegate?: boolean;
+    private _reassign?: boolean;
     private _cancel?: boolean;
     private _assign?: boolean;
     private _view?: boolean;
+    private _viewDisabled?: boolean;
 
     get perform(): boolean | undefined {
         return this._perform;
@@ -13,12 +14,12 @@ export class Logic {
         this._perform = value;
     }
 
-    get delegate(): boolean | undefined {
-        return this._delegate;
+    get reassign(): boolean | undefined {
+        return this._reassign;
     }
 
-    set delegate(value: boolean | undefined) {
-        this._delegate = value;
+    set reassign(value: boolean | undefined) {
+        this._reassign = value;
     }
 
     get cancel(): boolean | undefined {
@@ -45,10 +46,18 @@ export class Logic {
         this._view = value;
     }
 
+    get viewDisabled(): boolean | undefined {
+        return this._viewDisabled;
+    }
+
+    set viewDisabled(value: boolean | undefined) {
+        this._viewDisabled = value;
+    }
+
     public clone(): Logic {
         const cloned = new Logic();
         cloned.perform = this._perform;
-        cloned.delegate = this._delegate;
+        cloned.reassign = this._reassign;
         cloned.cancel = this._cancel;
         cloned.assign = this._assign;
         cloned.view = this._view;

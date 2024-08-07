@@ -26,11 +26,11 @@ export class I18nTranslations {
     }
 
     addI18n(value: I18nString) {
-        if (!value || !value.name) return;
-        if (this._i18ns.has(value.name)) {
-            throw new Error(`Duplicate translation with name ${value.name}`);
+        if (!value || !value.id) return;
+        if (this._i18ns.has(value.id)) {
+            throw new Error(`Duplicate translation with name ${value.id}`);
         }
-        this._i18ns.set(value.name, value);
+        this._i18ns.set(value.id, value);
     }
 
     removeI18n(name: string) {

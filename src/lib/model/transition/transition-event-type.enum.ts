@@ -2,5 +2,7 @@ export enum TransitionEventType {
     ASSIGN = 'assign',
     FINISH = 'finish',
     CANCEL = 'cancel',
-    DELEGATE = 'delegate',
+    ENABLED = 'enabled',
+    DISABLED = 'disabled',
+    REASSIGN = 'reassign',
 }

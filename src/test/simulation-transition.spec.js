@@ -31,6 +31,7 @@ describe('Petriflow transition simulation tests', () => {
 
         const sim = new BasicSimulation(result.model);
         for (let i = 0; i < 3; i++) {
+            sim.updateData(new Map([['input', 1], ['output', 1]]));
             expect(sim.enabled().length).toEqual(1);
             expect(sim.isEnabled('t1')).toEqual(true);
             expect(sim.isEnabled('t2')).toEqual(false);
@@ -53,7 +54,6 @@ describe('Petriflow transition simulation tests', () => {
             expect(sim.simulationModel.getPlace('p1').marking).toEqual(6);
 
             sim.reset();
-            sim.updateData(new Map([['input', 1], ['output', 1]]));
         }
     });
 

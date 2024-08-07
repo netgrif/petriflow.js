@@ -10,6 +10,7 @@ export class TransitionPermissionRef extends PermissionRef<Logic> {
     public clone(): TransitionPermissionRef {
         const cloned = new TransitionPermissionRef(this.id);
         cloned.logic = this.logic?.clone();
+        cloned.properties = this.properties?.map(p => p.clone());
         return cloned;
     }
 }

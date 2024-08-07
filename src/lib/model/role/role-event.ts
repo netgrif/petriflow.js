@@ -24,6 +24,7 @@ export class RoleEvent extends Event<RoleEventType> {
         cloned._title = this._title?.clone();
         this.preActions.forEach(item => cloned.preActions.push(item.clone()));
         this.postActions.forEach(item => cloned.postActions.push(item.clone()));
+        this.properties?.forEach(property => cloned.properties?.push(property.clone()))
         return cloned;
     }
 

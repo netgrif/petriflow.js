@@ -4,13 +4,13 @@ import {Element} from './element';
 export abstract class NodeElement extends Element {
     private _x: number;
     private _y: number;
-    private _label: I18nString;
+    private _title: I18nString;
 
     protected constructor(id: string, x: number, y: number, label: I18nString) {
         super(id);
         this._x = x;
         this._y = y;
-        this._label = label;
+        this._title = label;
     }
 
     get x(): number {
@@ -29,11 +29,11 @@ export abstract class NodeElement extends Element {
         this._y = value;
     }
 
-    get label(): I18nString {
-        return this._label;
+    get title(): I18nString {
+        return this._title;
     }
 
-    set label(value: I18nString) {
-        this._label = value;
+    set title(value: I18nString) {
+        this._title = value;
     }
 }
