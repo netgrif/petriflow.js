@@ -55,19 +55,19 @@ export class ExportUtils {
                 value: value?.key?.toString()
             });
         }
-        if (value?.value?.name) {
+        if (value?.value?.id) {
             attributes.push({
-                key: 'name',
-                value: value.value.name.toString()
+                key: 'id',
+                value: value.value.id.toString()
             });
         }
         this.exportTag(doc, name, value?.value?.value, false, attributes);
     }
 
     public exportI18nString(doc: Element, name: string, value: I18nString | undefined, force = false): void {
-        this.exportTag(doc, name, value?.value, force, value?.name ? [{
-            key: 'name',
-            value: value.name.toString()
+        this.exportTag(doc, name, value?.value, force, value?.id ? [{
+            key: 'id',
+            value: value?.id.toString()
         }] : undefined);
     }
 
@@ -79,10 +79,10 @@ export class ExportUtils {
                 value: value.dynamic.toString()
             });
         }
-        if (value?.name) {
+        if (value?.id) {
             attributes.push({
-                key: 'name',
-                value: value.name
+                key: 'id',
+                value: value.id
             });
         }
         this.exportTag(doc, name, value?.value, false, attributes, value?.dynamic);

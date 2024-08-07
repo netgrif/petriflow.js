@@ -13,11 +13,8 @@ import {
     NodeElement,
     PetriNet,
     ProcessEvent,
-    ProcessRoleRef,
-    ProcessUserRef,
-    Property,
-    RoleRef,
     ProcessPermissionRef,
+    Property,
     TransitionEvent,
     TransitionLayout,
     TransitionPermissionRef,
@@ -49,7 +46,6 @@ export class ExportService {
         this.exportRoles(doc, model);
         this.exportFunctions(doc, model);
         this.exportData(doc, model);
-        // TODO mapping
         this.exportI18n(doc, model);
         this.exportTransitions(doc, model);
         this.exportPlaces(doc, model);
@@ -199,7 +195,6 @@ export class ExportService {
             if (data.options.length > 0) {
                 const options = this.xmlConstructor.createElement('options');
                 data.options.forEach(opt => this._exportUtils.exportOption(options, 'option', opt));
-                this._exportUtils.exportExpression(options, 'init', data.optionsInit);
                 exportData.appendChild(options);
             }
             if (!!data.validations && (data.validations?.length ?? 0) > 0) {

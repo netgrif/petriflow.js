@@ -19,8 +19,6 @@ import {
     I18nWithDynamic,
     LayoutType,
     PetriflowFunction,
-    PetriNet,
-    Place,
     ProcessPermissionRef,
     Property,
     Template,

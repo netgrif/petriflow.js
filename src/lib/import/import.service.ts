@@ -13,7 +13,8 @@ import {
     DataType,
     DataVariable,
     Expression,
-    FinishPolicy, FunctionScope,
+    FinishPolicy,
+    FunctionScope,
     HideEmptyRows,
     I18nString,
     I18nTranslations,
@@ -38,7 +39,6 @@ import {
     TransitionEvent,
     TransitionEventType,
     TransitionLayout,
-    TransitionPermissionRef,
     Validation,
     XmlArcType
 } from '../model';
@@ -594,12 +594,12 @@ export class ImportService {
     public parseI18n(result: PetriNetResult, xmlI18n: Element, i18nNode: I18nTranslations): void {
         const xmlI18strings = xmlI18n.getElementsByTagName('i18nString');
         for (const xmlI18string of Array.from(xmlI18strings)) {
-            const name = this.importUtils.tagAttribute(xmlI18string, 'id');
+            const id = this.importUtils.tagAttribute(xmlI18string, 'id');
             try {
                 const translation = xmlI18string.innerHTML;
-                i18nNode.addI18n(new I18nString(translation, name));
+                i18nNode.addI18n(new I18nString(translation, id));
             } catch (e) {
-                result.addError(`Importing i18n string '${name}' failed`, e as Error);
+                result.addError(`Importing i18n string '${id}' failed`, e as Error);
             }
         }
         result.model.addI18n(i18nNode);

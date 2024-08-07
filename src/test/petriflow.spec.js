@@ -755,7 +755,7 @@ describe('Petriflow integration tests', () => {
     test('should import & export', () => {
         let file = fs.readFileSync(TEST_FILE_PATH).toString();
         debug = false;
-        const model1 = importAndExport(file, 18, 22, 9);
+        const model1 = importAndExport(file, 15, 22, 5);
         expect(model1).toBeDefined();
         const model2 = importAndExport(model1, 0, 20, 0);
         expect(model2).toBeDefined();
