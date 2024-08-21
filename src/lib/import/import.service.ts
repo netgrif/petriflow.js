@@ -256,29 +256,10 @@ export class ImportService {
                 data.validations.push(validation);
             }
         }
-        for (const actionRef of Array.from(xmlData.getElementsByTagName('actionRef'))) {
-            data.actionRef.push(this.importUtils.tagValue(actionRef, 'id'));
-        }
         for (const xmlEvent of Array.from(xmlData.getElementsByTagName('event'))) {
             const event = new DataEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as DataEventType, '');
             this.importUtils.parseEvent(xmlEvent, event);
             data.mergeEvent(event);
-        }
-        const actionTags = Array.from(xmlData.getElementsByTagName('action'));
-        if (actionTags.length > 0) {
-            let converted = 0;
-            for (const actionTag of actionTags) {
-                const actionTrigger = actionTag.getAttribute('trigger') as DataEventType;
-                if (!actionTrigger) {
-                    continue;
-                }
-                const action = this.importUtils.parseAction(actionTag);
-                data.addAction(action, actionTrigger);
-                converted += 1;
-            }
-            if (converted > 0) {
-                result.addInfo(`${converted} action${converted > 1 ? 's' : ''} of data variable ${data.id} converted into event actions`);
-            }
         }
         if (xmlData.getElementsByTagName('allowedNets').length > 0) {
             for (const val of Array.from(xmlData.getElementsByTagName('allowedNets')[0]?.children)) {
