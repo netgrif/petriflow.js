@@ -21,7 +21,7 @@
         </caseLogic>
     </roleRef>
     <roleRef>
-        <id>default</id>
+        <id>defaultRole</id>
         <caseLogic>
             <delete>false</delete>
             <view>true</view>
@@ -228,6 +228,14 @@
         ]]>
     </function>
     <!-- DATA -->
+    <data type="text">
+        <id>_</id>
+        <title>Invalid data ID</title>
+    </data>
+    <data type="text">
+        <id>123321</id>
+        <title>Invalid data ID 2</title>
+    </data>
     <data type="text" scope="process">
         <id>cdata_escape</id>
         <title>CDATA &amp;&lt;&gt;</title>
@@ -1153,7 +1161,7 @@
         <y>260</y>
         <title></title>
         <roleRef>
-            <id>default</id>
+            <id>defaultRole</id>
             <logic>
                 <perform>false</perform>
                 <assign>true</assign>

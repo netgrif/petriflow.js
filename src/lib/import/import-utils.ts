@@ -32,6 +32,7 @@ import {
     GridJustifyContent,
     I18nString,
     I18nWithDynamic,
+    IdentifierBlacklist,
     JustifyItems,
     JustifySelf,
     PetriflowFunction,
@@ -67,6 +68,21 @@ export class ImportUtils {
             i18n.id = id === null ? undefined : id;
         }
         return i18n;
+    }
+
+    public parseIdentifier(xmlTag: Element | Document | null, child: string): string {
+        const xmlIdentifierString = this.tagValue(xmlTag, child);
+        if (xmlIdentifierString === '') {
+            throw new Error(`Id of ${xmlTag?.nodeName} must be defined`);
+        }
+        if ((Object.values(IdentifierBlacklist) as string[]).includes(xmlIdentifierString)) {
+            throw new Error(`Id of ${xmlTag?.nodeName} must not be Java or Groovy keyword, value [${xmlIdentifierString}]`);
+        }
+        const identifierRegex = new RegExp("^[$_a-zA-Z][_a-zA-Z0-9]*$");
+        if (!identifierRegex.test(xmlIdentifierString)) {
+            throw new Error(`Id of ${xmlTag?.nodeName} must be valid Java identifier, value [${xmlIdentifierString}]`);
+        }
+        return xmlIdentifierString;
     }
 
     public parseI18nWithDynamic(xmlTag: Element | Document, child: string): I18nWithDynamic {
@@ -151,7 +167,7 @@ export class ImportUtils {
         if (!xmlComponent?.children || xmlComponent.children.length === 0) {
             return undefined;
         }
-        const comp = new Component(this.tagValue(xmlComponent, 'id'));
+        const comp = new Component(this.parseIdentifier(xmlComponent, 'id'));
         const properties = xmlComponent.getElementsByTagName('properties')[0];
         if (properties?.children && properties.children.length > 0) {
             for (const prop of Array.from(properties.getElementsByTagName('property'))) {
@@ -165,7 +181,7 @@ export class ImportUtils {
         return comp;
     }
 
-    public parseProperties(xmlTag: Element): Array<Property> | undefined {
+    public parseProperties(xmlTag: Element): Array<Property> {
         const propertiesCollection: HTMLCollectionOf<Element> = xmlTag.getElementsByTagName('properties')
         if (!propertiesCollection || propertiesCollection.length === 0) {
             return [];
@@ -221,14 +237,14 @@ export class ImportUtils {
 
     public parseRoleRef(xmlRoleRef: Element): TransitionPermissionRef {
         const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('logic')[0];
-        const roleRef = new TransitionPermissionRef(this.tagValue(xmlRoleRef, 'id'));
+        const roleRef = new TransitionPermissionRef(this.parseIdentifier(xmlRoleRef, 'id'));
         this.resolveLogic(xmlRoleRefLogic, roleRef);
         roleRef.properties = this.parseProperties(xmlRoleRef);
         return roleRef;
     }
 
     public parseDataRef(xmlDataRef: Element): DataRef {
-        const dataRef = new DataRef(this.tagValue(xmlDataRef, 'id'));
+        const dataRef = new DataRef(this.parseIdentifier(xmlDataRef, 'id'));
         for (const xmlEvent of Array.from(xmlDataRef.getElementsByTagName('event'))) {
             const event = new DataEvent(this.tagAttribute(xmlEvent, 'type') as DataEventType, '');
             this.parseEvent(xmlEvent, event);
@@ -249,7 +265,7 @@ export class ImportUtils {
     }
 
     public parseGrid(xmlGrid: Element): GridContainer {
-        const grid = new GridContainer(this.tagValue(xmlGrid, 'id'));
+        const grid = new GridContainer(this.parseIdentifier(xmlGrid, 'id'));
 
         const properties = this.getChildElementByName(xmlGrid.children, 'properties');
         if (properties) {
@@ -460,7 +476,7 @@ export class ImportUtils {
     }
 
     public parseFlex(xmlFlex: Element) {
-        const flex = new FlexContainer(this.tagValue(xmlFlex, 'id'));
+        const flex = new FlexContainer(this.parseIdentifier(xmlFlex, 'id'));
         const properties = this.getChildElementByName(xmlFlex.children, 'properties');
         if (properties) {
             flex.properties = this.parseFlexContainerProperties(properties);
@@ -603,7 +619,7 @@ export class ImportUtils {
     }
 
     public parseEvent<T>(xmlEvent: Element, event: Event<T>): void {
-        event.id = this.tagValue(xmlEvent, 'id');
+        event.id = this.parseIdentifier(xmlEvent, 'id');
         if (event.id === '') {
             event.id = event.type + "_event_" + this.getNextEventId();
         }

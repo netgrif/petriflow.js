@@ -7,7 +7,7 @@ import {RoleEventType} from './role-event-type.enum';
 
 export class Role extends EventSource<RoleEvent, RoleEventType> {
     public static readonly ANONYMOUS = 'anonymous';
-    public static readonly DEFAULT = 'default';
+    public static readonly DEFAULT = 'defaultRole';
 
     private _id: string;
     private _title: I18nString;

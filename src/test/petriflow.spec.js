@@ -267,13 +267,15 @@ describe('Petriflow integration tests', () => {
         expect(roleRefAnonymous.logic.create).toEqual(true);
         expect(roleRefAnonymous.logic.view).toEqual(false);
         expect(roleRefAnonymous.logic.delete).toEqual(undefined);
-        const roleRefDefault = model.getRoleRef('default');
+        const roleRefDefault = model.getRoleRef('defaultRole');
         expect(roleRefDefault.logic.create).toEqual(undefined);
         expect(roleRefDefault.logic.view).toEqual(true);
         expect(roleRefDefault.logic.delete).toEqual(false);
         log('Model role refs correct');
 
         expect(model.getDataSet().length).toEqual(MODEL_DATA_LENGTH);
+        expect(model.getData('_')).toBeUndefined();
+        expect(model.getData('123321')).toBeUndefined();
         const cdataField = model.getData('cdata_escape');
         expect(cdataField.scope).toEqual(FunctionScope.PROCESS);
         expect(cdataField.title.value).toEqual('CDATA &<>');
@@ -896,7 +898,8 @@ describe('Petriflow integration tests', () => {
         expect(transitionT12.grid).toBeUndefined();
 
         const transitionPredefinedRoles = model.getTransition('predefined_roles');
-        const transitionPredefinedRolesDefault = transitionPredefinedRoles.roleRefs.find(r => r.id === 'default');
+        expect(transitionPredefinedRoles.roleRefs.length).toEqual(2);
+        const transitionPredefinedRolesDefault = transitionPredefinedRoles.roleRefs.find(r => r.id === 'defaultRole');
         assertRoleRefLogic(transitionPredefinedRolesDefault, false, false, true, true, undefined);
         const transitionPredefinedRolesAnonymous = transitionPredefinedRoles.roleRefs.find(r => r.id === 'anonymous');
         assertRoleRefLogic(transitionPredefinedRolesAnonymous, true, undefined, false, false, false);
@@ -979,7 +982,7 @@ describe('Petriflow integration tests', () => {
     test('should import & export', () => {
         let file = fs.readFileSync(TEST_FILE_PATH).toString();
         debug = false;
-        const model1 = importAndExport(file, 15, 22, 5);
+        const model1 = importAndExport(file, 17, 22, 5);
         expect(model1).toBeDefined();
         const model2 = importAndExport(model1, 0, 20, 0);
         expect(model2).toBeDefined();
