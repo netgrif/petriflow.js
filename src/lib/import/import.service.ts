@@ -361,13 +361,13 @@ export class ImportService {
     }
 
     private importTransitionEvents(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
-        const events = Array.from(xmlTrans.getElementsByTagName('event'));
-        for (const xmlEvent of events) {
-            try {
-                this.importTransitionEvent(xmlEvent, events.indexOf(xmlEvent), trans, result);
-            } catch (e) {
-                result.addError('Importing transition events failed', e as Error);
-            }
+        try {
+            const events = Array.from(xmlTrans.getElementsByTagName('event'));
+            events.forEach((xmlEvent, index) => {
+                this.importTransitionEvent(xmlEvent, index, trans, result);
+            });
+        } catch (e) {
+            result.addError('Importing transition events failed', e as Error);
         }
     }
 

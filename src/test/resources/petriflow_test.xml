@@ -21,6 +21,13 @@
         </caseLogic>
     </roleRef>
     <roleRef>
+        <id>default</id>
+        <caseLogic>
+            <delete>false</delete>
+            <view>true</view>
+        </caseLogic>
+    </roleRef>
+    <roleRef>
         <id>defaultRole</id>
         <caseLogic>
             <delete>false</delete>

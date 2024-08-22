@@ -32,7 +32,6 @@ import {
     GridJustifyContent,
     I18nString,
     I18nWithDynamic,
-    IdentifierBlacklist,
     JustifyItems,
     JustifySelf,
     PetriflowFunction,
@@ -43,6 +42,7 @@ import {
     TriggerType,
     XmlArcType
 } from '../model';
+import {IdentifierBlacklist} from '../model/identifier-blacklist';
 
 export class ImportUtils {
 
@@ -75,7 +75,7 @@ export class ImportUtils {
         if (xmlIdentifierString === '') {
             throw new Error(`Id of ${xmlTag?.nodeName} must be defined`);
         }
-        if ((Object.values(IdentifierBlacklist) as string[]).includes(xmlIdentifierString)) {
+        if (IdentifierBlacklist.identifierKeywords.has(xmlIdentifierString)) {
             throw new Error(`Id of ${xmlTag?.nodeName} must not be Java or Groovy keyword, value [${xmlIdentifierString}]`);
         }
         const identifierRegex = new RegExp("^[$_a-zA-Z][_a-zA-Z0-9]*$");

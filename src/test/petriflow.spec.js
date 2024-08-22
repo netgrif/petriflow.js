@@ -37,7 +37,8 @@ const {
     GridJustifyContent,
     GridAlignContent,
     GridAutoFlow,
-    GridDisplay
+    GridDisplay,
+    Role
 } = require('../../dist/petriflow');
 const fs = require('fs');
 const {beforeEach, describe, expect, test} = require('@jest/globals');
@@ -267,7 +268,7 @@ describe('Petriflow integration tests', () => {
         expect(roleRefAnonymous.logic.create).toEqual(true);
         expect(roleRefAnonymous.logic.view).toEqual(false);
         expect(roleRefAnonymous.logic.delete).toEqual(undefined);
-        const roleRefDefault = model.getRoleRef('defaultRole');
+        const roleRefDefault = model.getRoleRef(Role.DEFAULT);
         expect(roleRefDefault.logic.create).toEqual(undefined);
         expect(roleRefDefault.logic.view).toEqual(true);
         expect(roleRefDefault.logic.delete).toEqual(false);
@@ -899,7 +900,7 @@ describe('Petriflow integration tests', () => {
 
         const transitionPredefinedRoles = model.getTransition('predefined_roles');
         expect(transitionPredefinedRoles.roleRefs.length).toEqual(2);
-        const transitionPredefinedRolesDefault = transitionPredefinedRoles.roleRefs.find(r => r.id === 'defaultRole');
+        const transitionPredefinedRolesDefault = transitionPredefinedRoles.roleRefs.find(r => r.id === Role.DEFAULT);
         assertRoleRefLogic(transitionPredefinedRolesDefault, false, false, true, true, undefined);
         const transitionPredefinedRolesAnonymous = transitionPredefinedRoles.roleRefs.find(r => r.id === 'anonymous');
         assertRoleRefLogic(transitionPredefinedRolesAnonymous, true, undefined, false, false, false);
@@ -982,7 +983,7 @@ describe('Petriflow integration tests', () => {
     test('should import & export', () => {
         let file = fs.readFileSync(TEST_FILE_PATH).toString();
         debug = false;
-        const model1 = importAndExport(file, 17, 22, 5);
+        const model1 = importAndExport(file, 18, 22, 5);
         expect(model1).toBeDefined();
         const model2 = importAndExport(model1, 0, 20, 0);
         expect(model2).toBeDefined();
