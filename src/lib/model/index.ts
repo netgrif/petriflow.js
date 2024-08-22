@@ -15,6 +15,7 @@ export * from './petrinet/place';
 export * from './petrinet/process-event';
 export * from './petrinet/process-event-type.enum';
 export * from './petrinet/process-permission-ref';
+export * from './identifier-blacklist';
 
 export * from './arc/arc';
 export * from './arc/arc-type.enum';
