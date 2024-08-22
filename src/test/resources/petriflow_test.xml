@@ -81,7 +81,7 @@
                 </action>
             </actions>
             <actions phase="post">
-                <action>
+                <action type="any">
                     <![CDATA[
 <!-- @formatter:off    -->
 <!-- some xml comment                    -->
@@ -101,7 +101,7 @@
         <event type="create">
             <id>case_create</id>
             <actions phase="pre">
-                <action>
+                <action type="component">
                     <![CDATA[
                     test("case_create_pre")
                     test("second_run_case_create_pre")
@@ -171,7 +171,7 @@
         <event type="assign">
             <id>assign_role</id>
             <actions phase="pre">
-                <action>
+                <action type="any">
                     <![CDATA[
                     test("assign_role_pre")
                     ]]>
@@ -252,7 +252,7 @@
         <event type="get">
             <id>cdata_get</id>
             <actions phase="post">
-                <action id="cdata_get_post">
+                <action id="cdata_get_post" type="any">
                     <![CDATA[
                     test
                     ]]>

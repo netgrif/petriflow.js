@@ -1,5 +1,6 @@
 export * from './petri-net';
 export * from './petrinet/action';
+export * from './petrinet/action-type.enum';
 export * from './petrinet/case-event';
 export * from './petrinet/case-event-type.enum';
 export * from './petrinet/case-logic';
