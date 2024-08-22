@@ -12,9 +12,11 @@ import {Simulation} from "./simulation";
 export class BasicSimulation extends Simulation {
 
     private dataVariables: Map<string, number>;
+    private expressionMapping: Map<string, string>;
 
     constructor(model: PetriNet, dataVariables = new Map<string, number>()) {
         super(model);
+        this.expressionMapping = new Map<string, string>();
         this.dataVariables = dataVariables;
         this.reset();
     }
@@ -24,21 +26,15 @@ export class BasicSimulation extends Simulation {
         const arcs = this.simulationModel.getArcs().sort(this.arcOrder);
         for (const arc of arcs) {
             this.updateIOArc(arc);
-            this.updateDataReference(arc);
+            this.updateExpressionMapping(arc);
         }
+        this.updateDataReferences();
+        this.updatePlaceReferences();
     }
 
     updateData(dataVariables: Map<string, number>): void {
         this.dataVariables = dataVariables;
-        this.simulationModel.getArcs()
-            .filter(a => !!a.reference)
-            .forEach(arc => this.updateDataReference(arc));
-    }
-
-    updatePlaceReferences(): void {
-        this.simulationModel.getArcs()
-            .filter(a => !!a.reference)
-            .forEach(arc => this.updatePlaceReference(arc));
+        this.updateDataReferences();
     }
 
     assign(transitionId: string): void {
@@ -89,7 +85,6 @@ export class BasicSimulation extends Simulation {
         this.simulationModel.getPlaces().forEach(p => originalMarking.set(p, p.marking));
         let result = true;
         try {
-
             inputArcs?.forEach(a => (a as PlaceTransitionArc).consume());
         } catch (ignored) {
             result = false;
@@ -126,28 +121,32 @@ export class BasicSimulation extends Simulation {
         arcs.get(id)?.push(arc);
     }
 
-    protected updateDataReference(arc: Arc<NodeElement, NodeElement>): void {
-        if (!arc.reference || !this.dataVariables.has(arc.reference)) {
-            return;
-        }
-        const value = this.dataVariables.get(arc.reference);
-        if (value !== undefined) {
-            arc.multiplicity = value;
-        }
-    }
-
-    protected updatePlaceReference(arc: Arc<NodeElement, NodeElement>): void {
-        if (!arc.reference) {
-            return;
-        }
-        const place = this.simulationModel.getPlace(arc.reference);
-        if (!place) {
-            return;
-        }
-        arc.multiplicity = place.marking;
-    }
-
     protected arcOrder(a: Arc<NodeElement, NodeElement>, b: Arc<NodeElement, NodeElement>): number {
         return BasicSimulation.ARC_ORDER.indexOf(a.type) - BasicSimulation.ARC_ORDER.indexOf(b.type);
+    }
+
+    updatePlaceReferences(): void {
+        this.updateReference(expression => `${this.dataVariables.get(expression)}`);
+    }
+
+    updateDataReferences() {
+        this.updateReference(expression => `${this.dataVariables.get(expression)}`);
+    }
+
+    updateReference(evaluate: (expression: string) => string): void {
+        this.simulationModel.getArcs().filter(arc => arc.multiplicity.dynamic)
+            .forEach(arc => {
+                const arcExpression: string | undefined = this.expressionMapping.get(arc.id)
+                if (arcExpression === undefined) {
+                    return;
+                }
+                arc.multiplicity.expression = evaluate(arcExpression);
+            });
+    }
+
+    updateExpressionMapping(arc: Arc<NodeElement, NodeElement>): void {
+        if (!this.expressionMapping.has(arc.id)) {
+            this.expressionMapping.set(arc.id, arc.multiplicity.expression);
+        }
     }
 }

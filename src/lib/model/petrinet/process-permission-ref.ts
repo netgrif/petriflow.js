@@ -10,6 +10,7 @@ export class ProcessPermissionRef extends PermissionRef<CaseLogic> {
     public clone(): ProcessPermissionRef {
         const cloned = new ProcessPermissionRef(this.id);
         cloned.logic = this.logic?.clone();
+        cloned.properties = this.properties?.map(p => p.clone());
         return cloned;
     }
 }

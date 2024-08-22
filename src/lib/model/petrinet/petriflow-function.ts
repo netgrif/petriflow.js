@@ -2,7 +2,7 @@ import {FunctionScope} from './function-scope.enum';
 
 export class PetriflowFunction {
     private _name: string;
-    private _scope: FunctionScope;
+    private _scope: FunctionScope = FunctionScope.USECASE;
     private _definition: string;
 
     constructor(name: string, scope: FunctionScope, definition = '') {

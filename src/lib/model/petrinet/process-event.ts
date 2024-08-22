@@ -11,6 +11,8 @@ export class ProcessEvent extends Event<ProcessEventType> {
         const cloned = new ProcessEvent(this.type, this.id);
         this.preActions.forEach(a => cloned.preActions.push(a.clone()));
         this.postActions.forEach(a => cloned.postActions.push(a.clone()));
+        this.properties?.forEach(property => cloned.properties?.push(property.clone()))
+        cloned.message = this.message?.clone();
         return cloned;
     }
 }

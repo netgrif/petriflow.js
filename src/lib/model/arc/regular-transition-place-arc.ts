@@ -7,7 +7,7 @@ export class RegularTransitionPlaceArc extends TransitionPlaceArc {
      * Regular arc produces number of tokens equal to its multiplicity.
      */
     produce(): void {
-        this.destination.marking += this.multiplicity;
+        this.destination.marking += this.resolveMultiplicity();
     }
 
     get type(): ArcType {

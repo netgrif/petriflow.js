@@ -1,28 +1,21 @@
 import {
-    Alignment,
     Arc,
-    AssignedUser,
     AssignPolicy,
     Breakpoint,
     CaseEvent,
     CaseEventType,
-    CompactDirection,
     Component,
     DataEvent,
     DataEventType,
-    DataFocusPolicy,
-    DataGroup,
     DataType,
     DataVariable,
     Expression,
     FinishPolicy,
-    HideEmptyRows,
+    FunctionScope,
     I18nString,
     I18nTranslations,
     I18nWithDynamic,
     InhibitorArc,
-    LayoutType,
-    Mapping,
     NodeElement,
     Option,
     PetriNet,
@@ -37,14 +30,11 @@ import {
     Role,
     RoleEvent,
     RoleEventType,
-    Transaction,
     Transition,
     TransitionEvent,
     TransitionEventType,
-    TransitionLayout,
-    TransitionPermissionRef,
     Validation,
-    XmlArcType,
+    XmlArcType
 } from '../model';
 import {ImportUtils} from './import-utils';
 import {PetriNetResult} from './petri-net-result';
@@ -55,7 +45,6 @@ export class ImportService {
     private static readonly PARSE_ERROR_LINE_EXTRACTION_REGEX = '(?:L|l)ine.*?(\\d+).*?(?:C|c)olumn.*?(\\d+)';
     private static readonly DEFAULT_ROLE_DEFAULT_VALUE = false;
     private static readonly ANONYMOUS_ROLE_DEFAULT_VALUE = false;
-    private static readonly TRANSITION_ROLE_DEFAULT_VALUE = false;
 
     constructor(protected importUtils: ImportUtils = new ImportUtils()) {
     }
@@ -103,12 +92,10 @@ export class ImportService {
         this.importEvents(result, xmlDoc);
         this.importData(result, xmlDoc);
         this.importTransitions(result, xmlDoc);
-        this.importTransactions(result, xmlDoc);
         this.importProcessRefs(result, xmlDoc);
         this.importPlaces(result, xmlDoc);
         this.importArcs(result, xmlDoc);
         this.importI18n(result, xmlDoc);
-        this.importMapping(result, xmlDoc);
 
         this.checkI18ns(result);
 
@@ -119,11 +106,9 @@ export class ImportService {
         try {
             modelResult.model.id = this.importUtils.tagValue(xmlDoc, 'id');
             modelResult.model.version = this.importUtils.tagValue(xmlDoc, 'version');
-            modelResult.model.initials = this.importUtils.tagValue(xmlDoc, 'initials');
             modelResult.model.icon = this.importUtils.tagValue(xmlDoc, 'icon');
             modelResult.model.defaultRole = this.importUtils.tagValue(xmlDoc, 'defaultRole') === '' ? ImportService.DEFAULT_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'defaultRole') === 'true';
             modelResult.model.anonymousRole = this.importUtils.tagValue(xmlDoc, 'anonymousRole') === '' ? ImportService.ANONYMOUS_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'anonymousRole') === 'true';
-            modelResult.model.transitionRole = this.importUtils.tagValue(xmlDoc, 'transitionRole') === '' ? ImportService.TRANSITION_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'transitionRole') === 'true';
             modelResult.model.title = this.importUtils.parseI18n(xmlDoc, 'title');
             modelResult.model.caseName = this.importUtils.parseI18nWithDynamic(xmlDoc, 'caseName');
             modelResult.model.tags = this.importUtils.parseTags(xmlDoc);
@@ -146,7 +131,7 @@ export class ImportService {
     public parseRole(model: PetriNet, xmlRole: Element, role: Role): void {
         let title = this.importUtils.parseI18n(xmlRole, 'title');
         if (title.value === undefined || title.value === '') {
-            title = this.importUtils.parseI18n(xmlRole, 'name');
+            title = this.importUtils.parseI18n(xmlRole, 'id');
         }
         role.title = title;
         for (const xmlEvent of Array.from(xmlRole.getElementsByTagName('event'))) {
@@ -156,6 +141,11 @@ export class ImportService {
             this.importUtils.parseEvent(xmlEvent, event);
             role.mergeEvent(event);
         }
+        const scopeValue = this.importUtils.tagAttribute(xmlRole, 'scope');
+        if(scopeValue !== '') {
+            role.scope = scopeValue as FunctionScope;
+        }
+        role.properties = this.importUtils.parseProperties(xmlRole)
         model.addRole(role);
     }
 
@@ -200,6 +190,10 @@ export class ImportService {
                 const id = this.importUtils.tagValue(xmlData, 'id');
                 const type = this.importUtils.tagAttribute(xmlData, 'type') as DataType;
                 const data = new DataVariable(id, type);
+                const scopeValue = this.importUtils.tagAttribute(xmlData, 'scope');
+                if(scopeValue !== '') {
+                    data.scope = scopeValue as FunctionScope;
+                }
                 this.parseData(modelResult, xmlData, data);
             } catch (e) {
                 modelResult.addError('Error happened during the importing data [' + this.importUtils.tagValue(xmlData, 'id') + ']: ' + (e as Error).toString(), e as Error);
@@ -215,13 +209,8 @@ export class ImportService {
         data.immediate = this.importUtils.tagAttribute(xmlData, 'immediate') === 'true';
         data.encryption = this.importUtils.parseEncryption(xmlData);
         data.init = this.importUtils.resolveInit(xmlData);
-        data.inits = this.importUtils.resolveInits(xmlData);
-        data.length = this.importUtils.parseNumberValue(xmlData, 'length');
-        data.component = this.importUtils.parseViewAndComponent(xmlData);
-        this.importUtils.resolveFormat(xmlData, data);
-        if (xmlData.getElementsByTagName('remote').length > 0) {
-            data.remote = true;
-        }
+        data.component = this.importUtils.parseComponent(xmlData);
+        data.properties = this.importUtils.parseProperties(xmlData);
 
         const values = Array.from(xmlData.getElementsByTagName('values'));
         // transform <values>area</values>
@@ -236,9 +225,9 @@ export class ImportService {
                 if (val.childNodes[0] !== undefined) {
                     const option = new Option();
                     const nodeValue = !val.childNodes[0].nodeValue ? '' : val.childNodes[0].nodeValue;
-                    const i18nName = val.getAttribute('name');
+                    const i18nName = val.getAttribute('id');
                     option.value = new I18nWithDynamic(nodeValue);
-                    option.value.name = !i18nName ? undefined : i18nName;
+                    option.value.id = !i18nName ? undefined : i18nName;
                     option.key = nodeValue;
                     data.options.push(option);
                 }
@@ -250,17 +239,9 @@ export class ImportService {
             for (const val of Array.from(xmlData.getElementsByTagName('options')[0]?.getElementsByTagName('option'))) {
                 const key = val.getAttribute('key') ?? '';
                 const value = new I18nString(val.innerHTML);
-                value.name = val.getAttribute('name') ?? '';
+                value.id = val.getAttribute('id') ?? '';
                 data.options.push(Option.of(key, value));
             }
-            data.optionsInit = this.importUtils.parseExpression(xmlData.getElementsByTagName('options')[0], 'init');
-        }
-        const valid = this.importUtils.tagValue(xmlData, 'valid');
-        if (valid !== '') {
-            const validation = new Validation();
-            validation.expression = new Expression(valid, xmlData.getElementsByTagName('valid')?.item(0)?.getAttribute('dynamic') === 'true');
-            data.validations.push(validation);
-            result.addInfo(`Tags <valid> of field ${data.id} changed to validations`);
         }
         if (xmlData.getElementsByTagName('validations').length > 0) {
             for (const val of Array.from(xmlData.getElementsByTagName('validations')[0]?.children)) {
@@ -269,9 +250,6 @@ export class ImportService {
                 validation.message = this.importUtils.parseI18n((val as HTMLDataElement), 'message');
                 data.validations.push(validation);
             }
-        }
-        for (const actionRef of Array.from(xmlData.getElementsByTagName('actionRef'))) {
-            data.actionRef.push(this.importUtils.tagValue(actionRef, 'id'));
         }
         for (const xmlEvent of Array.from(xmlData.getElementsByTagName('event'))) {
             const event = new DataEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as DataEventType, '');
@@ -309,6 +287,11 @@ export class ImportService {
                 const xx = this.importUtils.parseNumberValue(xmlTrans, 'x') ?? 0;
                 const yy = this.importUtils.parseNumberValue(xmlTrans, 'y') ?? 0;
                 const trans = new Transition(xx, yy, id);
+                const scopeValue = this.importUtils.tagAttribute(xmlTrans, 'scope');
+                if(scopeValue !== '') {
+                    trans.scope = scopeValue as FunctionScope;
+                }
+                trans.scope = (xmlTrans.getAttribute('scope') ?? FunctionScope.USECASE) as FunctionScope;
                 this.parseTransition(modelResult, xmlTrans, trans);
             } catch (e) {
                 modelResult.addError('Importing transition [' + id + ']: ' + (e as Error).toString(), e as Error);
@@ -320,15 +303,26 @@ export class ImportService {
         result.model.addTransition(trans);
 
         this.importTransitionMetadata(xmlTrans, trans, result);
-        this.importTransitionLayout(xmlTrans, trans, result);
         this.importTransitionRoleRefs(xmlTrans, trans, result);
-        this.importTransitionUserRefs(xmlTrans, trans, result);
-        this.importTransitionDataGroups(xmlTrans, trans, result);
         this.importTransitionTriggers(xmlTrans, trans, result);
+        this.importTransitionContent(xmlTrans, trans, result)
         this.importTransitionEvents(xmlTrans, trans, result);
-        this.importAssignedUser(xmlTrans, trans, result);
-        this.importTransactionRef(xmlTrans, trans, result);
         trans.tags = this.importUtils.parseTags(xmlTrans);
+    }
+
+    public importTransitionContent(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
+        try {
+            let transitionContentContainer = this.importUtils.getChildElementByName(xmlTrans.children, 'flex');
+            if (transitionContentContainer) {
+                trans.flex = this.importUtils.parseFlex(transitionContentContainer);
+            }
+            transitionContentContainer = this.importUtils.getChildElementByName(xmlTrans.children, 'grid');
+            if (transitionContentContainer) {
+                trans.grid = this.importUtils.parseGrid(transitionContentContainer);
+            }
+        } catch (e) {
+            result.addError('Importing of transtion content failed', e as Error);
+        }
     }
 
     private importTransitionRoleRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
@@ -338,21 +332,6 @@ export class ImportService {
             }
         } catch (e) {
             result.addError('Importing transition role refs failed', e as Error);
-        }
-    }
-
-    private importTransitionUserRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
-        try {
-            /* @deprecated 'Array.from(xmlTrans.getElementsByTagName('usersRef'))' is deprecated and will be removed in future versions. */
-            const userRefs = Array.from(xmlTrans.getElementsByTagName('usersRef')).concat(Array.from(xmlTrans.getElementsByTagName('userRef')));
-            for (const xmlUserRef of userRefs) {
-                const xmlUserRefLogic = xmlUserRef.getElementsByTagName('logic')[0];
-                const userRef = new TransitionPermissionRef(this.importUtils.tagValue(xmlUserRef, 'id'));
-                this.importUtils.resolveLogic(xmlUserRefLogic, userRef);
-                trans.userRefs.push(userRef);
-            }
-        } catch (e) {
-            result.addError('Importing transition user refs failed', e as Error);
         }
     }
 
@@ -366,75 +345,14 @@ export class ImportService {
         }
     }
 
-    private importTransitionDataGroups(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
-        try {
-            for (const xmlDataGroup of Array.from(xmlTrans.getElementsByTagName('dataGroup'))) {
-                const id = this.importUtils.tagValue(xmlDataGroup, 'id');
-                try {
-                    trans.dataGroups.push(this.importUtils.parseDataGroup(xmlDataGroup));
-                } catch (e) {
-                    result.addError(`Importing data group '${id}' failed`, e as Error);
-                }
-            }
-            const xmlDataRefs = Array.from(xmlTrans.getElementsByTagName('dataRef'));
-            if (trans.dataGroups.length === 0 && xmlDataRefs.length > 0) {
-                const dataGroup = new DataGroup('NewDataGroup');
-                dataGroup.stretch = true;
-                for (let i = 0; i < xmlDataRefs.length; i++) {
-                    const xmlDataRef = xmlDataRefs[i];
-                    if (xmlDataRef?.parentElement?.tagName !== 'transition') {
-                        continue;
-                    }
-                    dataGroup.addDataRef(this.importUtils.parseDataRef(xmlDataRef, i));
-                }
-                trans.dataGroups.push(dataGroup);
-                result.addInfo(`Data references of transition '${trans.id}' wrapped with new data group`);
-            }
-        } catch (e) {
-            result.addError('Importing transition data groups failed', e as Error);
-        }
-    }
-
-    private importTransitionLayout(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
-        try {
-            const xmlLayout = xmlTrans.getElementsByTagName('layout');
-            if (xmlLayout.length !== 0 && !!xmlLayout.item(0)?.parentNode && xmlLayout.item(0)?.parentNode?.isSameNode(xmlTrans)) {
-                if (!trans.layout)
-                    trans.layout = new TransitionLayout();
-                trans.layout.type = this.importUtils.tagAttribute(xmlLayout.item(0), 'type') as LayoutType;
-                if (!trans.layout.type) {
-                    trans.layout.type = LayoutType.LEGACY;
-                } else if (trans.layout.type !== LayoutType.LEGACY) {
-                    const cols = this.importUtils.parseNumberValue(xmlLayout.item(0), 'cols');
-                    if (cols && cols > 0) {
-                        trans.layout.cols = cols;
-                    }
-                    const rows = this.importUtils.parseNumberValue(xmlLayout.item(0), 'rows');
-                    if (rows && rows > 0 || rows === 0) {
-                        trans.layout.rows = rows;
-                    }
-                }
-                trans.layout.offset = this.importUtils.parseNumberValue(xmlLayout.item(0), 'offset') ?? 0;
-                trans.layout.alignment = this.importUtils.tagValue(xmlLayout.item(0), 'fieldAlignment') as Alignment;
-                trans.layout.hideEmptyRows = this.importUtils.tagValue(xmlLayout.item(0), 'hideEmptyRows') as HideEmptyRows;
-                trans.layout.compactDirection = this.importUtils.tagValue(xmlLayout.item(0), 'compactDirection') as CompactDirection;
-            }
-        } catch (e) {
-            result.addError('Importing transition layout failed', e as Error);
-        }
-    }
-
     private importTransitionMetadata(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
         try {
-            if (this.importUtils.checkLengthAndNodes(xmlTrans, 'label')) {
-                trans.label = this.importUtils.parseI18n(xmlTrans, 'label');
+            if (this.importUtils.checkLengthAndNodes(xmlTrans, 'title')) {
+                trans.title = this.importUtils.parseI18n(xmlTrans, 'title');
             }
             trans.icon = this.importUtils.tagValue(xmlTrans, 'icon');
-            trans.priority = parseInt(this.importUtils.tagValue(xmlTrans, 'priority'), 10);
             const assignPolicy = this.importUtils.tagValue(xmlTrans, 'assignPolicy');
             trans.assignPolicy = assignPolicy === '' ? AssignPolicy.MANUAL : (assignPolicy as AssignPolicy);
-            trans.dataFocusPolicy = this.importUtils.tagValue(xmlTrans, 'dataFocusPolicy') === '' ? DataFocusPolicy.MANUAL :
-                (this.importUtils.tagValue(xmlTrans, 'dataFocusPolicy') as DataFocusPolicy);
             const finishPolicy = this.importUtils.tagValue(xmlTrans, 'finishPolicy');
             trans.finishPolicy = finishPolicy === '' ? FinishPolicy.MANUAL : (finishPolicy as FinishPolicy);
         } catch (e) {
@@ -465,42 +383,6 @@ export class ImportService {
             trans.eventSource.mergeEvent(event);
         } catch (e) {
             result.addError(`Importing transition event with index [${index} ${xmlEvent.id}] failed`, e as Error);
-        }
-    }
-
-    private importTransactionRef(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
-        try {
-            if (xmlTrans.getElementsByTagName('transactionRef').length > 0 &&
-                xmlTrans.getElementsByTagName('transactionRef')[0].childNodes.length !== 0) {
-                trans.transactionRef = this.importUtils.tagValue(xmlTrans, 'transactionRef');
-            }
-        } catch (e) {
-            result.addError('Importing transaction refs failed', e as Error);
-        }
-    }
-
-    private importAssignedUser(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
-        try {
-            if (xmlTrans.getElementsByTagName('assignedUser').length > 0) {
-                const xmlAssigned = xmlTrans.getElementsByTagName('assignedUser').item(0);
-                const assignedUser = new AssignedUser();
-                assignedUser.cancel = this.importUtils.tagValue(xmlAssigned, 'cancel') !== '' ? this.importUtils.tagValue(xmlAssigned, 'cancel') === 'true' : undefined;
-                assignedUser.reassign = this.importUtils.tagValue(xmlAssigned, 'reassign') !== '' ? this.importUtils.tagValue(xmlAssigned, 'reassign') === 'true' : undefined;
-                trans.assignedUser = assignedUser;
-            }
-        } catch (e) {
-            result.addError('Importing assigned user failed', e as Error);
-        }
-    }
-
-    public importTransactions(modelResult: PetriNetResult, xmlDoc: Document): void {
-        for (const xmlTransaction of Array.from(xmlDoc.getElementsByTagName('transaction'))) {
-            try {
-                const title = this.importUtils.parseI18n(xmlTransaction, 'title');
-                modelResult.model.addTransaction(new Transaction(this.importUtils.tagValue(xmlTransaction, 'id'), title));
-            } catch (e) {
-                modelResult.addError('Error happened during the importing transaction [' + this.importUtils.tagValue(xmlTransaction, 'id') + ']: ' + (e as Error).toString(), e as Error);
-            }
         }
     }
 
@@ -557,15 +439,20 @@ export class ImportService {
         }
         const isStatic = this.importUtils.parsePlaceStatic(xmlPlace);
         const place = new Place(xx, yy, isStatic, placeId);
+        const scopeValue = this.importUtils.tagAttribute(xmlPlace, 'scope');
+        if(scopeValue !== '') {
+            place.scope = scopeValue as FunctionScope;
+        }
         this.parsePlace(modelResult.model, xmlPlace, place);
     }
 
     public parsePlace(model: PetriNet, xmlPlace: Element, place: Place): void {
         model.addPlace(place);
         place.marking = this.importUtils.parseNumberValue(xmlPlace, 'tokens') ?? 0;
-        if (xmlPlace.getElementsByTagName('label').length > 0 &&
-            xmlPlace.getElementsByTagName('label')[0].childNodes.length !== 0) {
-            place.label = this.importUtils.parseI18n(xmlPlace, 'label');
+        if (xmlPlace.getElementsByTagName('title').length > 0 &&
+            xmlPlace.getElementsByTagName('title')[0].childNodes.length !== 0) {
+            place.title = this.importUtils.parseI18n(xmlPlace, 'title');
+            place.properties = this.importUtils.parseProperties(xmlPlace)
         }
     }
 
@@ -592,16 +479,11 @@ export class ImportService {
             throw new Error('Target of an arc must be defined!');
         const parsedArcType = this.importUtils.parseArcType(xmlArc);
         const arc = this.resolveArc(source, target, parsedArcType, arcId, result);
-        arc.multiplicity = this.importUtils.parseNumberValue(xmlArc, 'multiplicity') ?? 0;
-        if (parsedArcType as string === 'variable') {
-            arc.reference = xmlArc.getElementsByTagName('multiplicity')[0]?.childNodes[0]?.nodeValue ?? undefined;
-            this.importUtils.checkVariability(result.model, arc, arc.reference);
-            result.addInfo(`Variable arc '${arc.id}' converted to regular with data field reference`);
-        } else if (this.importUtils.checkLengthAndNodes(xmlArc, 'reference')) {
-            const arcReference = xmlArc.getElementsByTagName('reference')[0].childNodes[0].nodeValue ?? undefined;
-            this.importUtils.checkVariability(result.model, arc, arcReference);
+        const scopeValue = this.importUtils.tagAttribute(xmlArc, 'scope');
+        if(scopeValue !== '') {
+            arc.scope = scopeValue as FunctionScope;
         }
-
+        arc.multiplicity = this.importUtils.parseExpression(xmlArc, 'multiplicity') ?? new Expression('1');
         this.importBreakPoints(xmlArc, arc, result);
         return arc;
     }
@@ -620,7 +502,6 @@ export class ImportService {
                 [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                 return new ReadArc(place, transition, arcId);
             case XmlArcType.REGULAR:
-            case 'variable' as XmlArcType:
                 if (result.model.getPlace(source)) {
                     [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                     return new RegularPlaceTransitionArc(place, transition, arcId);
@@ -673,48 +554,15 @@ export class ImportService {
     public parseI18n(result: PetriNetResult, xmlI18n: Element, i18nNode: I18nTranslations): void {
         const xmlI18strings = xmlI18n.getElementsByTagName('i18nString');
         for (const xmlI18string of Array.from(xmlI18strings)) {
-            const name = this.importUtils.tagAttribute(xmlI18string, 'name');
+            const id = this.importUtils.tagAttribute(xmlI18string, 'id');
             try {
                 const translation = xmlI18string.innerHTML;
-                i18nNode.addI18n(new I18nString(translation, name));
+                i18nNode.addI18n(new I18nString(translation, id));
             } catch (e) {
-                result.addError(`Importing i18n string '${name}' failed`, e as Error);
+                result.addError(`Importing i18n string '${id}' failed`, e as Error);
             }
         }
         result.model.addI18n(i18nNode);
-    }
-
-    public importMapping(modelResult: PetriNetResult, xmlDoc: Document): void {
-        for (const xmlMap of Array.from(xmlDoc.getElementsByTagName('mapping'))) {
-            try {
-                const mapping = new Mapping(this.importUtils.tagValue(xmlMap, 'id'),
-                    this.importUtils.tagValue(xmlMap, 'transitionRef'));
-                this.parseMapping(modelResult.model, xmlMap, mapping);
-            } catch (e) {
-                modelResult.addError('Error happened during the importing mapping [' + this.importUtils.tagValue(xmlMap, 'id') + ']: ' + (e as Error).toString(), e as Error);
-            }
-        }
-    }
-
-    public parseMapping(model: PetriNet, xmlMap: Element, mapping: Mapping): void {
-        for (const xmlRoleRef of Array.from(xmlMap.getElementsByTagName('roleRef'))) {
-            mapping.roleRef.push(this.importUtils.parseRoleRef(xmlRoleRef));
-        }
-        const xmlDataRefs = Array.from(xmlMap.getElementsByTagName('dataRef'));
-        for (let i = 0; i < xmlDataRefs.length; i++) {
-            const xmlDataRef = xmlDataRefs[i];
-            if (xmlDataRef.parentElement?.tagName !== 'mapping') {
-                continue;
-            }
-            mapping.dataRef.push(this.importUtils.parseDataRef(xmlDataRef, i));
-        }
-        for (const xmlDataGroup of Array.from(xmlMap.getElementsByTagName('dataGroup'))) {
-            mapping.dataGroup.push(this.importUtils.parseDataGroup(xmlDataGroup));
-        }
-        for (const xmlTrigger of Array.from(xmlMap.getElementsByTagName('trigger'))) {
-            mapping.trigger.push(this.importUtils.parseTrigger(xmlTrigger));
-        }
-        model.addMapping(mapping);
     }
 
     private checkI18ns(modelResult: PetriNetResult) {
@@ -736,26 +584,23 @@ export class ImportService {
                 });
             });
             model.getTransitions().forEach(t => {
-                ImportService.checkI18n(t.label, i18ns, modelResult);
-                t.dataGroups.forEach(g => {
-                    ImportService.checkI18n(g.title, i18ns, modelResult);
-                });
+                ImportService.checkI18n(t.title, i18ns, modelResult);
                 t.eventSource.getEvents().forEach(e => {
                     ImportService.checkI18n(e.title, i18ns, modelResult);
                     ImportService.checkI18n(e.message, i18ns, modelResult);
                 });
             });
             model.getPlaces().forEach(p => {
-                ImportService.checkI18n(p.label, i18ns, modelResult);
+                ImportService.checkI18n(p.title, i18ns, modelResult);
             });
         });
     }
 
     private static checkI18n(s: I18nString | undefined, i18ns: I18nTranslations, modelResult: PetriNetResult) {
-        if (s && s.name) {
-            const i18n = i18ns.getI18n(s.name);
+        if (s && s.id) {
+            const i18n = i18ns.getI18n(s.id);
             if (!i18n) {
-                modelResult.addWarning(`I18n string with name ${s.name} has no translation in locale ${i18ns.locale}`);
+                modelResult.addWarning(`I18n string with name ${s.id} has no translation in locale ${i18ns.locale}`);
             }
         }
     }

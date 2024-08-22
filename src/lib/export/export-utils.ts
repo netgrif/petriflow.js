@@ -55,19 +55,19 @@ export class ExportUtils {
                 value: value?.key?.toString()
             });
         }
-        if (value?.value?.name) {
+        if (value?.value?.id) {
             attributes.push({
-                key: 'name',
-                value: value.value.name.toString()
+                key: 'id',
+                value: value.value.id.toString()
             });
         }
         this.exportTag(doc, name, value?.value?.value, false, attributes);
     }
 
     public exportI18nString(doc: Element, name: string, value: I18nString | undefined, force = false): void {
-        this.exportTag(doc, name, value?.value, force, value?.name ? [{
-            key: 'name',
-            value: value.name.toString()
+        this.exportTag(doc, name, value?.value, force, value?.id ? [{
+            key: 'id',
+            value: value?.id.toString()
         }] : undefined);
     }
 
@@ -79,10 +79,10 @@ export class ExportUtils {
                 value: value.dynamic.toString()
             });
         }
-        if (value?.name) {
+        if (value?.id) {
             attributes.push({
-                key: 'name',
-                value: value.name
+                key: 'id',
+                value: value.id
             });
         }
         this.exportTag(doc, name, value?.value, false, attributes, value?.dynamic);
@@ -134,11 +134,14 @@ export class ExportUtils {
         if (logic.assign !== undefined) {
             this.exportTag(exportLogic, 'assign', logic.assign.toString());
         }
-        if (logic.delegate !== undefined) {
-            this.exportTag(exportLogic, 'delegate', logic.delegate.toString());
+        if (logic.reassign !== undefined) {
+            this.exportTag(exportLogic, 'reassign', logic.reassign.toString());
         }
         if (logic.perform !== undefined) {
             this.exportTag(exportLogic, 'perform', logic.perform.toString());
+        }
+        if (logic.viewDisabled !== undefined) {
+            this.exportTag(exportLogic, 'view_disabled', logic.viewDisabled.toString());
         }
         element.appendChild(exportLogic);
     }
@@ -163,6 +166,10 @@ export class ExportUtils {
             throw new Error(`Unknown export mapping for arc type ${type}`);
         }
         return xmlType;
+    }
+
+    public transformKebabCaseToCamelCase(stringToTransform: string): string {
+        return stringToTransform.replace(/-./g, x => x[1].toUpperCase());
     }
 
     public createCDATA(content: string): CDATASection {
