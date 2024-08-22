@@ -80,6 +80,7 @@ export class ExportService {
         this._exportUtils.exportTag(doc, 'anonymousRole', model.anonymousRole !== undefined ? (model.anonymousRole.toString()) : '');
         this._exportUtils.exportTags(doc, model.tags);
         this._exportUtils.exportI18nWithDynamic(doc, 'caseName', model.caseName);
+        this._exportUtils.exportExtension(doc, 'extends', model.parent);
     }
 
     public exportRoles(doc: Element, model: PetriNet): void {

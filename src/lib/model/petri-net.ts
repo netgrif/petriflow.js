@@ -6,6 +6,7 @@ import {I18nTranslations} from './i18n/i18n-translations';
 import {I18nWithDynamic} from './i18n/i18n-with-dynamic';
 import {CaseEvent} from './petrinet/case-event';
 import {CaseEventType} from './petrinet/case-event-type.enum';
+import {Extension} from './petrinet/extension';
 import {NodeElement} from './petrinet/node-element';
 import {PetriflowFunction} from './petrinet/petriflow-function';
 import {Place} from './petrinet/place';
@@ -36,6 +37,7 @@ export class PetriNet {
     private _places: Map<string, Place>;
     private _arcs: Map<string, Arc<NodeElement, NodeElement>>;
     private _tags: Map<string, string>;
+    private _parent?: Extension;
 
     constructor() {
         this._id = 'new_model';
@@ -343,6 +345,14 @@ export class PetriNet {
         this._tags = value;
     }
 
+    get parent(): Extension | undefined {
+        return this._parent;
+    }
+
+    set parent(value: Extension | undefined) {
+        this._parent = value;
+    }
+
     public clone(): PetriNet {
         const cloned = new PetriNet();
         cloned._id = this._id;
@@ -375,6 +385,7 @@ export class PetriNet {
         this._roleRefs.forEach(ref => cloned.addRoleRef(ref.clone()));
         this._userRefs.forEach(ref => cloned.addUserRef(ref.clone()));
         this._tags.forEach((value, key) => cloned.tags.set(key, value));
+        cloned.parent = this._parent?.clone();
         return cloned;
     }
 }

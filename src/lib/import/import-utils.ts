@@ -7,7 +7,7 @@ import {
     DataRefBehavior,
     Event,
     EventPhase,
-    Expression,
+    Expression, Extension,
     FlexAlignContent,
     FlexAlignItems,
     FlexContainer,
@@ -718,5 +718,13 @@ export class ImportUtils {
         const key = this.tagAttribute(tagElement, 'key');
         const value = tagElement.innerHTML;
         tags.set(key, value);
+    }
+
+    public parseExtension(xmlDoc: Document): Extension | undefined {
+        const xmlExtension = xmlDoc.getElementsByTagName('extends')[0];
+        if (xmlExtension === undefined) {
+            return undefined;
+        }
+        return new Extension(this.tagValue(xmlExtension, 'id'), this.tagValue(xmlExtension, 'version'))
     }
 }

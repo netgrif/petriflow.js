@@ -112,6 +112,7 @@ export class ImportService {
             modelResult.model.title = this.importUtils.parseI18n(xmlDoc, 'title');
             modelResult.model.caseName = this.importUtils.parseI18nWithDynamic(xmlDoc, 'caseName');
             modelResult.model.tags = this.importUtils.parseTags(xmlDoc);
+            modelResult.model.parent = this.importUtils.parseExtension(xmlDoc);
         } catch (e: unknown) {
             modelResult.addError('Error happened during the importing model properties: ' + (e as Error).toString(), e as Error);
         }

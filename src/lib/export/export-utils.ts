@@ -5,9 +5,11 @@ import {
     CaseLogic,
     Event,
     Expression,
+    Extension,
     I18nString,
     I18nWithDynamic,
-    Logic, Option,
+    Logic,
+    Option,
     PetriflowFunction,
     XmlArcType
 } from '../model';
@@ -47,7 +49,7 @@ export class ExportUtils {
         }] : undefined, value?.dynamic);
     }
 
-    public exportOption(doc: Element, name: string, value : Option | undefined): void {
+    public exportOption(doc: Element, name: string, value: Option | undefined): void {
         const attributes = [];
         if (value?.key) {
             attributes.push({
@@ -186,5 +188,16 @@ export class ExportUtils {
             value: key
         }]));
         doc.appendChild(tagsElement);
+    }
+
+    public exportExtension(doc: Element, name: string, extension: Extension | undefined): void {
+        if (extension === undefined) {
+            return
+        }
+        const extensionElement = this.xmlConstructor.createElement(name);
+        ['id', 'version'].forEach(extensionAttribute => {
+            this.exportTag(extensionElement, extensionAttribute, extension[extensionAttribute as keyof Extension]?.toString());
+        });
+        doc.appendChild(extensionElement);
     }
 }
