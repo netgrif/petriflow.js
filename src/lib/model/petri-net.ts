@@ -11,8 +11,7 @@ import {PetriflowFunction} from './petrinet/petriflow-function';
 import {Place} from './petrinet/place';
 import {ProcessEvent} from './petrinet/process-event';
 import {ProcessEventType} from './petrinet/process-event-type.enum';
-import {ProcessRoleRef} from './petrinet/process-role-ref';
-import {ProcessUserRef} from './petrinet/process-user-ref';
+import {ProcessPermissionRef} from './petrinet/process-permission-ref';
 import {Role} from './role/role';
 import {Transition} from './transition/transition';
 
@@ -25,8 +24,8 @@ export class PetriNet {
     private _defaultRole: boolean;
     private _anonymousRole: boolean;
     private _caseName: I18nWithDynamic;
-    private _roleRefs: Map<string, ProcessRoleRef>;
-    private _userRefs: Map<string, ProcessUserRef>;
+    private _roleRefs: Map<string, ProcessPermissionRef>;
+    private _userRefs: Map<string, ProcessPermissionRef>;
     private _processEvents: Map<ProcessEventType, ProcessEvent>;
     private _caseEvents: Map<CaseEventType, CaseEvent>;
     private _roles: Map<string, Role>;
@@ -36,6 +35,7 @@ export class PetriNet {
     private _transitions: Map<string, Transition>;
     private _places: Map<string, Place>;
     private _arcs: Map<string, Arc<NodeElement, NodeElement>>;
+    private _tags: Map<string, string>;
 
     constructor() {
         this._id = 'new_model';
@@ -52,11 +52,12 @@ export class PetriNet {
         this._data = new Map<string, DataVariable>();
         this._roles = new Map<string, Role>();
         this._functions = new Array<PetriflowFunction>();
-        this._roleRefs = new Map<string, ProcessRoleRef>();
-        this._userRefs = new Map<string, ProcessUserRef>();
+        this._roleRefs = new Map<string, ProcessPermissionRef>();
+        this._userRefs = new Map<string, ProcessPermissionRef>();
         this._i18ns = new Map<string, I18nTranslations>();
         this._processEvents = new Map<ProcessEventType, ProcessEvent>();
         this._caseEvents = new Map<CaseEventType, CaseEvent>();
+        this._tags = new Map<string, string>();
     }
 
     get id(): string {
@@ -123,15 +124,15 @@ export class PetriNet {
         this._caseName = value;
     }
 
-    getRoleRefs(): Array<ProcessRoleRef> {
+    getRoleRefs(): Array<ProcessPermissionRef> {
         return Array.from(this._roleRefs.values());
     }
 
-    getRoleRef(id: string): ProcessRoleRef | undefined {
+    getRoleRef(id: string): ProcessPermissionRef | undefined {
         return this._roleRefs.get(id);
     }
 
-    addRoleRef(roleRef: ProcessRoleRef) {
+    addRoleRef(roleRef: ProcessPermissionRef) {
         if (!this._roles.has(roleRef.id) && roleRef.id !== Role.DEFAULT && roleRef.id !== Role.ANONYMOUS) {
             throw new Error(`Referenced role with id ${roleRef.id} does not exist`);
         }
@@ -145,15 +146,15 @@ export class PetriNet {
         this._roleRefs.delete(id);
     }
 
-    getUserRefs(): Array<ProcessUserRef> {
+    getUserRefs(): Array<ProcessPermissionRef> {
         return Array.from(this._userRefs.values());
     }
 
-    getUserRef(id: string): ProcessUserRef | undefined {
+    getUserRef(id: string): ProcessPermissionRef | undefined {
         return this._userRefs.get(id);
     }
 
-    addUserRef(userRef: ProcessUserRef) {
+    addUserRef(userRef: ProcessPermissionRef) {
         if (!this._data.has(userRef.id)) {
             throw new Error(`Referenced user field with id ${userRef.id} does not exist`);
         }
@@ -334,6 +335,14 @@ export class PetriNet {
         this._arcs.delete(id);
     }
 
+    get tags(): Map<string, string> {
+        return this._tags;
+    }
+
+    set tags(value: Map<string, string>) {
+        this._tags = value;
+    }
+
     public clone(): PetriNet {
         const cloned = new PetriNet();
         cloned._id = this._id;
@@ -365,6 +374,7 @@ export class PetriNet {
         });
         this._roleRefs.forEach(ref => cloned.addRoleRef(ref.clone()));
         this._userRefs.forEach(ref => cloned.addUserRef(ref.clone()));
+        this._tags.forEach((value, key) => cloned.tags.set(key, value));
         return cloned;
     }
 }

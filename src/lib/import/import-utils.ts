@@ -36,15 +36,14 @@ import {
     JustifyItems,
     JustifySelf,
     PetriflowFunction,
-    ProcessRoleRef,
-    ProcessUserRef,
+    ProcessPermissionRef,
     Property,
-    RoleRef,
+    TransitionPermissionRef,
     Trigger,
     TriggerType,
-    UserRef,
     XmlArcType
 } from '../model';
+import {IdentifierBlacklist} from '../model/identifier-blacklist';
 
 export class ImportUtils {
 
@@ -72,8 +71,23 @@ export class ImportUtils {
         return i18n;
     }
 
+    public parseIdentifier(xmlTag: Element | Document | null, child: string): string {
+        const xmlIdentifierString = this.tagValue(xmlTag, child);
+        if (xmlIdentifierString === '') {
+            throw new Error(`Id of ${xmlTag?.nodeName} must be defined`);
+        }
+        if (IdentifierBlacklist.identifierKeywords.has(xmlIdentifierString)) {
+            throw new Error(`Id of ${xmlTag?.nodeName} must not be Java or Groovy keyword, value [${xmlIdentifierString}]`);
+        }
+        const identifierRegex = new RegExp("^[$_a-zA-Z][_a-zA-Z0-9]*$");
+        if (!identifierRegex.test(xmlIdentifierString)) {
+            throw new Error(`Id of ${xmlTag?.nodeName} must be valid Java identifier, value [${xmlIdentifierString}]`);
+        }
+        return xmlIdentifierString;
+    }
+
     public parseI18nWithDynamic(xmlTag: Element | Document, child: string): I18nWithDynamic {
-        const i18n = new I18nWithDynamic(this.tagValue(xmlTag, child));
+        const i18n = new I18nWithDynamic(this.removeExcessiveIndents(this.tagValue(xmlTag, child)));
         if (i18n.value !== '') {
             const id = xmlTag.getElementsByTagName(child)[0].getAttribute('id');
             i18n.id = id === null ? undefined : id;
@@ -125,18 +139,16 @@ export class ImportUtils {
                     continue;
                 }
                 definition += '<!--' + node.nodeValue + '-->';
-            } else if (node.nodeName === '#cdata-section') {
-                definition += '<![CDATA[' + node.nodeValue + ']]>';
             } else {
-                definition += node.nodeValue?.trim();
+                definition += node.nodeValue;
             }
         }
         return this.removeExcessiveIndents(definition);
     }
 
     public removeExcessiveIndents(action: string): string {
-        action = action.trim().replace(/\t/g, '    ');
-        const lines = action.split('\n');
+        const lines = action.split('\n')
+            .filter(line => line.trim().length !== 0);
         let commonIndent = Math.min(...(lines.map(l => l.length - l.trimStart().length)));
         if (isNaN(commonIndent) || !isFinite(commonIndent)) {
             commonIndent = 0;
@@ -161,7 +173,7 @@ export class ImportUtils {
         if (!xmlComponent?.children || xmlComponent.children.length === 0) {
             return undefined;
         }
-        const comp = new Component(this.tagValue(xmlComponent, 'id'));
+        const comp = new Component(this.parseIdentifier(xmlComponent, 'id'));
         const properties = xmlComponent.getElementsByTagName('properties')[0];
         if (properties?.children && properties.children.length > 0) {
             for (const prop of Array.from(properties.getElementsByTagName('property'))) {
@@ -175,7 +187,7 @@ export class ImportUtils {
         return comp;
     }
 
-    public parseProperties(xmlTag: Element): Array<Property> | undefined {
+    public parseProperties(xmlTag: Element): Array<Property> {
         const propertiesCollection: HTMLCollectionOf<Element> = xmlTag.getElementsByTagName('properties')
         if (!propertiesCollection || propertiesCollection.length === 0) {
             return [];
@@ -194,7 +206,7 @@ export class ImportUtils {
         return new Property(key, value);
     }
 
-    public resolveLogic(xmlRoleRefLogic: Element, roleRef: RoleRef | UserRef): void {
+    public resolveLogic(xmlRoleRefLogic: Element, roleRef: TransitionPermissionRef): void {
         roleRef.logic.reassign = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'reassign'));
         roleRef.logic.perform = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'perform'));
         /* @deprecated - 'this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'assigned'))' is deprecated and it and following line will be removed in future versions. */
@@ -213,10 +225,10 @@ export class ImportUtils {
         return (logicValue !== undefined && logicValue !== '') ? logicValue === 'true' : undefined;
     }
 
-    public resolveCaseLogic(xmlRoleRefLogic: Element, roleRef: ProcessRoleRef | ProcessUserRef): void {
-        roleRef.caseLogic.create = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'create'));
-        roleRef.caseLogic.delete = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delete'));
-        roleRef.caseLogic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
+    public resolveCaseLogic(xmlRoleRefLogic: Element, roleRef: ProcessPermissionRef): void {
+        roleRef.logic.create = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'create'));
+        roleRef.logic.delete = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'delete'));
+        roleRef.logic.view = this.resolveLogicValue(this.tagValue(xmlRoleRefLogic, 'view'));
     }
 
     public parseTrigger(xmlTrigger: Element): Trigger {
@@ -229,16 +241,16 @@ export class ImportUtils {
         return trigger;
     }
 
-    public parseRoleRef(xmlRoleRef: Element): RoleRef {
+    public parseRoleRef(xmlRoleRef: Element): TransitionPermissionRef {
         const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('logic')[0];
-        const roleRef = new RoleRef(this.tagValue(xmlRoleRef, 'id'));
+        const roleRef = new TransitionPermissionRef(this.parseIdentifier(xmlRoleRef, 'id'));
         this.resolveLogic(xmlRoleRefLogic, roleRef);
         roleRef.properties = this.parseProperties(xmlRoleRef);
         return roleRef;
     }
 
     public parseDataRef(xmlDataRef: Element): DataRef {
-        const dataRef = new DataRef(this.tagValue(xmlDataRef, 'id'));
+        const dataRef = new DataRef(this.parseIdentifier(xmlDataRef, 'id'));
         for (const xmlEvent of Array.from(xmlDataRef.getElementsByTagName('event'))) {
             const event = new DataEvent(this.tagAttribute(xmlEvent, 'type') as DataEventType, '');
             this.parseEvent(xmlEvent, event);
@@ -259,7 +271,7 @@ export class ImportUtils {
     }
 
     public parseGrid(xmlGrid: Element): GridContainer {
-        const grid = new GridContainer(this.tagValue(xmlGrid, 'id'));
+        const grid = new GridContainer(this.parseIdentifier(xmlGrid, 'id'));
 
         const properties = this.getChildElementByName(xmlGrid.children, 'properties');
         if (properties) {
@@ -470,7 +482,7 @@ export class ImportUtils {
     }
 
     public parseFlex(xmlFlex: Element) {
-        const flex = new FlexContainer(this.tagValue(xmlFlex, 'id'));
+        const flex = new FlexContainer(this.parseIdentifier(xmlFlex, 'id'));
         const properties = this.getChildElementByName(xmlFlex.children, 'properties');
         if (properties) {
             flex.properties = this.parseFlexContainerProperties(properties);
@@ -613,7 +625,7 @@ export class ImportUtils {
     }
 
     public parseEvent<T>(xmlEvent: Element, event: Event<T>): void {
-        event.id = this.tagValue(xmlEvent, 'id');
+        event.id = this.parseIdentifier(xmlEvent, 'id');
         if (event.id === '') {
             event.id = event.type + "_event_" + this.getNextEventId();
         }
@@ -647,7 +659,8 @@ export class ImportUtils {
         }
         const dynamic = this.tagAttribute(elementValue, 'dynamic');
         const name = this.tagAttribute(elementValue, 'id');
-        return new I18nWithDynamic(elementValue.textContent ?? '', name, dynamic === '' ? undefined : dynamic === 'true');
+        const value = this.removeExcessiveIndents(elementValue.textContent ?? '');
+        return new I18nWithDynamic(value, name, dynamic === '' ? undefined : dynamic === 'true');
     }
 
     public checkLengthAndNodes(element: Element, name: string) {
@@ -664,7 +677,7 @@ export class ImportUtils {
     }
 
     public parseExpression(xmlTag: Element, name: string): Expression | undefined {
-        const val = this.tagValue(xmlTag, name);
+        const val = this.removeExcessiveIndents(this.tagValue(xmlTag, name));
         let dynamic;
         if (xmlTag.getElementsByTagName(name).length > 0) {
             dynamic = this.tagAttribute(xmlTag.getElementsByTagName(name).item(0), 'dynamic');
@@ -694,5 +707,22 @@ export class ImportUtils {
     public resetIds(): void {
         this.resetEventId();
         this.resetActionId();
+    }
+
+    parseTags(xmlDoc: Element | Document): Map<string, string> {
+        const tags = new Map<string, string>();
+        const tagsElement = xmlDoc.getElementsByTagName('tags')[0];
+        if (tagsElement?.children && tagsElement.children.length > 0) {
+            for (const tagElement of Array.from(xmlDoc.getElementsByTagName('tag'))) {
+                this.parseTag(tags, tagElement);
+            }
+        }
+        return tags;
+    }
+
+    parseTag(tags: Map<string, string>, tagElement: Element): void {
+        const key = this.tagAttribute(tagElement, 'key');
+        const value = tagElement.innerHTML;
+        tags.set(key, value);
     }
 }

@@ -24,4 +24,8 @@ export abstract class Element {
     set properties(value: Array<Property> | undefined) {
         this._properties = value;
     }
+
+    public compare(other: Element): number {
+        return this.id.localeCompare(other.id);
+    }
 }

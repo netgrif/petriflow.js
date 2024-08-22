@@ -1,6 +1,6 @@
 import typescript from "@rollup/plugin-typescript";
 import dts from "rollup-plugin-dts";
-import {terser} from "rollup-plugin-terser";
+import terser from "@rollup/plugin-terser";
 import del from 'rollup-plugin-delete';
 
 export default [

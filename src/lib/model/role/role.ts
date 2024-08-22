@@ -7,7 +7,7 @@ import {RoleEventType} from './role-event-type.enum';
 
 export class Role extends EventSource<RoleEvent, RoleEventType> {
     public static readonly ANONYMOUS = 'anonymous';
-    public static readonly DEFAULT = 'default';
+    public static readonly DEFAULT = 'defaultRole';
 
     private _id: string;
     private _title: I18nString;
@@ -59,5 +59,9 @@ export class Role extends EventSource<RoleEvent, RoleEventType> {
         cloned._properties = this._properties?.map(p => p.clone());
         this.getEvents().forEach(event => cloned.addEvent(event.clone()));
         return cloned;
+    }
+
+    public compare(other: Role): number {
+        return this.id.localeCompare(other.id);
     }
 }
