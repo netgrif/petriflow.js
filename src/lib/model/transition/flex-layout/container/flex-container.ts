@@ -4,11 +4,12 @@ import {FlexContainerProperties} from './flex-container-properties';
 export class FlexContainer {
 
     private _id: string;
-    private _items?: Array<FlexItem>;
+    private _items: Array<FlexItem>;
     private _properties: FlexContainerProperties;
 
     constructor(id: string) {
         this._id = id;
+        this._items = new Array<FlexItem>();
         this._properties = new FlexContainerProperties();
     }
 
@@ -20,11 +21,11 @@ export class FlexContainer {
         this._id = value;
     }
 
-    get items(): Array<FlexItem> | undefined {
+    get items(): Array<FlexItem> {
         return this._items;
     }
 
-    set items(value: Array<FlexItem> | undefined ) {
+    set items(value: Array<FlexItem>) {
         this._items = value;
     }
 
@@ -37,14 +38,7 @@ export class FlexContainer {
     }
 
     addItem(item: FlexItem) {
-        if (this._items === undefined) {
-            this._items = [];
-        }
         this._items.push(item);
-    }
-
-    getItemById(itemId: string): FlexItem | undefined {
-        return this._items?.filter(item => item.getContentId() === itemId)[0];
     }
 
     public clone(): FlexContainer {

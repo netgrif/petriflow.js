@@ -1,13 +1,12 @@
-import {Property} from '../data-variable/property';
-
 export abstract class PermissionRef<T> {
     private _id: string;
     private _logic: T;
-    private _properties?: Array<Property>;
+    private _properties: Map<string, string>;
 
     protected constructor(id: string, logic: T) {
         this._id = id;
         this._logic = logic;
+        this._properties = new Map<string, string>();
     }
 
     get id(): string {
@@ -26,11 +25,11 @@ export abstract class PermissionRef<T> {
         this._logic = value;
     }
 
-    get properties(): Array<Property> | undefined {
+    get properties(): Map<string, string> {
         return this._properties;
     }
 
-    set properties(value: Array<Property> | undefined) {
+    set properties(value: Map<string, string>) {
         this._properties = value;
     }
 

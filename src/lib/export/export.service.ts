@@ -32,7 +32,7 @@ import {
     PetriNet,
     ProcessEvent,
     ProcessPermissionRef,
-    Property,
+    ResourceScope,
     Transition,
     TransitionEvent,
     TransitionPermissionRef,
@@ -78,7 +78,7 @@ export class ExportService {
         this._exportUtils.exportTag(doc, 'icon', model.icon);
         this._exportUtils.exportTag(doc, 'defaultRole', model.defaultRole !== undefined ? (model.defaultRole.toString()) : '');
         this._exportUtils.exportTag(doc, 'anonymousRole', model.anonymousRole !== undefined ? (model.anonymousRole.toString()) : '');
-        this._exportUtils.exportTags(doc, model.tags);
+        this._exportUtils.exportTags(doc, model.properties);
         this._exportUtils.exportI18nWithDynamic(doc, 'caseName', model.caseName);
     }
 
@@ -93,7 +93,7 @@ export class ExportService {
             if (item.properties !== undefined) {
                 this.exportProperties(role, item.properties)
             }
-            role.setAttribute('scope', item.scope.toString());
+            this.exportScope(item.scope, role);
             doc.appendChild(role);
         });
     }
@@ -127,9 +127,7 @@ export class ExportService {
         if (event.postActions.length > 0) {
             this._exportUtils.exportActions(exportEvent, event, 'post');
         }
-        if (event.properties !== undefined && event.properties.length > 0) {
-            this.exportProperties(exportEvent, event.properties);
-        }
+        this.exportProperties(exportEvent, event.properties);
 
         if ((event instanceof ProcessEvent || event instanceof CaseEvent) && !!exportProcessEvent) {
             exportProcessEvent.appendChild(exportEvent);
@@ -139,15 +137,15 @@ export class ExportService {
         }
     }
 
-    public exportProperties(element: Element, properties: Array<Property>): void {
-        if (!properties || properties.length === 0) {
+    public exportProperties(element: Element, properties: Map<string, string>): void {
+        if (!properties || properties.size === 0) {
             return
         }
         const props = this.xmlConstructor.createElement('properties');
-        properties.forEach(property => {
-            this._exportUtils.exportTag(props, 'property', property.value, false, [{
+        properties.forEach((value, key) => {
+            this._exportUtils.exportTag(props, 'property', value, false, [{
                 key: 'key',
-                value: property.key,
+                value: key,
             }])
         })
         element.appendChild(props);
@@ -210,7 +208,7 @@ export class ExportService {
             this._exportUtils.exportI18nString(exportData, 'title', data.title, true);
             this._exportUtils.exportI18nString(exportData, 'placeholder', data.placeholder);
             this._exportUtils.exportI18nString(exportData, 'desc', data.desc);
-            exportData.setAttribute('scope', data.scope?.toString());
+            this.exportScope(data.scope, exportData);
             if (data.options.length > 0) {
                 const options = this.xmlConstructor.createElement('options');
                 data.options.forEach(opt => this._exportUtils.exportOption(options, 'option', opt));
@@ -276,11 +274,11 @@ export class ExportService {
             this._exportUtils.exportTag(exportTrans, 'x', trans.x?.toString(), true);
             this._exportUtils.exportTag(exportTrans, 'y', trans.y?.toString(), true);
             this._exportUtils.exportI18nString(exportTrans, 'title', trans.title, true);
-            this._exportUtils.exportTags(exportTrans, trans.tags);
+            this._exportUtils.exportTags(exportTrans, trans.properties);
             this._exportUtils.exportTag(exportTrans, 'icon', trans.icon ?? '');
             this._exportUtils.exportTag(exportTrans, 'assignPolicy', trans.assignPolicy === AssignPolicy.MANUAL ? '' : trans.assignPolicy);
             this._exportUtils.exportTag(exportTrans, 'finishPolicy', trans.finishPolicy === FinishPolicy.MANUAL ? '' : trans.finishPolicy);
-            exportTrans.setAttribute('scope', trans.scope?.toString());
+            this.exportScope(trans.scope, exportTrans);
             trans.triggers.forEach(trigger => {
                 if (trigger.type !== TriggerType.TIME) {
                     const exportTrigger = this.xmlConstructor.createElement('trigger');
@@ -644,10 +642,12 @@ export class ExportService {
     public exportComponent(element: Element, component: Component): void {
         const comp = this.xmlConstructor.createElement('component');
         this._exportUtils.exportTag(comp, 'id', component.id, true);
-        component.properties.forEach(prop => this._exportUtils.exportTag(comp, 'property', prop.value, false, [{
-            key: 'key',
-            value: prop.key
-        }]));
+        component.properties.forEach((value, key) => {
+            this._exportUtils.exportTag(comp, 'property', value, false, [{
+                key: 'key',
+                value: key
+            }])
+        });
         element.appendChild(comp);
     }
 
@@ -659,11 +659,10 @@ export class ExportService {
             this._exportUtils.exportTag(exportPlace, 'y', place.y?.toString(), true);
             this._exportUtils.exportI18nString(exportPlace, 'title', place.title);
             this._exportUtils.exportTag(exportPlace, 'tokens', place.marking?.toString());
-            this._exportUtils.exportTag(exportPlace, 'static', place.static?.toString());
             if (place.properties !== undefined) {
                 this.exportProperties(exportPlace, place.properties)
             }
-            exportPlace.setAttribute('scope', place.scope?.toString());
+            this.exportScope(place.scope, exportPlace);
             doc.appendChild(exportPlace);
         });
     }
@@ -679,7 +678,7 @@ export class ExportService {
             if (arc.breakpoints !== undefined) {
                 this.exportBreakpoints(exportArc, arc);
             }
-            exportArc.setAttribute('scope', arc.scope?.toString());
+            this.exportScope(arc.scope, exportArc);
             doc.appendChild(exportArc);
         });
     }
@@ -695,5 +694,12 @@ export class ExportService {
 
     public alphabetically(a: string, b: string): number {
         return a.localeCompare(b);
+    }
+
+    private exportScope(scope: ResourceScope, element: HTMLElement): void {
+        if (scope === ResourceScope.USECASE) {
+            return;
+        }
+        element.setAttribute('scope', scope.toString());
     }
 }

@@ -1,12 +1,10 @@
-import {Property} from './property';
-
 export class Component {
     private _id: string;
-    private _properties: Array<Property>;
+    private _properties: Map<string, string>;
 
     constructor(id: string) {
         this._id = id;
-        this._properties = new Array<Property>();
+        this._properties = new Map<string, string>;
     }
 
     get id(): string {
@@ -17,17 +15,17 @@ export class Component {
         this._id = value;
     }
 
-    get properties(): Array<Property> {
+    get properties(): Map<string, string> {
         return this._properties;
     }
 
-    set properties(value: Array<Property>) {
+    set properties(value: Map<string, string>) {
         this._properties = value;
     }
 
     public clone(): Component {
         const cloned = new Component(this._id);
-        cloned.properties = this.properties.map(p => p.clone());
+        this.properties.forEach((value, key) => cloned.properties.set(key, value));
         return cloned;
     }
 }

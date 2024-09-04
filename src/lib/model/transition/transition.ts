@@ -1,6 +1,6 @@
 import {I18nString} from '../i18n/i18n-string';
-import {FunctionScope} from '../petrinet/function-scope.enum';
 import {NodeElement} from '../petrinet/node-element';
+import {ResourceScope} from '../petrinet/resource-scope.enum';
 import {AssignPolicy} from './assign-policy.enum';
 import {FinishPolicy} from './finish-policy.enum';
 import {FlexContainer} from './flex-layout/container/flex-container';
@@ -18,8 +18,7 @@ export class Transition extends NodeElement {
     private _grid?: GridContainer;
     private _flex?: FlexContainer;
     private _eventSource: TransitionEventSource;
-    private _scope: FunctionScope = FunctionScope.USECASE;
-    private _tags: Map<string, string>;
+    private _scope: ResourceScope = ResourceScope.USECASE;
 
     constructor(x: number, y: number, id: string) {
         super(id, x, y, new I18nString(''));
@@ -28,7 +27,6 @@ export class Transition extends NodeElement {
         this._triggers = [];
         this._roleRefs = [];
         this._eventSource = new TransitionEventSource();
-        this._tags = new Map<string, string>();
     }
 
     get icon(): string | undefined {
@@ -79,14 +77,6 @@ export class Transition extends NodeElement {
         this._eventSource = value;
     }
 
-    get tags(): Map<string, string> {
-        return this._tags;
-    }
-
-    set tags(value: Map<string, string>) {
-        this._tags = value;
-    }
-
     get grid(): GridContainer | undefined {
         return this._grid;
     }
@@ -103,11 +93,11 @@ export class Transition extends NodeElement {
         this._flex = value;
     }
 
-    get scope(): FunctionScope {
+    get scope(): ResourceScope {
         return this._scope;
     }
 
-    set scope(value: FunctionScope) {
+    set scope(value: ResourceScope) {
         this._scope = value;
     }
 
@@ -121,10 +111,9 @@ export class Transition extends NodeElement {
         cloned._roleRefs = this._roleRefs.map(item => item.clone());
         cloned._flex = this._flex?.clone();
         cloned._grid = this._grid?.clone();
-        cloned.properties = this.properties?.map(p => p.clone());
         cloned._scope = this._scope;
+        this.properties.forEach((value, key) => cloned.properties.set(key, value));
         this.eventSource.getEvents().forEach(event => cloned.eventSource.addEvent(event.clone()));
-        this.tags.forEach((value, key) => cloned.tags.set(key, value));
         return cloned;
     }
 }

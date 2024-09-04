@@ -2,7 +2,6 @@
 
 const {
     ImportService,
-    ExportService,
     BasicSimulation
 } = require('../../dist/petriflow');
 const fs = require('fs');
@@ -11,11 +10,9 @@ const SIMPLE_NET_FILE = 'src/test/resources/simulation_task.xml';
 
 describe('Petriflow transition simulation tests', () => {
     let importService;
-    let exportService;
 
     beforeEach(() => {
         importService = new ImportService();
-        exportService = new ExportService();
     });
 
     test('task event errors', () => {

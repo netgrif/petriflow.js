@@ -8,7 +8,6 @@ export * from './petrinet/element';
 export * from './petrinet/event';
 export * from './petrinet/event-phase.enum';
 export * from './petrinet/event-source';
-export * from './petrinet/function-scope.enum';
 export * from './petrinet/node-element';
 export * from './petrinet/permission-ref';
 export * from './petrinet/petriflow-function';
@@ -16,6 +15,7 @@ export * from './petrinet/place';
 export * from './petrinet/process-event';
 export * from './petrinet/process-event-type.enum';
 export * from './petrinet/process-permission-ref';
+export * from './petrinet/resource-scope.enum';
 export * from './identifier-blacklist';
 
 export * from './arc/arc';
@@ -39,7 +39,6 @@ export * from './data-variable/expression';
 export * from './data-variable/icon';
 export * from './data-variable/icon-type.enum';
 export * from './data-variable/option';
-export * from './data-variable/property';
 export * from './data-variable/validation';
 
 export * from './i18n/i18n-string';

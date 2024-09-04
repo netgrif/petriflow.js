@@ -35,7 +35,7 @@ export class PetriNet {
     private _transitions: Map<string, Transition>;
     private _places: Map<string, Place>;
     private _arcs: Map<string, Arc<NodeElement, NodeElement>>;
-    private _tags: Map<string, string>;
+    private _properties: Map<string, string>;
 
     constructor() {
         this._id = 'new_model';
@@ -57,7 +57,7 @@ export class PetriNet {
         this._i18ns = new Map<string, I18nTranslations>();
         this._processEvents = new Map<ProcessEventType, ProcessEvent>();
         this._caseEvents = new Map<CaseEventType, CaseEvent>();
-        this._tags = new Map<string, string>();
+        this._properties = new Map<string, string>();
     }
 
     get id(): string {
@@ -335,12 +335,12 @@ export class PetriNet {
         this._arcs.delete(id);
     }
 
-    get tags(): Map<string, string> {
-        return this._tags;
+    get properties(): Map<string, string> {
+        return this._properties;
     }
 
-    set tags(value: Map<string, string>) {
-        this._tags = value;
+    set properties(value: Map<string, string>) {
+        this._properties = value;
     }
 
     public clone(): PetriNet {
@@ -374,7 +374,7 @@ export class PetriNet {
         });
         this._roleRefs.forEach(ref => cloned.addRoleRef(ref.clone()));
         this._userRefs.forEach(ref => cloned.addUserRef(ref.clone()));
-        this._tags.forEach((value, key) => cloned.tags.set(key, value));
+        this._properties.forEach((value, key) => cloned.properties.set(key, value));
         return cloned;
     }
 }

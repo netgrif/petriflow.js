@@ -1,11 +1,11 @@
-import {FunctionScope} from './function-scope.enum';
+import {ResourceScope} from './resource-scope.enum';
 
 export class PetriflowFunction {
     private _name: string;
-    private _scope: FunctionScope = FunctionScope.USECASE;
+    private _scope: ResourceScope = ResourceScope.USECASE;
     private _definition: string;
 
-    constructor(name: string, scope: FunctionScope, definition = '') {
+    constructor(name: string, scope: ResourceScope, definition = '') {
         this._name = name;
         this._scope = scope;
         this._definition = definition;
@@ -19,11 +19,11 @@ export class PetriflowFunction {
         this._name = value;
     }
 
-    get scope(): FunctionScope {
+    get scope(): ResourceScope {
         return this._scope;
     }
 
-    set scope(value: FunctionScope) {
+    set scope(value: ResourceScope) {
         this._scope = value;
     }
 

@@ -1,11 +1,10 @@
 import {I18nString} from '../i18n/i18n-string';
 import {I18nWithDynamic} from "../i18n/i18n-with-dynamic";
-import {FunctionScope} from '../petrinet/function-scope.enum';
+import {ResourceScope} from '../petrinet/resource-scope.enum';
 import {Component} from './component';
 import {DataEventSource} from './data-event-source';
 import {DataType} from './data-type.enum';
 import {Option} from './option';
-import {Property} from './property';
 import {Validation} from './validation';
 
 export class DataVariable extends DataEventSource {
@@ -22,8 +21,8 @@ export class DataVariable extends DataEventSource {
     private _immediate: boolean;
     private _encryption?: string;
     private _allowedNets: Array<string>;
-    private _properties?: Array<Property>;
-    private _scope: FunctionScope = FunctionScope.USECASE;
+    private _properties: Map<string, string>;
+    private _scope: ResourceScope = ResourceScope.USECASE;
 
     constructor(id: string, type: DataType) {
         super();
@@ -36,6 +35,7 @@ export class DataVariable extends DataEventSource {
         this._validations = [];
         this._immediate = false;
         this._allowedNets = [];
+        this._properties = new Map<string, string>;
     }
 
     get id(): string {
@@ -142,19 +142,19 @@ export class DataVariable extends DataEventSource {
         this._allowedNets = value;
     }
 
-    get properties(): Array<Property> | undefined {
+    get properties(): Map<string, string> {
         return this._properties;
     }
 
-    set properties(value: Array<Property> | undefined) {
+    set properties(value: Map<string, string>) {
         this._properties = value;
     }
 
-    get scope(): FunctionScope {
+    get scope(): ResourceScope {
         return this._scope;
     }
 
-    set scope(value: FunctionScope) {
+    set scope(value: ResourceScope) {
         this._scope = value;
     }
 
@@ -171,8 +171,8 @@ export class DataVariable extends DataEventSource {
         cloned._immediate = this._immediate;
         cloned._encryption = this._encryption;
         cloned._allowedNets = [...this._allowedNets];
-        cloned._properties = this._properties?.map(p => p.clone());
         cloned._scope = this._scope;
+        this._properties.forEach((value, key) => cloned.properties.set(key, value));
         this.getEvents().forEach(event => cloned.addEvent(event.clone()));
         return cloned;
     }

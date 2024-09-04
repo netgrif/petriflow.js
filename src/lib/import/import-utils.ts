@@ -20,7 +20,6 @@ import {
     FlexItemProperties,
     FlexJustifyContent,
     FlexWrap,
-    FunctionScope,
     GridAlignContent,
     GridAlignItems,
     GridAutoFlow,
@@ -37,7 +36,7 @@ import {
     JustifySelf,
     PetriflowFunction,
     ProcessPermissionRef,
-    Property,
+    ResourceScope,
     TransitionPermissionRef,
     Trigger,
     TriggerType,
@@ -126,7 +125,7 @@ export class ImportUtils {
 
     parseFunction(xmlFunction: Element) {
         const name = this.tagAttribute(xmlFunction, 'name');
-        const scope = this.tagAttribute(xmlFunction, 'scope') as FunctionScope;
+        const scope = this.tagAttribute(xmlFunction, 'scope') as ResourceScope;
         const definition = this.parseDefinition(xmlFunction);
         return new PetriflowFunction(name, scope, definition);
     }
@@ -177,33 +176,35 @@ export class ImportUtils {
         const properties = xmlComponent.getElementsByTagName('properties')[0];
         if (properties?.children && properties.children.length > 0) {
             for (const prop of Array.from(properties.getElementsByTagName('property'))) {
-                comp.properties.push(this.parseProperty(prop));
+                this.parseProperty(prop, comp.properties);
             }
         } else {
             for (const prop of Array.from(xmlComponent.getElementsByTagName('property'))) {
-                comp.properties.push(this.parseProperty(prop));
+                this.parseProperty(prop, comp.properties);
             }
         }
         return comp;
     }
 
-    public parseProperties(xmlTag: Element): Array<Property> {
+    public parseProperties(xmlTag: Element): Map<string, string> {
         const propertiesCollection: HTMLCollectionOf<Element> = xmlTag.getElementsByTagName('properties')
+        const properties = new Map<string, string>;
         if (!propertiesCollection || propertiesCollection.length === 0) {
-            return [];
+            return properties;
         }
-        const properties = propertiesCollection[0];
-        if (!properties?.children || properties.children.length === 0) {
-            return [];
+        const propertiesList = propertiesCollection[0];
+        if (!propertiesList?.children || propertiesList.children.length === 0) {
+            return properties;
         }
-        return Array.from(properties.getElementsByTagName('property'))
-            .map(propertyElement => this.parseProperty(propertyElement));
+        Array.from(propertiesList.getElementsByTagName('property'))
+            .forEach(propertyElement => this.parseProperty(propertyElement, properties));
+        return properties;
     }
 
-    public parseProperty(property: Element): Property {
+    public parseProperty(property: Element, properties: Map<string, string>): void {
         const key = this.tagAttribute(property, 'key');
         const value = property.innerHTML;
-        return new Property(key, value);
+        properties.set(key, value);
     }
 
     public resolveLogic(xmlRoleRefLogic: Element, roleRef: TransitionPermissionRef): void {

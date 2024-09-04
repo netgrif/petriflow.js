@@ -1,7 +1,6 @@
-import {Property} from '../data-variable/property';
 import {I18nString} from '../i18n/i18n-string';
 import {EventSource} from '../petrinet/event-source';
-import {FunctionScope} from '../petrinet/function-scope.enum';
+import {ResourceScope} from '../petrinet/resource-scope.enum';
 import {RoleEvent} from './role-event';
 import {RoleEventType} from './role-event-type.enum';
 
@@ -11,14 +10,15 @@ export class Role extends EventSource<RoleEvent, RoleEventType> {
 
     private _id: string;
     private _title: I18nString;
-    private _scope: FunctionScope;
-    private _properties?: Array<Property>;
+    private _scope: ResourceScope;
+    private _properties: Map<string, string>;
 
-    constructor(id: string, _scope: FunctionScope = FunctionScope.USECASE) {
+    constructor(id: string, _scope: ResourceScope = ResourceScope.USECASE) {
         super();
         this._id = id;
         this._title = new I18nString('');
         this._scope = _scope;
+        this._properties = new Map<string, string>();
     }
 
     get id(): string {
@@ -37,26 +37,26 @@ export class Role extends EventSource<RoleEvent, RoleEventType> {
         this._title = value;
     }
 
-    get properties(): Array<Property> | undefined {
+    get properties(): Map<string, string> {
         return this._properties;
     }
 
-    set properties(value: Array<Property> | undefined) {
+    set properties(value: Map<string, string>) {
         this._properties = value;
     }
 
-    get scope(): FunctionScope {
+    get scope(): ResourceScope {
         return this._scope;
     }
 
-    set scope(value: FunctionScope) {
+    set scope(value: ResourceScope) {
         this._scope = value;
     }
 
     public clone(): Role {
         const cloned = new Role(this._id, this._scope);
         cloned._title = this._title?.clone();
-        cloned._properties = this._properties?.map(p => p.clone());
+        this.properties.forEach((value, key) => cloned.properties.set(key, value));
         this.getEvents().forEach(event => cloned.addEvent(event.clone()));
         return cloned;
     }
