@@ -73,12 +73,20 @@ export class LegacyImportService {
         try {
             modelResult.model.id = this.importUtils.tagValue(xmlDoc, 'id');
             modelResult.model.version = this.importUtils.tagValue(xmlDoc, 'version');
+            if (modelResult.model.version === undefined || modelResult.model.version.trim().length === 0) {
+                modelResult.model.version = '1.0.0';
+            }
             modelResult.model.icon = this.importUtils.tagValue(xmlDoc, 'icon');
             modelResult.model.defaultRole = this.importUtils.tagValue(xmlDoc, 'defaultRole') === '' ? ImportService.DEFAULT_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'defaultRole') === 'true';
             modelResult.model.anonymousRole = this.importUtils.tagValue(xmlDoc, 'anonymousRole') === '' ? ImportService.ANONYMOUS_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'anonymousRole') === 'true';
             modelResult.model.title = this.importUtils.parseI18n(xmlDoc, 'title');
             modelResult.model.caseName = this.importUtils.parseI18nWithDynamic(xmlDoc, 'caseName');
-            modelResult.model.properties = this.importUtils.parseTags(xmlDoc);
+            this.importUtils.parseTags(xmlDoc, modelResult.model.properties);
+
+            const initials = this.importUtils.tagValue(xmlDoc, 'initials');
+            if (initials !== undefined && initials.trim().length > 0) {
+                modelResult.model.properties.set('initials', initials);
+            }
         } catch (e: unknown) {
             modelResult.addError('Error happened during the importing model properties: ' + (e as Error).toString(), e as Error);
         }
@@ -284,7 +292,7 @@ export class LegacyImportService {
         this.importTransitionDataGroups(xmlTrans, trans, result);
         this.importTransitionTriggers(xmlTrans, trans, result);
         this.importTransitionEvents(xmlTrans, trans, result);
-        trans.properties = this.importUtils.parseTags(xmlTrans);
+        this.importUtils.parseTags(xmlTrans, trans.properties);
     }
 
     private importTransitionRoleRefs(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
@@ -387,7 +395,11 @@ export class LegacyImportService {
             if (xmlEvent.parentElement?.tagName !== 'transition') {
                 return;
             }
-            const event = new TransitionEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as TransitionEventType, '');
+            let eventTypeName = this.importUtils.tagAttribute(xmlEvent, 'type');
+            if (eventTypeName === 'delegate') {
+                eventTypeName = TransitionEventType.REASSIGN;
+            }
+            const event = new TransitionEvent(eventTypeName as TransitionEventType, '');
             event.message = this.importUtils.parseI18n(xmlEvent, 'message');
             event.title = this.importUtils.parseI18n(xmlEvent, 'title');
             this.importUtils.parseEvent(xmlEvent, event);
@@ -402,7 +414,11 @@ export class LegacyImportService {
             try {
                 const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('caseLogic')[0];
                 if (xmlRoleRefLogic !== undefined) {
-                    const roleRef = new ProcessPermissionRef(this.importUtils.tagValue(xmlRoleRef, 'id'));
+                    let roleRefId = this.importUtils.tagValue(xmlRoleRef, 'id');
+                    if (roleRefId === 'default') {
+                        roleRefId = Role.DEFAULT;
+                    }
+                    const roleRef = new ProcessPermissionRef(roleRefId);
                     this.importUtils.resolveCaseLogic(xmlRoleRefLogic, roleRef);
                     modelResult.model.addRoleRef(roleRef);
                 }

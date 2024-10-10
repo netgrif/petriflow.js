@@ -6,10 +6,10 @@
     <icon>home</icon>
     <defaultRole>true</defaultRole>
     <anonymousRole>true</anonymousRole>
-    <tags>
-        <tag key="First">First</tag>
-        <tag key="Second">Second</tag>
-    </tags>
+    <properties>
+        <property key="First">First</property>
+        <property key="Second">Second</property>
+    </properties>
     <caseName dynamic="true">${new Date() as String}</caseName>
     <version>1</version>
     <!-- PROCESS ROLE REFS -->
@@ -543,10 +543,10 @@
         <x>460</x>
         <y>180</y>
         <title id="t1_title">Task escape:&amp;&lt;&gt;</title>
-        <tags>
-            <tag key="First">First</tag>
-            <tag key="Second">Second</tag>
-        </tags>
+        <properties>
+            <property key="First">First</property>
+            <property key="Second">Second</property>
+        </properties>
         <icon>home</icon>
         <assignPolicy>auto</assignPolicy>
         <finishPolicy>auto_no_data</finishPolicy>

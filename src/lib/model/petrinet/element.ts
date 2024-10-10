@@ -1,7 +1,7 @@
 
 export abstract class Element {
     private _id: string;
-    private _properties: Map<string, string>;
+    private readonly _properties: Map<string, string>;
 
     protected constructor(id: string) {
         this._id = id;
@@ -18,10 +18,6 @@ export abstract class Element {
 
     get properties(): Map<string, string> {
         return this._properties;
-    }
-
-    set properties(value: Map<string, string>) {
-        this._properties = value;
     }
 
     public compare(other: Element): number {

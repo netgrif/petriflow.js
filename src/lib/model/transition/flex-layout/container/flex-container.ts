@@ -41,6 +41,10 @@ export class FlexContainer {
         this._items.push(item);
     }
 
+    getItemById(itemId: string): FlexItem | undefined {
+        return this._items.filter(item => item.getContentId() === itemId)[0];
+    }
+
     public clone(): FlexContainer {
         const cloned = new FlexContainer(this.id);
         this.items?.forEach(item => cloned.addItem(item.clone()));

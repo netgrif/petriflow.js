@@ -36,8 +36,6 @@ export * from './data-variable/data-event-type.enum';
 export * from './data-variable/data-type.enum';
 export * from './data-variable/data-variable';
 export * from './data-variable/expression';
-export * from './data-variable/icon';
-export * from './data-variable/icon-type.enum';
 export * from './data-variable/option';
 export * from './data-variable/validation';
 

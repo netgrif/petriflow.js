@@ -35,7 +35,7 @@ export class PetriNet {
     private _transitions: Map<string, Transition>;
     private _places: Map<string, Place>;
     private _arcs: Map<string, Arc<NodeElement, NodeElement>>;
-    private _properties: Map<string, string>;
+    private readonly _properties: Map<string, string>;
 
     constructor() {
         this._id = 'new_model';
@@ -337,10 +337,6 @@ export class PetriNet {
 
     get properties(): Map<string, string> {
         return this._properties;
-    }
-
-    set properties(value: Map<string, string>) {
-        this._properties = value;
     }
 
     public clone(): PetriNet {

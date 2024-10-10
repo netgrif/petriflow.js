@@ -6,7 +6,7 @@ import {
     Component,
     DataEvent,
     DataEventType,
-    DataRef,
+    DataRef, DataRefBehavior,
     DataVariable,
     Event,
     EventPhase,
@@ -18,7 +18,7 @@ import {
     PetriflowFunction,
     Place,
     ProcessPermissionRef,
-    ResourceScope,
+    ResourceScope, Role,
     TransitionPermissionRef,
     Trigger,
     TriggerType,
@@ -243,7 +243,11 @@ export class LegacyImportUtils {
 
     public parseRoleRef(xmlRoleRef: Element): TransitionPermissionRef {
         const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('logic')[0];
-        const roleRef = new TransitionPermissionRef(this.tagValue(xmlRoleRef, 'id'));
+        let id = this.tagValue(xmlRoleRef, 'id');
+        if (id === 'default') {
+            id = Role.DEFAULT.toString();
+        }
+        const roleRef = new TransitionPermissionRef(id);
         this.resolveLogic(xmlRoleRefLogic, roleRef);
         return roleRef;
     }
@@ -267,11 +271,15 @@ export class LegacyImportUtils {
                     dataRef.addAction(action, actionTrigger);
                 }
             }
+            let behaviorSet = false;
             for (const logic of Array.from(xmlDataRefLogic.getElementsByTagName('behavior'))) {
                 if (logic.childNodes[0].nodeValue === 'required') {
                     dataRef.logic.required = true;
                 } else if (logic.childNodes[0].nodeValue === 'immediate') {
                     dataRef.logic.immediate = true;
+                } else if (!behaviorSet){
+                    dataRef.logic.behavior = logic.childNodes[0].nodeValue as DataRefBehavior;
+                    behaviorSet = true;
                 }
             }
         }
@@ -407,15 +415,13 @@ export class LegacyImportUtils {
         this.resetActionId();
     }
 
-    parseTags(xmlDoc: Element | Document): Map<string, string> {
-        const tags = new Map<string, string>();
+    parseTags(xmlDoc: Element | Document, properties: Map<string, string>): void {
         const tagsElement = xmlDoc.getElementsByTagName('tags')[0];
         if (tagsElement?.children && tagsElement.children.length > 0) {
             for (const tagElement of Array.from(xmlDoc.getElementsByTagName('tag'))) {
-                this.parseTag(tags, tagElement);
+                this.parseTag(properties, tagElement);
             }
         }
-        return tags;
     }
 
     parseTag(tags: Map<string, string>, tagElement: Element): void {

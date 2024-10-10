@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 const {
     ArcType,
     AssignPolicy,
@@ -6,7 +8,7 @@ const {
     DataEventType,
     DataType,
     FinishPolicy,
-    FunctionScope,
+    ResourceScope,
     ImportService,
     ExportService,
     ProcessEventType,
@@ -21,7 +23,6 @@ const {
     DataEvent,
     Action,
     I18nTranslations,
-    Property,
     FlexDisplay,
     FlexDirection,
     FlexWrap,
@@ -94,7 +95,7 @@ describe('Petriflow integration tests', () => {
         exportService = new ExportService();
     });
 
-    function assertPlace(place, id, x, y, label, marking, isStatic, i18nName, scope = FunctionScope.USECASE, properties = undefined) {
+    function assertPlace(place, id, x, y, label, marking, isStatic, i18nName, scope = ResourceScope.USECASE, properties = undefined) {
         expect(place.id).toEqual(id);
         expect(place.x).toEqual(x);
         expect(place.y).toEqual(y);
@@ -106,17 +107,16 @@ describe('Petriflow integration tests', () => {
             }
         }
         expect(place.marking).toEqual(marking);
-        expect(place.static).toEqual(isStatic);
         expect(place.scope).toEqual(scope);
         assertProperties(place.properties, properties)
     }
 
     function assertProperties(properties, testProperties = undefined) {
         if (testProperties === undefined) {
-            expect(properties).toHaveLength(0);
+            expect(properties.size).toEqual(0);
             return;
         }
-        expect(properties).toHaveLength(testProperties.length);
+        expect(properties.size).toEqual(testProperties.size);
         expect(properties).toStrictEqual(testProperties);
     }
 
@@ -167,9 +167,10 @@ describe('Petriflow integration tests', () => {
         expect(model.caseName).not.toBeUndefined();
         expect(model.caseName.value).toEqual(MODEL_DEFAULT_CASE_NAME_VALUE);
         expect(model.caseName.dynamic).toEqual(true);
-        expect(model.tags.size).toEqual(MODEL_TAGS_LENGTH);
-        expect(model.tags.get(MODEL_TAGS_FIRST)).toEqual(MODEL_TAGS_FIRST);
-        expect(model.tags.get(MODEL_TAGS_SECOND)).toEqual(MODEL_TAGS_SECOND);
+        log(model.properties);
+        expect(model.properties.size).toEqual(MODEL_TAGS_LENGTH);
+        expect(model.properties.get(MODEL_TAGS_FIRST)).toEqual(MODEL_TAGS_FIRST);
+        expect(model.properties.get(MODEL_TAGS_SECOND)).toEqual(MODEL_TAGS_SECOND);
         log('Model metadata OK');
 
         expect(model.getProcessEvents().length).toEqual(PROCESS_EVENTS_LENGTH);
@@ -197,7 +198,9 @@ describe('Petriflow integration tests', () => {
         expect(caseCreateEvent.postActions.length).toEqual(CASE_EVENTS_CREATE_POST_LENGTH);
         expect(caseCreateEvent.postActions[0].actionType).toEqual(ActionType.VALUE);
         expect(caseCreateEvent.postActions[0].definition).toContain('test("case_create_post")');
-        assertProperties(caseCreateEvent.properties, [new Property('create_case_event_property_key', 'create_case_event_property_value')])
+        const testProperties = new Map();
+        testProperties.set('create_case_event_property_key', 'create_case_event_property_value');
+        assertProperties(caseCreateEvent.properties, testProperties);
         const caseDeleteEvent = model.getCaseEvent(CaseEventType.DELETE);
         expect(caseDeleteEvent.id).toEqual(CASE_EVENTS_DELETE_ID);
         expect(caseDeleteEvent.preActions.length).toEqual(CASE_EVENTS_DELETE_PRE_LENGTH);
@@ -215,7 +218,7 @@ describe('Petriflow integration tests', () => {
         expect(role1.title.value).toEqual(ROLE_TITLE_VALUE);
         expect(role1.title.id).toEqual(ROLE_1_TITLE_NAME);
         expect(role1.getEvents().length).toEqual(2);
-        expect(role1.scope).toEqual(FunctionScope.PROCESS);
+        expect(role1.scope).toEqual(ResourceScope.PROCESS);
         const roleAssignEvent = role1.getEvent(RoleEventType.ASSIGN);
         expect(roleAssignEvent.id).toEqual('assign_role');
         expect(roleAssignEvent.preActions.length).toEqual(1);
@@ -231,7 +234,7 @@ describe('Petriflow integration tests', () => {
         expect(roleCancelEvent.postActions.length).toEqual(1);
         expect(roleCancelEvent.postActions[0].definition).toContain('test("cancel_role_post")');
         expect(role2.title).not.toBeUndefined();
-        expect(role2.scope).toEqual(FunctionScope.USECASE);
+        expect(role2.scope).toEqual(ResourceScope.USECASE);
         expect(role2.title.value).toEqual(ROLE_TITLE_VALUE);
         expect(role2.title.id).toEqual('role_2_title');
         expect(role3.title).not.toBeUndefined();
@@ -246,13 +249,13 @@ describe('Petriflow integration tests', () => {
         expect(model.functions.length).toEqual(2);
         const processFunction = model.functions.find(f => f.name === 'calc');
         expect(processFunction).toBeDefined();
-        expect(processFunction.scope).toEqual(FunctionScope.PROCESS);
+        expect(processFunction.scope).toEqual(ResourceScope.PROCESS);
         expect(processFunction.definition).toContain('{ monthly, loan, period ->');
         expect(processFunction.definition).toContain('change monthly value { (loan + loan * 0.02 * period) / (period * 12) }');
         expect(processFunction.definition).toContain('}');
         const namespaceFunction = model.functions.find(f => f.name === 'sum');
         expect(namespaceFunction).toBeDefined();
-        expect(namespaceFunction.scope).toEqual(FunctionScope.NAMESPACE);
+        expect(namespaceFunction.scope).toEqual(ResourceScope.NAMESPACE);
         expect(namespaceFunction.definition).toContain('{ Double x, Double y ->');
         expect(namespaceFunction.definition).toContain('return x + y');
         expect(namespaceFunction.definition).toContain('}');
@@ -285,7 +288,7 @@ describe('Petriflow integration tests', () => {
         expect(model.getData('_')).toBeUndefined();
         expect(model.getData('123321')).toBeUndefined();
         const cdataField = model.getData('cdata_escape');
-        expect(cdataField.scope).toEqual(FunctionScope.PROCESS);
+        expect(cdataField.scope).toEqual(ResourceScope.PROCESS);
         expect(cdataField.title.value).toEqual('CDATA &<>');
         expect(cdataField.init.value).toContain('<p>CDATA &amp;&lt;&gt;</p>');
         expect(cdataField.getEvent(DataEventType.SET).postActions.length).toEqual(2);
@@ -293,7 +296,7 @@ describe('Petriflow integration tests', () => {
         expect(cdataField.getEvent(DataEventType.GET).postActions[0].actionType).toEqual(ActionType.ANY);
         const numberField = model.getData('newVariable_1');
         expect(numberField.type).toEqual(DataType.NUMBER);
-        expect(cdataField.scope).toEqual(FunctionScope.PROCESS);
+        expect(cdataField.scope).toEqual(ResourceScope.PROCESS);
         expect(numberField.title.value).toEqual('title');
         expect(numberField.init.value).toEqual('5');
         expect(numberField.init.dynamic).toEqual(false);
@@ -309,12 +312,12 @@ describe('Petriflow integration tests', () => {
         expect(numberFieldSetEvent.postActions.length).toEqual(1);
         expect(numberField.component).not.toBeUndefined();
         expect(numberField.component.id).toEqual('currency');
-        expect(numberField.component.properties.find(o => o.key === 'code')).not.toBeUndefined();
-        expect(numberField.component.properties.find(o => o.key === 'code').value).toEqual('SK');
-        expect(numberField.component.properties.find(o => o.key === 'fractionSize')).not.toBeUndefined();
-        expect(numberField.component.properties.find(o => o.key === 'fractionSize').value).toEqual('2');
-        expect(numberField.component.properties.find(o => o.key === 'locale')).not.toBeUndefined();
-        expect(numberField.component.properties.find(o => o.key === 'locale').value).toEqual('SK');
+        expect(numberField.component.properties.get('code')).not.toBeUndefined();
+        expect(numberField.component.properties.get('code')).toEqual('SK');
+        expect(numberField.component.properties.get('fractionSize')).not.toBeUndefined();
+        expect(numberField.component.properties.get('fractionSize')).toEqual('2');
+        expect(numberField.component.properties.get('locale')).not.toBeUndefined();
+        expect(numberField.component.properties.get('locale')).toEqual('SK');
         const textField = model.getData('newVariable_2');
         expect(textField.type).toEqual(DataType.TEXT);
         expect(textField.title.id).toEqual('newVariable_2_title');
@@ -377,17 +380,17 @@ describe('Petriflow integration tests', () => {
         expect(enumerationMapField.options.find(o => o.key === 'key3').value.id).toEqual('newVariable_4_option_3');
         expect(enumerationMapField.component).not.toBeUndefined();
         expect(enumerationMapField.component.id).toEqual('icon');
-        expect(enumerationMapField.component.properties.length).toEqual(5);
-        expect(enumerationMapField.component.properties.find(o => o.key === 'arrow')).not.toBeUndefined();
-        expect(enumerationMapField.component.properties.find(o => o.key === 'arrow').value).toEqual('true');
-        expect(enumerationMapField.component.properties.find(o => o.key === 'divider')).not.toBeUndefined();
-        expect(enumerationMapField.component.properties.find(o => o.key === 'divider').value).toEqual('true');
-        expect(enumerationMapField.component.properties.find(o => o.key === 'key1')).not.toBeUndefined();
-        expect(enumerationMapField.component.properties.find(o => o.key === 'key1').value).toEqual('home');
-        expect(enumerationMapField.component.properties.find(o => o.key === 'key2')).not.toBeUndefined();
-        expect(enumerationMapField.component.properties.find(o => o.key === 'key2').value).toEqual('nature');
-        expect(enumerationMapField.component.properties.find(o => o.key === 'key3')).not.toBeUndefined();
-        expect(enumerationMapField.component.properties.find(o => o.key === 'key3').value).toEqual('search');
+        expect(enumerationMapField.component.properties.size).toEqual(5);
+        expect(enumerationMapField.component.properties.get('arrow')).not.toBeUndefined();
+        expect(enumerationMapField.component.properties.get('arrow')).toEqual('true');
+        expect(enumerationMapField.component.properties.get('divider')).not.toBeUndefined();
+        expect(enumerationMapField.component.properties.get('divider')).toEqual('true');
+        expect(enumerationMapField.component.properties.get('key1')).not.toBeUndefined();
+        expect(enumerationMapField.component.properties.get('key1')).toEqual('home');
+        expect(enumerationMapField.component.properties.get('key2')).not.toBeUndefined();
+        expect(enumerationMapField.component.properties.get('key2')).toEqual('nature');
+        expect(enumerationMapField.component.properties.get('key3')).not.toBeUndefined();
+        expect(enumerationMapField.component.properties.get('key3')).toEqual('search');
         const multichoiceField = model.getData('newVariable_5');
         expect(multichoiceField).not.toBeUndefined();
         expect(multichoiceField.options.length).toEqual(2);
@@ -485,15 +488,15 @@ describe('Petriflow integration tests', () => {
 
         expect(model.getTransitions().length).toEqual(MODEL_TRANSITIONS_LENGTH);
         const transitionT1 = model.getTransition('t1');
-        expect(transitionT1.scope).toEqual(FunctionScope.PROCESS);
+        expect(transitionT1.scope).toEqual(ResourceScope.PROCESS);
         expect(transitionT1.title.id).toEqual('t1_title');
         expect(transitionT1.title.value).toEqual('Task escape:&<>');
         expect(transitionT1.icon).toEqual(MODEL_ICON);
         expect(transitionT1.assignPolicy).toEqual(AssignPolicy.AUTO);
         expect(transitionT1.finishPolicy).toEqual(FinishPolicy.AUTO_NO_DATA);
-        expect(transitionT1.tags.size).toEqual(MODEL_TAGS_LENGTH);
-        expect(transitionT1.tags.get(MODEL_TAGS_FIRST)).toEqual(MODEL_TAGS_FIRST);
-        expect(transitionT1.tags.get(MODEL_TAGS_SECOND)).toEqual(MODEL_TAGS_SECOND);
+        expect(transitionT1.properties.size).toEqual(MODEL_TAGS_LENGTH);
+        expect(transitionT1.properties.get(MODEL_TAGS_FIRST)).toEqual(MODEL_TAGS_FIRST);
+        expect(transitionT1.properties.get(MODEL_TAGS_SECOND)).toEqual(MODEL_TAGS_SECOND);
         const t1AssignEvent = transitionT1.eventSource.getEvent(TransitionEventType.ASSIGN);
         expect(t1AssignEvent.id).toEqual('assign');
         expect(t1AssignEvent.title.value).toEqual('t1_assign_title_value');
@@ -526,7 +529,7 @@ describe('Petriflow integration tests', () => {
         const transitionT5 = model.getTransition('t5');
         const t5Flex = transitionT5.flex;
         expect(t5Flex).toBeDefined();
-        expect(transitionT5.scope).toEqual(FunctionScope.USECASE);
+        expect(transitionT5.scope).toEqual(ResourceScope.USECASE);
         expect(transitionT5.grid).toBeUndefined();
 
         expect(t5Flex.id).toEqual('test_flex');
@@ -574,11 +577,10 @@ describe('Petriflow integration tests', () => {
         expect(t5Flex.getItemById('newVariable_5').dataRef).not.toBeUndefined();
         expect(t5Flex.getItemById('newVariable_5').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
         expect(t5Flex.getItemById('newVariable_5').dataRef.logic.required).toBeFalsy();
-        expect(t5Flex.getItemById('newVariable_5').dataRef.properties).toHaveLength(1);
+        expect(t5Flex.getItemById('newVariable_5').dataRef.properties.size).toEqual(1);
         expect(t5Flex.getItemById('newVariable_5').dataRef.properties).toBeDefined();
-        expect(t5Flex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key')).toBeDefined();
-        expect(t5Flex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key').value).toBeDefined();
-        expect(t5Flex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key').value).toEqual('test dataRef property value');
+        expect(t5Flex.getItemById('newVariable_5').dataRef.properties.get('test_dataRef_property_key')).toBeDefined();
+        expect(t5Flex.getItemById('newVariable_5').dataRef.properties.get('test_dataRef_property_key')).toEqual('test dataRef property value');
 
         expect(t5Flex.getItemById('newVariable_6').dataRef).not.toBeUndefined();
         expect(t5Flex.getItemById('newVariable_6').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
@@ -651,9 +653,8 @@ describe('Petriflow integration tests', () => {
         expect(t5NestedGrid.getItemById('newVariable_10').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
         expect(t5NestedGrid.getItemById('newVariable_10').dataRef.logic.required).toBeTruthy();
         expect(t5NestedGrid.getItemById('newVariable_10').dataRef.properties).toBeDefined();
-        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key')).toBeDefined();
-        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key').value).toBeDefined();
-        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key').value).toEqual('test dataRef property value');
+        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.properties.get('test_dataRef_property_key')).toBeDefined();
+        expect(t5NestedGrid.getItemById('newVariable_10').dataRef.properties.get('test_dataRef_property_key')).toEqual('test dataRef property value');
 
         expect(t5NestedGrid.getItemById('newVariable_11').dataRef).not.toBeUndefined();
         expect(t5NestedGrid.getItemById('newVariable_11').dataRef.logic.behavior).toEqual(DataRefBehavior.HIDDEN);
@@ -765,9 +766,8 @@ describe('Petriflow integration tests', () => {
         expect(t9Grid.getItemById('newVariable_10').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
         expect(t9Grid.getItemById('newVariable_10').dataRef.logic.required).toBeTruthy();
         expect(t9Grid.getItemById('newVariable_10').dataRef.properties).toBeDefined();
-        expect(t9Grid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key')).toBeDefined();
-        expect(t9Grid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key').value).toBeDefined();
-        expect(t9Grid.getItemById('newVariable_10').dataRef.getPropertyByKey('test_dataRef_property_key').value).toEqual('test dataRef property value');
+        expect(t9Grid.getItemById('newVariable_10').dataRef.properties.get('test_dataRef_property_key')).toBeDefined();
+        expect(t9Grid.getItemById('newVariable_10').dataRef.properties.get('test_dataRef_property_key')).toEqual('test dataRef property value');
 
         expect(t9Grid.getItemById('newVariable_11').dataRef).not.toBeUndefined();
         expect(t9Grid.getItemById('newVariable_11').dataRef.logic.behavior).toEqual(DataRefBehavior.HIDDEN);
@@ -848,11 +848,10 @@ describe('Petriflow integration tests', () => {
         expect(t9NestedFlex.getItemById('newVariable_5').dataRef).not.toBeUndefined();
         expect(t9NestedFlex.getItemById('newVariable_5').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
         expect(t9NestedFlex.getItemById('newVariable_5').dataRef.logic.required).toBeFalsy();
-        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.properties).toHaveLength(1);
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.properties.size).toEqual(1);
         expect(t9NestedFlex.getItemById('newVariable_5').dataRef.properties).toBeDefined();
-        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key')).toBeDefined();
-        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key').value).toBeDefined();
-        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.getPropertyByKey('test_dataRef_property_key').value).toEqual('test dataRef property value');
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.properties.get('test_dataRef_property_key')).toBeDefined();
+        expect(t9NestedFlex.getItemById('newVariable_5').dataRef.properties.get('test_dataRef_property_key')).toEqual('test dataRef property value');
 
         expect(t9NestedFlex.getItemById('newVariable_6').dataRef).not.toBeUndefined();
         expect(t9NestedFlex.getItemById('newVariable_6').dataRef.logic.behavior).toEqual(DataRefBehavior.EDITABLE);
@@ -916,9 +915,9 @@ describe('Petriflow integration tests', () => {
         log('Model transitions correct');
 
         expect(model.getPlaces().length).toEqual(MODEL_PLACES_LENGTH);
-        assertPlace(model.getPlace('p1'), 'p1', 300, 180, 'place 1', 0, false, 'p1_title', FunctionScope.NAMESPACE);
-        assertPlace(model.getPlace('p2'), 'p2', 380, 100, '', 3, false, '', FunctionScope.PROCESS);
-        assertPlace(model.getPlace('p3'), 'p3', 620, 180, '', 0, false, '', FunctionScope.USECASE);
+        assertPlace(model.getPlace('p1'), 'p1', 300, 180, 'place 1', 0, false, 'p1_title', ResourceScope.NAMESPACE);
+        assertPlace(model.getPlace('p2'), 'p2', 380, 100, '', 3, false, '', ResourceScope.PROCESS);
+        assertPlace(model.getPlace('p3'), 'p3', 620, 180, '', 0, false, '', ResourceScope.USECASE);
         assertPlace(model.getPlace('p4'), 'p4', 300, 260, '', 2, false, '');
         assertPlace(model.getPlace('p5'), 'p5', 300, 340, '', 0, false, '');
         assertPlace(model.getPlace('p6'), 'p6', 300, 420, '', 0, false, '');
@@ -929,8 +928,8 @@ describe('Petriflow integration tests', () => {
         log('Model places correct');
 
         expect(model.getArcs().length).toEqual(MODEL_ARCS_LENGTH);
-        expect(model.getArc('a1').scope).toEqual(FunctionScope.NAMESPACE);
-        expect(model.getArc('a2').scope).toEqual(FunctionScope.USECASE);
+        expect(model.getArc('a1').scope).toEqual(ResourceScope.NAMESPACE);
+        expect(model.getArc('a2').scope).toEqual(ResourceScope.USECASE);
         assertArc(model.getArc('a1'), 'a1', ArcType.REGULAR_PT, 'p1', 't1', {
             dynamic: true,
             expression: 'p2'
@@ -991,7 +990,7 @@ describe('Petriflow integration tests', () => {
 
     test('should import & export', () => {
         let file = fs.readFileSync(TEST_FILE_PATH).toString();
-        debug = false;
+        debug = true;
         const model1 = importAndExport(file, 18, 22, 5);
         expect(model1).toBeDefined();
         const model2 = importAndExport(model1, 0, 20, 0);
@@ -1001,7 +1000,7 @@ describe('Petriflow integration tests', () => {
 
     test('should export manually created model', () => {
         const model = new PetriNet();
-        const p1 = new Place(10, 10, false, 'p1');
+        const p1 = new Place(10, 10, 'p1');
         const t1 = new Transition(50, 10, 't1');
         const a1 = new RegularPlaceTransitionArc(p1, t1, 'a_old');
         const a1_breakpoint = new Breakpoint(0, 0);
@@ -1012,7 +1011,7 @@ describe('Petriflow integration tests', () => {
         model.addPlace(p1);
         model.addTransition(t1);
         model.addArc(a1);
-        const xml = exportService.exportXml(model);
+        exportService.exportXml(model);
     });
 
     test('event-source', () => {
@@ -1041,7 +1040,7 @@ describe('Petriflow integration tests', () => {
 
     test('petri-net code test', () => {
         const net = new PetriNet();
-        const p1 = new Place(10, 10, false, 'p1');
+        const p1 = new Place(10, 10, 'p1');
         const t1 = new Transition(50, 10, 't1');
         const a1 = new RegularPlaceTransitionArc(p1, t1, 'a1');
         const i18nSk = new I18nTranslations('sk');
@@ -1061,7 +1060,7 @@ describe('Petriflow integration tests', () => {
         net.removeArc('a1');
         expect(net.getArcs().length).toEqual(0);
 
-        const p2 = new Place(10, 10, false, 'p1');
+        const p2 = new Place(10, 10, 'p1');
         expect(net.getPlaces().length).toEqual(1);
         expect(() => {
             net.addPlace(p2);

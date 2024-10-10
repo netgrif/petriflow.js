@@ -180,12 +180,12 @@ export class ExportUtils {
         return this.xmlConstructor.createCDATASection(`\n${content}\n`);
     }
 
-    public exportTags(doc: Element, tags: Map<string, string>): void {
+    public exportProperties(doc: Element, tags: Map<string, string>): void {
         if (tags.size === 0) {
             return;
         }
-        const tagsElement = this.xmlConstructor.createElement('tags');
-        tags.forEach((value, key) => this.exportTag(tagsElement, 'tag', value, false, [{
+        const tagsElement = this.xmlConstructor.createElement('properties');
+        tags.forEach((value, key) => this.exportTag(tagsElement, 'property', value, false, [{
             key: 'key',
             value: key
         }]));

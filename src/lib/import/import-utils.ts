@@ -186,19 +186,17 @@ export class ImportUtils {
         return comp;
     }
 
-    public parseProperties(xmlTag: Element): Map<string, string> {
+    public parseProperties(xmlTag: Element | Document, properties: Map<string, string>): void {
         const propertiesCollection: HTMLCollectionOf<Element> = xmlTag.getElementsByTagName('properties')
-        const properties = new Map<string, string>;
         if (!propertiesCollection || propertiesCollection.length === 0) {
-            return properties;
+            return;
         }
         const propertiesList = propertiesCollection[0];
         if (!propertiesList?.children || propertiesList.children.length === 0) {
-            return properties;
+            return;
         }
         Array.from(propertiesList.getElementsByTagName('property'))
             .forEach(propertyElement => this.parseProperty(propertyElement, properties));
-        return properties;
     }
 
     public parseProperty(property: Element, properties: Map<string, string>): void {
@@ -246,7 +244,7 @@ export class ImportUtils {
         const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('logic')[0];
         const roleRef = new TransitionPermissionRef(this.parseIdentifier(xmlRoleRef, 'id'));
         this.resolveLogic(xmlRoleRefLogic, roleRef);
-        roleRef.properties = this.parseProperties(xmlRoleRef);
+        this.parseProperties(xmlRoleRef, roleRef.properties);
         return roleRef;
     }
 
@@ -263,11 +261,11 @@ export class ImportUtils {
             if (this.isElementValueDefined(xmlDataRefLogic, elementName)) {
                 dataRef.logic.behavior = this.tagValue(xmlDataRefLogic, elementName) as DataRefBehavior;
             }
-            dataRef.logic.immediate = this.tagValue(xmlDataRefLogic, 'immediate') === 'true'
-            dataRef.logic.required = this.tagValue(xmlDataRefLogic, 'required') === 'true'
+            dataRef.logic.immediate = this.tagValue(xmlDataRefLogic, 'immediate') === 'true';
+            dataRef.logic.required = this.tagValue(xmlDataRefLogic, 'required') === 'true';
         }
         dataRef.component = this.parseComponent(xmlDataRef);
-        dataRef.properties = this.parseProperties(xmlDataRef)
+        this.parseProperties(xmlDataRef, dataRef.properties);
         return dataRef;
     }
 
@@ -640,7 +638,7 @@ export class ImportUtils {
                 }
             }
         }
-        event.properties = this.parseProperties(xmlEvent);
+        this.parseProperties(xmlEvent, event.properties);
     }
 
     public resolveInit(xmlData: Element): I18nWithDynamic | undefined {
@@ -708,22 +706,5 @@ export class ImportUtils {
     public resetIds(): void {
         this.resetEventId();
         this.resetActionId();
-    }
-
-    parseTags(xmlDoc: Element | Document): Map<string, string> {
-        const tags = new Map<string, string>();
-        const tagsElement = xmlDoc.getElementsByTagName('tags')[0];
-        if (tagsElement?.children && tagsElement.children.length > 0) {
-            for (const tagElement of Array.from(xmlDoc.getElementsByTagName('tag'))) {
-                this.parseTag(tags, tagElement);
-            }
-        }
-        return tags;
-    }
-
-    parseTag(tags: Map<string, string>, tagElement: Element): void {
-        const key = this.tagAttribute(tagElement, 'key');
-        const value = tagElement.innerHTML;
-        tags.set(key, value);
     }
 }

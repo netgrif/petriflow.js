@@ -115,7 +115,7 @@ export class ImportService {
             modelResult.model.anonymousRole = this.importUtils.tagValue(xmlDoc, 'anonymousRole') === '' ? ImportService.ANONYMOUS_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'anonymousRole') === 'true';
             modelResult.model.title = this.importUtils.parseI18n(xmlDoc, 'title');
             modelResult.model.caseName = this.importUtils.parseI18nWithDynamic(xmlDoc, 'caseName');
-            modelResult.model.properties = this.importUtils.parseTags(xmlDoc);
+            this.importUtils.parseProperties(xmlDoc, modelResult.model.properties);
         } catch (e: unknown) {
             modelResult.addError('Error happened during the importing model properties: ' + (e as Error).toString(), e as Error);
         }
@@ -149,7 +149,7 @@ export class ImportService {
         if (scopeValue !== '') {
             role.scope = scopeValue as ResourceScope;
         }
-        role.properties = this.importUtils.parseProperties(xmlRole)
+        this.importUtils.parseProperties(xmlRole, role.properties)
         model.addRole(role);
     }
 
@@ -214,7 +214,7 @@ export class ImportService {
         data.encryption = this.importUtils.parseEncryption(xmlData);
         data.init = this.importUtils.resolveInit(xmlData);
         data.component = this.importUtils.parseComponent(xmlData);
-        data.properties = this.importUtils.parseProperties(xmlData);
+        this.importUtils.parseProperties(xmlData, data.properties);
 
         const values = Array.from(xmlData.getElementsByTagName('values'));
         // transform <values>area</values>
@@ -311,7 +311,7 @@ export class ImportService {
         this.importTransitionTriggers(xmlTrans, trans, result);
         this.importTransitionContent(xmlTrans, trans, result)
         this.importTransitionEvents(xmlTrans, trans, result);
-        trans.properties = this.importUtils.parseTags(xmlTrans);
+        this.importUtils.parseProperties(xmlTrans, trans.properties);
     }
 
     public importTransitionContent(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
@@ -451,7 +451,7 @@ export class ImportService {
     public parsePlace(model: PetriNet, xmlPlace: Element, place: Place): void {
         model.addPlace(place);
         place.marking = this.importUtils.parseNumberValue(xmlPlace, 'tokens') ?? 0;
-        place.properties = this.importUtils.parseProperties(xmlPlace)
+        this.importUtils.parseProperties(xmlPlace, place.properties)
         if (xmlPlace.getElementsByTagName('title').length > 0 &&
             xmlPlace.getElementsByTagName('title')[0].childNodes.length !== 0) {
             place.title = this.importUtils.parseI18n(xmlPlace, 'title');

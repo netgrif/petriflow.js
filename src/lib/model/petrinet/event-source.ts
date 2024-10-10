@@ -7,7 +7,7 @@ export abstract class EventSource<T extends Event<S>, S> {
         this._events = new Map();
     }
 
-    protected get events(): Map<S, T> {
+    public get events(): Map<S, T> {
         return this._events;
     }
 

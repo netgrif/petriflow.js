@@ -64,7 +64,8 @@
         "rollup-plugin-delete": "~2.0.0",
         "rollup-plugin-dts": "~6.1.1",
         "typedoc": "~0.26.3",
-        "typescript": "~5.5.2"
+        "typescript": "~5.5.2",
+        "xml-formatter": "3.6.2"
     },
     "dependencies": {
         "tslib": "~2.6.3"

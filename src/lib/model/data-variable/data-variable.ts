@@ -21,7 +21,7 @@ export class DataVariable extends DataEventSource {
     private _immediate: boolean;
     private _encryption?: string;
     private _allowedNets: Array<string>;
-    private _properties: Map<string, string>;
+    private readonly _properties: Map<string, string>;
     private _scope: ResourceScope = ResourceScope.USECASE;
 
     constructor(id: string, type: DataType) {
@@ -144,10 +144,6 @@ export class DataVariable extends DataEventSource {
 
     get properties(): Map<string, string> {
         return this._properties;
-    }
-
-    set properties(value: Map<string, string>) {
-        this._properties = value;
     }
 
     get scope(): ResourceScope {
