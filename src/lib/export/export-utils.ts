@@ -1,8 +1,6 @@
 import {
     Action,
     ActionType,
-    Arc,
-    ArcType,
     CaseLogic,
     Event,
     Expression,

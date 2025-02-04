@@ -85,7 +85,7 @@ export class ImportUtils {
             throw new Error(`Id of ${nodeName} must be defined`);
         }
         if (IdentifierBlacklist.identifierKeywords.has(xmlIdentifierString)) {
-            throw new Error(`Id of ${xmlTag?.nodeName} must not be Java or Groovy keyword, value [${xmlIdentifierString}]`);
+            throw new Error(`Id of ${nodeName} must not be Java or Groovy keyword, value [${xmlIdentifierString}]`);
         }
         const identifierRegex = new RegExp("^[$_a-zA-Z][_a-zA-Z0-9]*$");
         if (!identifierRegex.test(xmlIdentifierString)) {
