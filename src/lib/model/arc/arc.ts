@@ -2,7 +2,7 @@ import {Expression} from '../data-variable/expression';
 import {Element} from '../petrinet/element';
 import {FunctionScope} from '../petrinet/function-scope.enum';
 import {NodeElement} from '../petrinet/node-element';
-import {ArcType, XmlArcType} from './arc-type.enum';
+import {ArcType} from './arc-type.enum';
 import {Breakpoint} from './breakpoint';
 
 export abstract class Arc<S extends NodeElement, D extends NodeElement> extends Element {
@@ -19,14 +19,6 @@ export abstract class Arc<S extends NodeElement, D extends NodeElement> extends 
         this._multiplicity = new Expression('1', false);
         this._breakpoints = [];
     }
-
-    public static arcTypeMapping: Map<ArcType, XmlArcType> = new Map([
-        [ArcType.REGULAR_TP, XmlArcType.REGULAR],
-        [ArcType.REGULAR_PT, XmlArcType.REGULAR],
-        [ArcType.READ, XmlArcType.READ],
-        [ArcType.RESET, XmlArcType.RESET],
-        [ArcType.INHIBITOR, XmlArcType.INHIBITOR],
-    ]);
 
     abstract get type(): ArcType;
 

@@ -38,7 +38,7 @@
     </arc>
     <arc>
         <id>a2</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p1</sourceId>
         <destinationId>t1</destinationId>
         <multiplicity>1</multiplicity>

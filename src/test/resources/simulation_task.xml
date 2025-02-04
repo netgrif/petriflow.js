@@ -50,14 +50,14 @@
     </place>
     <arc>
         <id>a1</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p1</sourceId>
         <destinationId>t1</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a2</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p1</sourceId>
         <destinationId>t2</destinationId>
         <multiplicity>1</multiplicity>
@@ -71,7 +71,7 @@
     </arc>
     <arc>
         <id>a4</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>t4</sourceId>
         <destinationId>p1</destinationId>
         <multiplicity>1</multiplicity>

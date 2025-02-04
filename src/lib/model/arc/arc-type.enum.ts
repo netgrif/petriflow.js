@@ -5,10 +5,3 @@ export enum ArcType {
     RESET = 'reset',
     INHIBITOR = 'inhibitor',
 }
-
-export enum XmlArcType {
-    REGULAR = 'regular',
-    READ = 'read',
-    RESET = 'reset',
-    INHIBITOR = 'inhibitor',
-}

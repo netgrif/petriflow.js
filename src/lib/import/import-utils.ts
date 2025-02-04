@@ -1,6 +1,7 @@
 import {
     Action,
     ActionType,
+    ArcType,
     Component,
     DataEvent,
     DataEventType,
@@ -9,6 +10,7 @@ import {
     Event,
     EventPhase,
     Expression,
+    Extension,
     FlexAlignContent,
     FlexAlignItems,
     FlexContainer,
@@ -40,8 +42,7 @@ import {
     Property,
     TransitionPermissionRef,
     Trigger,
-    TriggerType,
-    XmlArcType
+    TriggerType
 } from '../model';
 import {IdentifierBlacklist} from '../model/identifier-blacklist';
 
@@ -71,17 +72,24 @@ export class ImportUtils {
         return i18n;
     }
 
-    public parseIdentifier(xmlTag: Element | Document | null, child: string): string {
-        const xmlIdentifierString = this.tagValue(xmlTag, child);
+    public parseIdentifierFromChildElement(xmlTag: Element | Document | null, child: string): string {
+        return this.validateIdentifier(this.tagValue(xmlTag, child), xmlTag?.nodeName);
+    }
+
+    public parseIdentifierFromAttribute(xmlTag: Element | null, child: string): string {
+        return this.validateIdentifier(this.tagAttribute(xmlTag, child), xmlTag?.nodeName);
+    }
+
+    private validateIdentifier(xmlIdentifierString: string, nodeName: string | undefined) {
         if (xmlIdentifierString === '') {
-            throw new Error(`Id of ${xmlTag?.nodeName} must be defined`);
+            throw new Error(`Id of ${nodeName} must be defined`);
         }
         if (IdentifierBlacklist.identifierKeywords.has(xmlIdentifierString)) {
-            throw new Error(`Id of ${xmlTag?.nodeName} must not be Java or Groovy keyword, value [${xmlIdentifierString}]`);
+            throw new Error(`Id of ${nodeName} must not be Java or Groovy keyword, value [${xmlIdentifierString}]`);
         }
         const identifierRegex = new RegExp("^[$_a-zA-Z][_a-zA-Z0-9]*$");
         if (!identifierRegex.test(xmlIdentifierString)) {
-            throw new Error(`Id of ${xmlTag?.nodeName} must be valid Java identifier, value [${xmlIdentifierString}]`);
+            throw new Error(`Id of ${nodeName} must be valid Java identifier, value [${xmlIdentifierString}]`);
         }
         return xmlIdentifierString;
     }
@@ -173,7 +181,7 @@ export class ImportUtils {
         if (!xmlComponent?.children || xmlComponent.children.length === 0) {
             return undefined;
         }
-        const comp = new Component(this.parseIdentifier(xmlComponent, 'id'));
+        const comp = new Component(this.parseIdentifierFromChildElement(xmlComponent, 'id'));
         const properties = xmlComponent.getElementsByTagName('properties')[0];
         if (properties?.children && properties.children.length > 0) {
             for (const prop of Array.from(properties.getElementsByTagName('property'))) {
@@ -243,14 +251,14 @@ export class ImportUtils {
 
     public parseRoleRef(xmlRoleRef: Element): TransitionPermissionRef {
         const xmlRoleRefLogic = xmlRoleRef.getElementsByTagName('logic')[0];
-        const roleRef = new TransitionPermissionRef(this.parseIdentifier(xmlRoleRef, 'id'));
+        const roleRef = new TransitionPermissionRef(this.parseIdentifierFromChildElement(xmlRoleRef, 'id'));
         this.resolveLogic(xmlRoleRefLogic, roleRef);
         roleRef.properties = this.parseProperties(xmlRoleRef);
         return roleRef;
     }
 
     public parseDataRef(xmlDataRef: Element): DataRef {
-        const dataRef = new DataRef(this.parseIdentifier(xmlDataRef, 'id'));
+        const dataRef = new DataRef(this.parseIdentifierFromChildElement(xmlDataRef, 'id'));
         for (const xmlEvent of Array.from(xmlDataRef.getElementsByTagName('event'))) {
             const event = new DataEvent(this.tagAttribute(xmlEvent, 'type') as DataEventType, '');
             this.parseEvent(xmlEvent, event);
@@ -271,7 +279,7 @@ export class ImportUtils {
     }
 
     public parseGrid(xmlGrid: Element): GridContainer {
-        const grid = new GridContainer(this.parseIdentifier(xmlGrid, 'id'));
+        const grid = new GridContainer(this.parseIdentifierFromChildElement(xmlGrid, 'id'));
 
         const properties = this.getChildElementByName(xmlGrid.children, 'properties');
         if (properties) {
@@ -482,7 +490,7 @@ export class ImportUtils {
     }
 
     public parseFlex(xmlFlex: Element) {
-        const flex = new FlexContainer(this.parseIdentifier(xmlFlex, 'id'));
+        const flex = new FlexContainer(this.parseIdentifierFromChildElement(xmlFlex, 'id'));
         const properties = this.getChildElementByName(xmlFlex.children, 'properties');
         if (properties) {
             flex.properties = this.parseFlexContainerProperties(properties);
@@ -616,16 +624,15 @@ export class ImportUtils {
         return isStatic;
     }
 
-    public parseArcType(xmlArc: Element): XmlArcType {
-        let parsedArcType = XmlArcType.REGULAR;
-        if (this.checkLengthAndNodes(xmlArc, 'type')) {
-            parsedArcType = xmlArc.getElementsByTagName('type')[0].childNodes[0].nodeValue as XmlArcType;
+    public parseArcType(xmlArc: Element): ArcType {
+        if (!this.checkLengthAndNodes(xmlArc, 'type')) {
+            throw new Error(`Type of arc with id ${this.parseIdentifierFromChildElement(xmlArc, 'id')} is undefined.`)
         }
-        return parsedArcType;
+        return xmlArc.getElementsByTagName('type')[0].childNodes[0].nodeValue as ArcType;
     }
 
     public parseEvent<T>(xmlEvent: Element, event: Event<T>): void {
-        event.id = this.parseIdentifier(xmlEvent, 'id');
+        event.id = this.parseIdentifierFromChildElement(xmlEvent, 'id');
         if (event.id === '') {
             event.id = event.type + "_event_" + this.getNextEventId();
         }
@@ -709,20 +716,11 @@ export class ImportUtils {
         this.resetActionId();
     }
 
-    parseTags(xmlDoc: Element | Document): Map<string, string> {
-        const tags = new Map<string, string>();
-        const tagsElement = xmlDoc.getElementsByTagName('tags')[0];
-        if (tagsElement?.children && tagsElement.children.length > 0) {
-            for (const tagElement of Array.from(xmlDoc.getElementsByTagName('tag'))) {
-                this.parseTag(tags, tagElement);
-            }
+    public parseExtension(xmlDoc: Document): Extension | undefined {
+        const xmlExtension = xmlDoc.getElementsByTagName('extends')[0];
+        if (xmlExtension === undefined) {
+            return undefined;
         }
-        return tags;
-    }
-
-    parseTag(tags: Map<string, string>, tagElement: Element): void {
-        const key = this.tagAttribute(tagElement, 'key');
-        const value = tagElement.innerHTML;
-        tags.set(key, value);
+        return new Extension(this.tagValue(xmlExtension, 'id'), this.tagValue(xmlExtension, 'version'))
     }
 }

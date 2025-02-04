@@ -6,6 +6,7 @@ import {I18nTranslations} from './i18n/i18n-translations';
 import {I18nWithDynamic} from './i18n/i18n-with-dynamic';
 import {CaseEvent} from './petrinet/case-event';
 import {CaseEventType} from './petrinet/case-event-type.enum';
+import {Extension} from './petrinet/extension';
 import {NodeElement} from './petrinet/node-element';
 import {PetriflowFunction} from './petrinet/petriflow-function';
 import {Place} from './petrinet/place';
@@ -35,7 +36,8 @@ export class PetriNet {
     private _transitions: Map<string, Transition>;
     private _places: Map<string, Place>;
     private _arcs: Map<string, Arc<NodeElement, NodeElement>>;
-    private _tags: Map<string, string>;
+    private _extends?: Extension;
+    private _parentModel?: PetriNet;
 
     constructor() {
         this._id = 'new_model';
@@ -57,7 +59,6 @@ export class PetriNet {
         this._i18ns = new Map<string, I18nTranslations>();
         this._processEvents = new Map<ProcessEventType, ProcessEvent>();
         this._caseEvents = new Map<CaseEventType, CaseEvent>();
-        this._tags = new Map<string, string>();
     }
 
     get id(): string {
@@ -133,7 +134,7 @@ export class PetriNet {
     }
 
     addRoleRef(roleRef: ProcessPermissionRef) {
-        if (!this._roles.has(roleRef.id) && roleRef.id !== Role.DEFAULT && roleRef.id !== Role.ANONYMOUS) {
+        if (this._extends === undefined && !this._roles.has(roleRef.id) && roleRef.id !== Role.DEFAULT && roleRef.id !== Role.ANONYMOUS) {
             throw new Error(`Referenced role with id ${roleRef.id} does not exist`);
         }
         if (this._roleRefs.has(roleRef.id)) {
@@ -335,12 +336,20 @@ export class PetriNet {
         this._arcs.delete(id);
     }
 
-    get tags(): Map<string, string> {
-        return this._tags;
+    get extends(): Extension | undefined {
+        return this._extends;
     }
 
-    set tags(value: Map<string, string>) {
-        this._tags = value;
+    set extends(value: Extension | undefined) {
+        this._extends = value;
+    }
+
+    get parentModel(): PetriNet | undefined {
+        return this._parentModel;
+    }
+
+    set parentModel(value: PetriNet | undefined) {
+        this._parentModel = value;
     }
 
     public clone(): PetriNet {
@@ -362,19 +371,133 @@ export class PetriNet {
         this._transitions.forEach(t => cloned.addTransition(t.clone()));
         this._places.forEach(p => cloned.addPlace(p.clone()));
         this._arcs.forEach(a => {
-            const clonedArc = a.clone();
-            if (clonedArc.source instanceof Place) {
-                clonedArc.source = cloned.getPlace(clonedArc.source.id) as Place;
-                clonedArc.destination = cloned.getTransition(clonedArc.destination.id) as Transition;
-            } else {
-                clonedArc.source = cloned.getTransition(clonedArc.source.id) as Transition;
-                clonedArc.destination = cloned.getPlace(clonedArc.destination.id) as Place;
-            }
-            cloned.addArc(clonedArc);
+            cloned.addArc(this.cloneArc(a, cloned));
         });
         this._roleRefs.forEach(ref => cloned.addRoleRef(ref.clone()));
         this._userRefs.forEach(ref => cloned.addUserRef(ref.clone()));
-        this._tags.forEach((value, key) => cloned.tags.set(key, value));
+        cloned.extends = this._extends?.clone();
+        cloned.parentModel = this._parentModel;
         return cloned;
+    }
+
+    public merge(): PetriNet {
+        if (!this.parentModel) {
+            return this.clone();
+        }
+        return this.mergeWithParent(this.parentModel.merge());
+    }
+
+    protected mergeWithParent(parentNet: PetriNet) {
+        parentNet._id = this._id;
+        parentNet._version = this._version;
+        parentNet._lastChanged = this._lastChanged;
+        parentNet._title = this._title?.clone();
+        parentNet._icon = this._icon;
+        parentNet._defaultRole = this._defaultRole;
+        parentNet._anonymousRole = this._anonymousRole;
+        parentNet._caseName = this._caseName?.clone();
+        this.mergeEvents(parentNet);
+        this.mergeObjects(parentNet);
+        this._functions.forEach(f => parentNet.addFunction(f.clone()));
+        this._roleRefs.forEach(ref => parentNet.addRoleRef(ref.clone()));
+        this._userRefs.forEach(ref => parentNet.addUserRef(ref.clone()));
+        parentNet.extends = this._extends?.clone();
+        parentNet.parentModel = this._parentModel;
+        return parentNet;
+    }
+
+    private mergeEvents(parentNet: PetriNet) {
+        this._processEvents.forEach((event, type) => {
+            const parentProcessEvent = parentNet.getProcessEvent(type);
+            if (parentProcessEvent === undefined) {
+                parentNet.addProcessEvent(event.clone());
+                return;
+            }
+            event.preActions.forEach(preAction => parentProcessEvent?.preActions.push(preAction.clone()));
+            event.postActions.forEach(postAction => parentProcessEvent?.postActions.push(postAction.clone()));
+            if (event.message) {
+                parentProcessEvent.message = event.message.clone();
+            }
+            event?.properties.forEach(property => parentProcessEvent?.properties.push(property.clone()));
+        });
+
+        this._caseEvents.forEach((event, type) => {
+            const parentCaseEvent = parentNet.getCaseEvent(type);
+            if (parentCaseEvent === undefined) {
+                parentNet.addCaseEvent(event.clone());
+                return;
+            }
+            event.preActions.forEach(preAction => parentCaseEvent?.preActions.push(preAction.clone()));
+            event.postActions.forEach(postAction => parentCaseEvent?.postActions.push(postAction.clone()));
+            if (event.message) {
+                parentCaseEvent.message = event.message.clone();
+            }
+            event?.properties.forEach(property => parentCaseEvent?.properties.push(property.clone()));
+        });
+    }
+
+    private mergeObjects(parentNet: PetriNet): void {
+        const identifierIndex: string[] = [];
+        ['_roles', '_data', '_transitions', '_places', '_arcs'].forEach(netAttribute => {
+            identifierIndex.push(... Array.from((parentNet[netAttribute as keyof PetriNet] as unknown as Map<string, never>).keys()));
+        });
+        this.mergeObjectsWithIdentifiers(parentNet, identifierIndex);
+    }
+
+    private mergeObjectsWithIdentifiers(parentNet: PetriNet, identifierIndex: string[]): void {
+        const i18nIdsIndex = new Set<string>();
+        this._i18ns.forEach((i18nTranslations) => {
+            let translations = parentNet.getI18n(i18nTranslations.locale);
+            if(translations === undefined) {
+                translations = new I18nTranslations(i18nTranslations.locale);
+            }
+            const i18nIdentifiers = translations.getTranslationIds();
+            i18nTranslations.getI18ns().forEach(i18nString => {
+                if(identifierIndex.includes(i18nString.id as string)) {
+                    throw new Error(`Cannot merge processes [${this._id}] and [${parentNet.id}]: object with identifier '${i18nString.id}' exists in both processes`);
+                }
+                if(i18nIdentifiers.includes(i18nString.id as string)) {
+                    throw new Error(`Cannot merge processes [${this._id}] and [${parentNet.id}]: i18nString with identifier '${i18nString.id}' exists in both processes`);
+                }
+                translations?.addI18n(i18nString.clone());
+                i18nIdsIndex.add(i18nString.id as string);
+            });
+        });
+        identifierIndex.push(...Array.from(i18nIdsIndex));
+        ['_roles', '_data', '_transitions', '_places'].forEach(netAttribute => {
+            (this[netAttribute as keyof PetriNet] as unknown as Map<string, Role | DataVariable | I18nTranslations | Transition | Place | Arc<NodeElement, NodeElement>>)?.forEach((_value, key) => {
+                if (identifierIndex.includes(key)) {
+                    throw new Error(`Cannot merge processes [${this._id}] and [${parentNet.id}]: object with identifier '${key}' exists in both processes`);
+                }
+                (parentNet[netAttribute as keyof PetriNet] as unknown as Map<string, Role | DataVariable | I18nTranslations | Transition | Place | Arc<NodeElement, NodeElement>>)?.set(key, _value.clone());
+            });
+        });
+        this._arcs.forEach((arc, arcId) => {
+            if (identifierIndex.includes(arcId)) {
+                throw new Error(`Cannot merge processes [${this._id}] and [${parentNet.id}]: object with identifier '${arcId}' exists in both processes`);
+            }
+            parentNet.addArc(this.cloneArc(arc, parentNet));
+        });
+    }
+
+    private cloneArc(arcToClone: Arc<NodeElement, NodeElement>, targetNet: PetriNet): Arc<NodeElement, NodeElement> {
+        const clonedArc = arcToClone.clone();
+        const sourceExistsInNet = !!targetNet.getPlace(clonedArc.source.id) || !!targetNet.getTransition(clonedArc.source.id);
+        const destinationExistsInNet = !!targetNet.getPlace(clonedArc.destination.id) || !!targetNet.getTransition(clonedArc.destination.id);
+        if (sourceExistsInNet) {
+            clonedArc.source = this.resolveArcTargetOrDestination(clonedArc.source, targetNet);
+        }
+        if (destinationExistsInNet) {
+            clonedArc.destination = this.resolveArcTargetOrDestination(clonedArc.destination, targetNet);
+        }
+
+        return clonedArc;
+    }
+
+    private resolveArcTargetOrDestination(node: NodeElement, net: PetriNet = this): NodeElement {
+        if (node instanceof Place) {
+            return net.getPlace(node.id) as Place;
+        }
+        return net.getTransition(node.id) as Transition;
     }
 }

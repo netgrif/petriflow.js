@@ -1,16 +1,15 @@
 import {
     Action,
     ActionType,
-    Arc,
-    ArcType,
     CaseLogic,
     Event,
     Expression,
+    Extension,
     I18nString,
     I18nWithDynamic,
-    Logic, Option,
-    PetriflowFunction,
-    XmlArcType
+    Logic,
+    Option,
+    PetriflowFunction
 } from '../model';
 
 export class ExportUtils {
@@ -48,7 +47,7 @@ export class ExportUtils {
         }] : undefined, value?.dynamic);
     }
 
-    public exportOption(doc: Element, name: string, value : Option | undefined): void {
+    public exportOption(doc: Element, name: string, value: Option | undefined): void {
         const attributes = [];
         if (value?.key) {
             attributes.push({
@@ -164,14 +163,6 @@ export class ExportUtils {
         element.appendChild(exportLogic);
     }
 
-    public exportArcType(type: ArcType): XmlArcType {
-        const xmlType = Arc.arcTypeMapping.get(type);
-        if (!xmlType) {
-            throw new Error(`Unknown export mapping for arc type ${type}`);
-        }
-        return xmlType;
-    }
-
     public transformKebabCaseToCamelCase(stringToTransform: string): string {
         return stringToTransform.replace(/-./g, x => x[1].toUpperCase());
     }
@@ -190,5 +181,16 @@ export class ExportUtils {
             value: key
         }]));
         doc.appendChild(tagsElement);
+    }
+
+    public exportExtension(doc: Element, name: string, extension: Extension | undefined): void {
+        if (extension === undefined) {
+            return
+        }
+        const extensionElement = this.xmlConstructor.createElement(name);
+        ['id', 'version'].forEach(extensionAttribute => {
+            this.exportTag(extensionElement, extensionAttribute, extension[extensionAttribute as keyof Extension]?.toString());
+        });
+        doc.appendChild(extensionElement);
     }
 }

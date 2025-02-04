@@ -203,35 +203,35 @@
     </place>
     <arc>
         <id>a1</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p1</sourceId>
         <destinationId>t1</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a3</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p2</sourceId>
         <destinationId>t2</destinationId>
         <multiplicity>5</multiplicity>
     </arc>
     <arc>
         <id>a4</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p3</sourceId>
         <destinationId>t3</destinationId>
         <multiplicity>5</multiplicity>
     </arc>
     <arc>
         <id>a5</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p4</sourceId>
         <destinationId>t4</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a6</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p5</sourceId>
         <destinationId>t5</destinationId>
         <multiplicity>2</multiplicity>

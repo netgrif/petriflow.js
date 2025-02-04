@@ -1,0 +1,202 @@
+<process xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
+    <id>child_net</id>
+    <version>2</version>
+    <extends>
+        <id>petriflow_test</id>
+        <version>1</version>
+    </extends>
+    <title id="title">Child net</title>
+    <icon>test_child_icon</icon>
+    <defaultRole>true</defaultRole>
+    <anonymousRole>true</anonymousRole>
+    <caseName>child case</caseName>
+    <roleRef>
+        <id>child_test_role</id>
+        <caseLogic>
+            <create>true</create>
+            <view>false</view>
+        </caseLogic>
+    </roleRef>
+<!--    reference of parent role on child process-->
+    <roleRef>
+        <id>newRole_4</id>
+        <caseLogic>
+            <create>true</create>
+            <view>false</view>
+        </caseLogic>
+    </roleRef>
+    <processEvents>
+        <event type="upload">
+            <id>child_process_upload</id>
+            <actions phase="pre">
+                <action>
+                    <![CDATA[
+                    test("child_pre_action")
+                    ]]>
+                </action>
+            </actions>
+            <actions phase="post">
+                <action>
+                    <![CDATA[
+                    // some java comment
+                    test("child_post_action")
+                    ]]>
+                </action>
+            </actions>
+            <message id="process_upload_message">process_upload_message_value</message>
+        </event>
+    </processEvents>
+    <caseEvents>
+        <event type="create">
+            <id>child_case_create</id>
+            <actions phase="pre">
+                <action>
+                    <![CDATA[
+                    test("child_case_create_pre")
+                    ]]>
+                </action>
+            </actions>
+            <actions phase="post">
+                <action>
+                    <![CDATA[
+                    test("child_case_create_post")
+                    ]]>
+                </action>
+            </actions>
+            <message id="case_create_message">case_create_message_value</message>
+            <properties>
+                <property key="create_case_event_property_key">create_case_event_property_value</property>
+            </properties>
+        </event>
+        <event type="delete">
+            <id>child_case_delete</id>
+            <actions phase="pre">
+                <action>
+                    <![CDATA[
+                    test("child_case_delete_pre")
+                    ]]>
+                </action>
+            </actions>
+            <actions phase="post">
+                <action>
+                    <![CDATA[
+                    test("child_case_delete_post")
+                    ]]>
+                </action>
+            </actions>
+        </event>
+    </caseEvents>
+    <role>
+        <id>child_test_role</id>
+        <title>Child test role</title>
+    </role>
+    <function scope="namespace" name="child_sum">
+        <![CDATA[
+        { Double x, Double y ->
+            return x + y
+        }
+        ]]>
+    </function>
+    <data type="number" >
+        <id>child_variable</id>
+        <title>title</title>
+    </data>
+    <data type="text" immediate="true">
+        <id>child_immediate_variable</id>
+        <title id="newVariable_2_title">newVariable_2_title_value</title>
+    </data>
+    <transition>
+        <id>trans1</id>
+        <x>304</x>
+        <y>144</y>
+        <title/>
+<!--       reference of parent role on child transiton -->
+        <roleRef>
+            <id>newRole_4</id>
+            <logic>
+                <assign>true</assign>
+                <cancel>false</cancel>
+            </logic>
+        </roleRef>
+        <flex>
+            <id>parent_dataRef_test</id>
+            <item>
+                <dataRef>
+                    <id>newVariable_1</id>
+                    <logic>
+                        <behavior>editable</behavior>
+                    </logic>
+                </dataRef>
+            </item>
+        </flex>
+    </transition>
+    <place>
+        <id>place1</id>
+        <x>176</x>
+        <y>144</y>
+        <tokens>2</tokens>
+        <static>false</static>
+    </place>
+    <place>
+        <id>place2</id>
+        <x>432</x>
+        <y>144</y>
+        <tokens>0</tokens>
+        <static>false</static>
+    </place>
+<!--    normal arc-->
+    <arc>
+        <id>arc1</id>
+        <type>regular_pt</type>
+        <sourceId>place1</sourceId>
+        <destinationId>trans1</destinationId>
+        <multiplicity>1</multiplicity>
+    </arc>
+<!--    inherited destination-->
+    <arc>
+        <id>arc2</id>
+        <type>regular_tp</type>
+        <sourceId>trans1</sourceId>
+        <destinationId>p10</destinationId>
+        <multiplicity>1</multiplicity>
+    </arc>
+<!--    inherited source-->
+    <arc>
+        <id>arc3</id>
+        <type>regular_tp</type>
+        <sourceId>t1</sourceId>
+        <destinationId>place1</destinationId>
+        <multiplicity>1</multiplicity>
+    </arc>
+    <!--    inherited both source and destination-->
+    <arc>
+        <id>arc4</id>
+        <type>regular_pt</type>
+        <sourceId>p10</sourceId>
+        <destinationId>t5</destinationId>
+        <multiplicity>1</multiplicity>
+    </arc>
+<!--    variable arc with data reference from parent process-->
+    <arc>
+        <id>arc5</id>
+        <type>regular_tp</type>
+        <sourceId>t1</sourceId>
+        <destinationId>p7</destinationId>
+        <multiplicity>newVariable_1</multiplicity>
+    </arc>
+<!--    variable arc with place reference from parent process-->
+    <arc>
+        <id>arc6</id>
+        <type>regular_tp</type>
+        <sourceId>t1</sourceId>
+        <destinationId>place2</destinationId>
+        <multiplicity>p2</multiplicity>
+    </arc>
+    <arc>
+        <id>arc7</id>
+        <type>regular_tp</type>
+        <sourceId>trans1</sourceId>
+        <destinationId>p1</destinationId>
+        <multiplicity>newVariable_1</multiplicity>
+    </arc>
+</process>

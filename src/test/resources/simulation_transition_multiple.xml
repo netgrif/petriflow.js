@@ -88,14 +88,14 @@
     </arc>
     <arc>
         <id>a7</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p1</sourceId>
         <destinationId>t3</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a8</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p3</sourceId>
         <destinationId>t3</destinationId>
         <multiplicity>1</multiplicity>

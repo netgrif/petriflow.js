@@ -28,13 +28,13 @@ export class BasicSimulation extends Simulation {
             this.updateIOArc(arc);
             this.updateExpressionMapping(arc);
         }
-        this.updateDataReferences();
-        this.updatePlaceReferences();
+        this.updateReferences();
+        this.updateReferences();
     }
 
     updateData(dataVariables: Map<string, number>): void {
         this.dataVariables = dataVariables;
-        this.updateDataReferences();
+        this.updateReferences();
     }
 
     assign(transitionId: string): void {
@@ -50,7 +50,7 @@ export class BasicSimulation extends Simulation {
             this.consumedTokens.set(a.id, consumed);
         });
         this.assignedTasks.add(transitionId);
-        this.updatePlaceReferences();
+        this.updateReferences();
     }
 
     finish(transitionId: string): void {
@@ -60,7 +60,7 @@ export class BasicSimulation extends Simulation {
         const outputArcs = this.outputArcs.get(transitionId);
         outputArcs?.forEach(a => (a as TransitionPlaceArc).produce());
         this.assignedTasks.delete(transitionId);
-        this.updatePlaceReferences();
+        this.updateReferences();
     }
 
     cancel(transitionId: string): void {
@@ -76,7 +76,7 @@ export class BasicSimulation extends Simulation {
             }
         });
         this.assignedTasks.delete(transitionId);
-        this.updatePlaceReferences();
+        this.updateReferences();
     }
 
     isEnabled(transitionId: string): boolean {
@@ -125,22 +125,22 @@ export class BasicSimulation extends Simulation {
         return BasicSimulation.ARC_ORDER.indexOf(a.type) - BasicSimulation.ARC_ORDER.indexOf(b.type);
     }
 
-    updatePlaceReferences(): void {
-        this.updateReference(expression => `${this.dataVariables.get(expression)}`);
-    }
-
-    updateDataReferences() {
+    updateReferences(): void {
         this.updateReference(expression => `${this.dataVariables.get(expression)}`);
     }
 
     updateReference(evaluate: (expression: string) => string): void {
-        this.simulationModel.getArcs().filter(arc => arc.multiplicity.dynamic)
+        this.simulationModel.getArcs().filter(arc => !arc.multiplicity.dynamic)
             .forEach(arc => {
                 const arcExpression: string | undefined = this.expressionMapping.get(arc.id)
                 if (arcExpression === undefined) {
                     return;
                 }
-                arc.multiplicity.expression = evaluate(arcExpression);
+                const multiplicity = evaluate(arcExpression);
+                if(multiplicity === 'undefined') {
+                    return;
+                }
+                arc.multiplicity.expression = multiplicity;
             });
     }
 
