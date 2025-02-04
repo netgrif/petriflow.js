@@ -19,7 +19,6 @@ export class Transition extends NodeElement {
     private _flex?: FlexContainer;
     private _eventSource: TransitionEventSource;
     private _scope: FunctionScope = FunctionScope.USECASE;
-    private _tags: Map<string, string>;
 
     constructor(x: number, y: number, id: string) {
         super(id, x, y, new I18nString(''));
@@ -28,7 +27,6 @@ export class Transition extends NodeElement {
         this._triggers = [];
         this._roleRefs = [];
         this._eventSource = new TransitionEventSource();
-        this._tags = new Map<string, string>();
     }
 
     get icon(): string | undefined {
@@ -79,14 +77,6 @@ export class Transition extends NodeElement {
         this._eventSource = value;
     }
 
-    get tags(): Map<string, string> {
-        return this._tags;
-    }
-
-    set tags(value: Map<string, string>) {
-        this._tags = value;
-    }
-
     get grid(): GridContainer | undefined {
         return this._grid;
     }
@@ -124,7 +114,6 @@ export class Transition extends NodeElement {
         cloned.properties = this.properties?.map(p => p.clone());
         cloned._scope = this._scope;
         this.eventSource.getEvents().forEach(event => cloned.eventSource.addEvent(event.clone()));
-        this.tags.forEach((value, key) => cloned.tags.set(key, value));
         return cloned;
     }
 }

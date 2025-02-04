@@ -1,7 +1,5 @@
 import {
     Action,
-    Arc,
-    ArcType,
     CaseLogic,
     Event,
     Expression,
@@ -10,8 +8,7 @@ import {
     I18nWithDynamic,
     Logic,
     Option,
-    PetriflowFunction,
-    XmlArcType
+    PetriflowFunction
 } from '../model';
 
 export class ExportUtils {
@@ -160,14 +157,6 @@ export class ExportUtils {
             this.exportTag(exportLogic, 'view', logic.view.toString());
         }
         element.appendChild(exportLogic);
-    }
-
-    public exportArcType(type: ArcType): XmlArcType {
-        const xmlType = Arc.arcTypeMapping.get(type);
-        if (!xmlType) {
-            throw new Error(`Unknown export mapping for arc type ${type}`);
-        }
-        return xmlType;
     }
 
     public transformKebabCaseToCamelCase(stringToTransform: string): string {

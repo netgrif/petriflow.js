@@ -52,9 +52,6 @@ const MODEL_ICON = 'home';
 const MODEL_DEFAULT_CASE_NAME_VALUE = '${new Date() as String}';
 const MODEL_DEFAULT_ROLE = true;
 const MODEL_ANONYMOUS_ROLE = true;
-const MODEL_TAGS_LENGTH = 2;
-const MODEL_TAGS_FIRST = 'First';
-const MODEL_TAGS_SECOND = 'Second';
 const PROCESS_EVENTS_LENGTH = 1;
 const PROCESS_EVENTS_UPLOAD_ID = 'process_upload';
 const PROCESS_EVENTS_UPLOAD_PRE_LENGTH = 1;
@@ -165,9 +162,6 @@ describe('Petriflow integration tests', () => {
         expect(model.caseName).not.toBeUndefined();
         expect(model.caseName.value).toEqual(MODEL_DEFAULT_CASE_NAME_VALUE);
         expect(model.caseName.dynamic).toEqual(true);
-        expect(model.tags.size).toEqual(MODEL_TAGS_LENGTH);
-        expect(model.tags.get(MODEL_TAGS_FIRST)).toEqual(MODEL_TAGS_FIRST);
-        expect(model.tags.get(MODEL_TAGS_SECOND)).toEqual(MODEL_TAGS_SECOND);
         log('Model metadata OK');
 
         expect(model.getProcessEvents().length).toEqual(PROCESS_EVENTS_LENGTH);
@@ -481,9 +475,6 @@ describe('Petriflow integration tests', () => {
         expect(transitionT1.icon).toEqual(MODEL_ICON);
         expect(transitionT1.assignPolicy).toEqual(AssignPolicy.AUTO);
         expect(transitionT1.finishPolicy).toEqual(FinishPolicy.AUTO_NO_DATA);
-        expect(transitionT1.tags.size).toEqual(MODEL_TAGS_LENGTH);
-        expect(transitionT1.tags.get(MODEL_TAGS_FIRST)).toEqual(MODEL_TAGS_FIRST);
-        expect(transitionT1.tags.get(MODEL_TAGS_SECOND)).toEqual(MODEL_TAGS_SECOND);
         const t1AssignEvent = transitionT1.eventSource.getEvent(TransitionEventType.ASSIGN);
         expect(t1AssignEvent.id).toEqual('assign');
         expect(t1AssignEvent.title.value).toEqual('t1_assign_title_value');
@@ -922,11 +913,11 @@ describe('Petriflow integration tests', () => {
         expect(model.getArc('a1').scope).toEqual(FunctionScope.NAMESPACE);
         expect(model.getArc('a2').scope).toEqual(FunctionScope.USECASE);
         assertArc(model.getArc('a1'), 'a1', ArcType.REGULAR_PT, 'p1', 't1', {
-            dynamic: true,
+            dynamic: false,
             expression: 'p2'
         });
         assertArc(model.getArc('a2'), 'a2', ArcType.REGULAR_TP, 't1', 'p3', {
-            dynamic: true,
+            dynamic: false,
             expression: 'newVariable_1'
         });
         assertArc(model.getArc('a3'), 'a3', ArcType.RESET, 'p4', 't2');
@@ -1002,7 +993,7 @@ describe('Petriflow integration tests', () => {
         model.addPlace(p1);
         model.addTransition(t1);
         model.addArc(a1);
-        const xml = exportService.exportXml(model);
+        exportService.exportXml(model);
     });
 
     test('event-source', () => {

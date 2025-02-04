@@ -37,6 +37,10 @@ export class I18nTranslations {
         this._i18ns.delete(name);
     }
 
+    getTranslationIds(): Array<string> {
+        return Array.from(this._i18ns.keys());
+    }
+
     public clone(): I18nTranslations {
         const cloned = new I18nTranslations(this._locale);
         this._i18ns.forEach(i => cloned.addI18n(i.clone()));

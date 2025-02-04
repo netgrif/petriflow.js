@@ -6,10 +6,6 @@
     <icon>home</icon>
     <defaultRole>true</defaultRole>
     <anonymousRole>true</anonymousRole>
-    <tags>
-        <tag key="First">First</tag>
-        <tag key="Second">Second</tag>
-    </tags>
     <caseName dynamic="true">${new Date() as String}</caseName>
     <version>1</version>
     <!-- PROCESS ROLE REFS -->
@@ -152,11 +148,6 @@
             </actions>
         </event>
     </processEvents>
-    <!-- TRANSACTIONS -->
-    <transaction>
-        <id>trans1</id>
-        <title>Transaction 1</title>
-    </transaction>
     <!-- ROLES -->
     <role scope="process">
         <id>newRole_1</id>
@@ -536,10 +527,6 @@
         <x>460</x>
         <y>180</y>
         <title id="t1_title">Task escape:&amp;&lt;&gt;</title>
-        <tags>
-            <tag key="First">First</tag>
-            <tag key="Second">Second</tag>
-        </tags>
         <icon>home</icon>
         <assignPolicy>auto</assignPolicy>
         <finishPolicy>auto_no_data</finishPolicy>
@@ -1284,17 +1271,17 @@
     <!-- ARCS -->
     <arc scope="namespace">
         <id>a1</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p1</sourceId>
         <destinationId>t1</destinationId>
-        <multiplicity dynamic="true">p2</multiplicity>
+        <multiplicity>p2</multiplicity>
     </arc>
     <arc>
         <id>a2</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>t1</sourceId>
         <destinationId>p3</destinationId>
-        <multiplicity dynamic="true">newVariable_1</multiplicity>
+        <multiplicity>newVariable_1</multiplicity>
     </arc>
     <arc>
         <id>a3</id>
@@ -1319,70 +1306,70 @@
     </arc>
     <arc>
         <id>a6</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>t2</sourceId>
         <destinationId>p7</destinationId>
         <multiplicity>20</multiplicity>
     </arc>
     <arc>
         <id>a7</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>t3</sourceId>
         <destinationId>p8</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a8</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>t4</sourceId>
         <destinationId>p9</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a9</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p1</sourceId>
         <destinationId>t2</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a10</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p4</sourceId>
         <destinationId>t3</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a11</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p5</sourceId>
         <destinationId>t4</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a12</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p6</sourceId>
         <destinationId>t3</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a13</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p5</sourceId>
         <destinationId>t2</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a14</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>t2</sourceId>
         <destinationId>p8</destinationId>
         <multiplicity>1</multiplicity>
     </arc>
     <arc>
         <id>a15</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>t2</sourceId>
         <destinationId>p3</destinationId>
         <multiplicity>1</multiplicity>
@@ -1393,7 +1380,8 @@
         <type>variable</type>
         <sourceId>t2</sourceId>
         <destinationId>p3</destinationId>
-        <multiplicity>newVariable_1</multiplicity>
+        <reference>newVariable_1</reference>
+        <multiplicity>1</multiplicity>
         <breakpoint>
             <x>10</x>
             <y>10</y>
@@ -1417,13 +1405,13 @@
     </arc>
     <arc>
         <id>invalid_source</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>invalid_source_id</sourceId>
         <destinationId>invalid_destination_id</destinationId>
     </arc>
     <arc>
         <id>invalid_destination</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>t2</sourceId>
         <destinationId>invalid_destination_id</destinationId>
     </arc>
@@ -1435,7 +1423,7 @@
     </arc>
     <arc>
         <id>invalid_breakpont</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>t2</sourceId>
         <destinationId>p3</destinationId>
         <multiplicity>1</multiplicity>

@@ -1,0 +1,46 @@
+<process xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://netgrif.github.io/petriflow/petriflow.schema.xsd">
+    <id>child_net</id>
+    <version>1.0.0</version>
+    <extends>
+        <id>petriflow_test</id>
+        <version>1.0.0</version>
+    </extends>
+    <title>Child net</title>
+    <icon>device_hub</icon>
+    <defaultRole>true</defaultRole>
+    <anonymousRole>true</anonymousRole>
+    <transition>
+        <id>t1</id>
+        <x>304</x>
+        <y>144</y>
+        <title/>
+    </transition>
+    <place>
+        <id>place1</id>
+        <x>176</x>
+        <y>144</y>
+        <tokens>1</tokens>
+        <static>false</static>
+    </place>
+    <place>
+        <id>place2</id>
+        <x>432</x>
+        <y>144</y>
+        <tokens>0</tokens>
+        <static>false</static>
+    </place>
+    <arc>
+        <id>a1</id>
+        <type>regular</type>
+        <sourceId>place1</sourceId>
+        <destinationId>trans1</destinationId>
+        <multiplicity>1</multiplicity>
+    </arc>
+    <arc>
+        <id>arc2</id>
+        <type>regular</type>
+        <sourceId>t1</sourceId>
+        <destinationId>p10</destinationId>
+        <multiplicity>1</multiplicity>
+    </arc>
+</process>

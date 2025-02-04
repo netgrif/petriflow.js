@@ -1,5 +1,5 @@
 import {
-    Arc,
+    Arc, ArcType,
     AssignPolicy,
     Breakpoint,
     CaseEvent,
@@ -33,8 +33,7 @@ import {
     Transition,
     TransitionEvent,
     TransitionEventType,
-    Validation,
-    XmlArcType
+    Validation
 } from '../model';
 import {ImportUtils} from './import-utils';
 import {PetriNetResult} from './petri-net-result';
@@ -58,8 +57,52 @@ export class ImportService {
         return xmlDoc;
     }
 
-    public parseFromXml(txt: string): PetriNetResult {
+    public parseFromXml(txt: string, parentModel?: PetriNet): PetriNetResult {
         const doc = this.parseXml(txt);
+        const result: PetriNetResult = this.parseFromDocument(doc, parentModel);
+        result.model.merge();
+        return result;
+    }
+
+    public parseMultipleFromXml(xmlPetriNets: string[]): Map<string, PetriNetResult> {
+        const result = this.recursiveParseMultipleFromDocument(xmlPetriNets.map(xmlNet => this.parseXml(xmlNet)));
+        result.forEach((element: PetriNetResult) => {
+            element.model.merge();
+        })
+        return result;
+    }
+
+    private recursiveParseMultipleFromDocument(documentPetriNets: Document[], results: Map<string, PetriNetResult> = new Map<string, PetriNetResult>()) {
+        const netsToReimport: Document[] = [];
+        for (const xmlDoc of documentPetriNets) {
+            const identifier = this.importUtils.parseIdentifierFromChildElement(xmlDoc, 'id');
+            if (results.has(identifier)) {
+                continue;
+            }
+
+            const extension = this.importUtils.parseExtension(xmlDoc);
+            if (extension === undefined) {
+                const petriNetResult = this.parseFromDocument(xmlDoc);
+                results.set(petriNetResult.model.id, petriNetResult);
+                continue;
+            }
+
+            if (results.has(extension.id)) {
+                const petriNetResult = this.parseFromDocument(xmlDoc, results.get(extension.id)?.model);
+                petriNetResult.model.parentModel = results.get(extension.id)?.model;
+                results.set(petriNetResult.model.id, petriNetResult);
+                continue;
+            }
+            netsToReimport.push(xmlDoc);
+        }
+
+        if (netsToReimport.length > 0) {
+            this.recursiveParseMultipleFromDocument(netsToReimport, results);
+        }
+        return results;
+    }
+
+    private parseFromDocument(doc: Document, parentModel?: PetriNet): PetriNetResult {
         const parseError = doc.getElementsByTagName('parsererror'); // cspell:disable-line
         let result = new PetriNetResult();
 
@@ -78,15 +121,15 @@ export class ImportService {
             return result;
         }
 
-        result = this.importFromXml(doc, result);
+        result = this.importFromXml(doc, result, parentModel);
         this.importUtils.resetIds();
         return result;
     }
 
-    private importFromXml(xmlDoc: Document, result: PetriNetResult): PetriNetResult { // TODO: return stream
+    private importFromXml(xmlDoc: Document, result: PetriNetResult, parentModel?: PetriNet): PetriNetResult { // TODO: return stream
         result.model = new PetriNet();
 
-        this.importModel(result, xmlDoc);
+        this.importModel(result, xmlDoc, parentModel);
         this.importRoles(result, xmlDoc);
         this.importFunctions(result, xmlDoc);
         this.importEvents(result, xmlDoc);
@@ -102,17 +145,19 @@ export class ImportService {
         return result;
     }
 
-    public importModel(modelResult: PetriNetResult, xmlDoc: Document): void {
+    public importModel(modelResult: PetriNetResult, xmlDoc: Document, parentModel?: PetriNet): void {
         try {
-            modelResult.model.id = this.importUtils.parseIdentifier(xmlDoc, 'id');
+            modelResult.model.id = this.importUtils.parseIdentifierFromChildElement(xmlDoc, 'id');
             modelResult.model.version = this.importUtils.tagValue(xmlDoc, 'version');
             modelResult.model.icon = this.importUtils.tagValue(xmlDoc, 'icon');
             modelResult.model.defaultRole = this.importUtils.tagValue(xmlDoc, 'defaultRole') === '' ? ImportService.DEFAULT_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'defaultRole') === 'true';
             modelResult.model.anonymousRole = this.importUtils.tagValue(xmlDoc, 'anonymousRole') === '' ? ImportService.ANONYMOUS_ROLE_DEFAULT_VALUE : this.importUtils.tagValue(xmlDoc, 'anonymousRole') === 'true';
             modelResult.model.title = this.importUtils.parseI18n(xmlDoc, 'title');
             modelResult.model.caseName = this.importUtils.parseI18nWithDynamic(xmlDoc, 'caseName');
-            modelResult.model.tags = this.importUtils.parseTags(xmlDoc);
-            modelResult.model.parent = this.importUtils.parseExtension(xmlDoc);
+            modelResult.model.extends = this.importUtils.parseExtension(xmlDoc);
+            if (parentModel) {
+                modelResult.model.parentModel = parentModel;
+            }
         } catch (e: unknown) {
             modelResult.addError('Error happened during the importing model properties: ' + (e as Error).toString(), e as Error);
         }
@@ -121,7 +166,8 @@ export class ImportService {
     public importRoles(modelResult: PetriNetResult, xmlDoc: Document): void {
         for (const xmlRole of Array.from(xmlDoc.getElementsByTagName('role'))) {
             try {
-                const role = new Role(this.importUtils.parseIdentifier(xmlRole, 'id'));
+                const roleId = this.importUtils.parseIdentifierFromChildElement(xmlRole, 'id');
+                const role = new Role(roleId);
                 this.parseRole(modelResult.model, xmlRole, role);
             } catch (e: unknown) {
                 modelResult.addError('Error happened during the importing role [' + this.importUtils.tagValue(xmlRole, 'id') + ']: ' + (e as Error).toString(), e as Error);
@@ -146,7 +192,7 @@ export class ImportService {
         if (scopeValue !== '') {
             role.scope = scopeValue as FunctionScope;
         }
-        role.properties = this.importUtils.parseProperties(xmlRole)
+        role.properties = this.importUtils.parseProperties(xmlRole);
         model.addRole(role);
     }
 
@@ -188,7 +234,7 @@ export class ImportService {
     public importData(modelResult: PetriNetResult, xmlDoc: Document): void {
         for (const xmlData of Array.from(xmlDoc.getElementsByTagName('data'))) {
             try {
-                const id = this.importUtils.parseIdentifier(xmlData, 'id');
+                const id = this.importUtils.parseIdentifierFromChildElement(xmlData, 'id');
                 const type = this.importUtils.tagAttribute(xmlData, 'type') as DataType;
                 const data = new DataVariable(id, type);
                 const scopeValue = this.importUtils.tagAttribute(xmlData, 'scope');
@@ -284,7 +330,7 @@ export class ImportService {
     public importTransitions(modelResult: PetriNetResult, xmlDoc: Document): void {
         for (const xmlTrans of Array.from(xmlDoc.getElementsByTagName('transition'))) {
             try {
-                const id = this.importUtils.parseIdentifier(xmlTrans, 'id');
+                const id = this.importUtils.parseIdentifierFromChildElement(xmlTrans, 'id');
                 const xx = this.importUtils.parseNumberValue(xmlTrans, 'x') ?? 0;
                 const yy = this.importUtils.parseNumberValue(xmlTrans, 'y') ?? 0;
                 const trans = new Transition(xx, yy, id);
@@ -308,7 +354,6 @@ export class ImportService {
         this.importTransitionTriggers(xmlTrans, trans, result);
         this.importTransitionContent(xmlTrans, trans, result)
         this.importTransitionEvents(xmlTrans, trans, result);
-        trans.tags = this.importUtils.parseTags(xmlTrans);
     }
 
     public importTransitionContent(xmlTrans: Element, trans: Transition, result: PetriNetResult) {
@@ -394,7 +439,7 @@ export class ImportService {
                 if (xmlRoleRefLogic === undefined) {
                     continue;
                 }
-                const roleRef = new ProcessPermissionRef(this.importUtils.parseIdentifier(xmlRoleRef, 'id'));
+                const roleRef = new ProcessPermissionRef(this.importUtils.parseIdentifierFromChildElement(xmlRoleRef, 'id'));
                 this.importUtils.resolveCaseLogic(xmlRoleRefLogic, roleRef);
                 modelResult.model.addRoleRef(roleRef);
             } catch (e) {
@@ -409,7 +454,7 @@ export class ImportService {
                 if (xmlUserRefLogic === undefined) {
                     continue;
                 }
-                const userRef = new ProcessPermissionRef(this.importUtils.parseIdentifier(xmlUserRef, 'id'));
+                const userRef = new ProcessPermissionRef(this.importUtils.parseIdentifierFromChildElement(xmlUserRef, 'id'));
                 this.importUtils.resolveCaseLogic(xmlUserRefLogic, userRef);
                 modelResult.model.addUserRef(userRef);
             } catch (e) {
@@ -429,7 +474,7 @@ export class ImportService {
     }
 
     importPlace(modelResult: PetriNetResult, xmlPlace: Element) {
-        const placeId = this.importUtils.parseIdentifier(xmlPlace, 'id');
+        const placeId = this.importUtils.parseIdentifierFromChildElement(xmlPlace, 'id');
         let xx = this.importUtils.parseNumberValue(xmlPlace, 'x');
         let yy = this.importUtils.parseNumberValue(xmlPlace, 'y');
         if (xx === undefined || yy === undefined) {
@@ -468,15 +513,17 @@ export class ImportService {
     }
 
     public parseArc(result: PetriNetResult, xmlArc: Element): Arc<NodeElement, NodeElement> {
-        const arcId = this.importUtils.parseIdentifier(xmlArc, 'id');
+        const arcId = this.importUtils.parseIdentifierFromChildElement(xmlArc, 'id');
         const source = xmlArc.getElementsByTagName('sourceId')?.item(0)?.childNodes[0]?.nodeValue;
-        if (!source)
+        if (!source && result.model.extends === undefined) {
             throw new Error('Source of an arc must be defined!');
+        }
         const target = xmlArc.getElementsByTagName('destinationId')?.item(0)?.childNodes[0]?.nodeValue;
-        if (!target)
+        if (!target && result.model.extends === undefined) {
             throw new Error('Target of an arc must be defined!');
+        }
         const parsedArcType = this.importUtils.parseArcType(xmlArc);
-        const arc = this.resolveArc(source, target, parsedArcType, arcId, result);
+        const arc = this.resolveArc(source as string, target as string, parsedArcType, arcId, result);
         const scopeValue = this.importUtils.tagAttribute(xmlArc, 'scope');
         if (scopeValue !== '') {
             arc.scope = scopeValue as FunctionScope;
@@ -486,36 +533,40 @@ export class ImportService {
         return arc;
     }
 
-    resolveArc(source: string, target: string, parsedArcType: XmlArcType, arcId: string, result: PetriNetResult): Arc<NodeElement, NodeElement> {
+    resolveArc(source: string, target: string, parsedArcType: ArcType, arcId: string, result: PetriNetResult): Arc<NodeElement, NodeElement> {
         // TODO: refactor
         let place, transition;
         switch (parsedArcType) {
-            case XmlArcType.INHIBITOR:
+            case ArcType.INHIBITOR:
                 [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                 return new InhibitorArc(place, transition, arcId);
-            case XmlArcType.RESET:
+            case ArcType.RESET:
                 [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                 return new ResetArc(place, transition, arcId);
-            case XmlArcType.READ:
+            case ArcType.READ:
                 [place, transition] = this.getPlaceTransition(result, source, target, arcId);
                 return new ReadArc(place, transition, arcId);
-            case XmlArcType.REGULAR:
-                if (result.model.getPlace(source)) {
-                    [place, transition] = this.getPlaceTransition(result, source, target, arcId);
-                    return new RegularPlaceTransitionArc(place, transition, arcId);
-                } else {
-                    [place, transition] = this.getPlaceTransition(result, target, source, arcId);
-                    return new RegularTransitionPlaceArc(transition, place, arcId);
-                }
+            case ArcType.REGULAR_PT:
+                [place, transition] = this.getPlaceTransition(result, source, target, arcId);
+                return new RegularPlaceTransitionArc(place, transition, arcId);
+            case ArcType.REGULAR_TP:
+                [place, transition] = this.getPlaceTransition(result, target, source, arcId);
+                return new RegularTransitionPlaceArc(transition, place, arcId);
         }
         throw new Error(`Unknown type ${parsedArcType}`);
     }
 
     getPlaceTransition(result: PetriNetResult, placeId: string, transitionId: string, arcId: string): [Place, Transition] {
-        const place = result.model.getPlace(placeId);
-        const transition = result.model.getTransition(transitionId);
-        if (place === undefined || transition === undefined) {
+        let place = result.model.getPlace(placeId);
+        let transition = result.model.getTransition(transitionId);
+        if (!result.model.extends && (place === undefined || transition === undefined)) {
             throw new Error(`Could not find nodes ${placeId}->${transitionId}  of arc ${arcId}`);
+        }
+        if (place === undefined) {
+            place = new Place(-1, -1, false, placeId);
+        }
+        if (transition === undefined) {
+            transition = new Transition(-1, -1, transitionId);
         }
         return [place, transition];
     }

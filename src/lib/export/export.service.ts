@@ -78,9 +78,8 @@ export class ExportService {
         this._exportUtils.exportTag(doc, 'icon', model.icon);
         this._exportUtils.exportTag(doc, 'defaultRole', model.defaultRole !== undefined ? (model.defaultRole.toString()) : '');
         this._exportUtils.exportTag(doc, 'anonymousRole', model.anonymousRole !== undefined ? (model.anonymousRole.toString()) : '');
-        this._exportUtils.exportTags(doc, model.tags);
         this._exportUtils.exportI18nWithDynamic(doc, 'caseName', model.caseName);
-        this._exportUtils.exportExtension(doc, 'extends', model.parent);
+        this._exportUtils.exportExtension(doc, 'extends', model.extends);
     }
 
     public exportRoles(doc: Element, model: PetriNet): void {
@@ -277,7 +276,6 @@ export class ExportService {
             this._exportUtils.exportTag(exportTrans, 'x', trans.x?.toString(), true);
             this._exportUtils.exportTag(exportTrans, 'y', trans.y?.toString(), true);
             this._exportUtils.exportI18nString(exportTrans, 'title', trans.title, true);
-            this._exportUtils.exportTags(exportTrans, trans.tags);
             this._exportUtils.exportTag(exportTrans, 'icon', trans.icon ?? '');
             this._exportUtils.exportTag(exportTrans, 'assignPolicy', trans.assignPolicy === AssignPolicy.MANUAL ? '' : trans.assignPolicy);
             this._exportUtils.exportTag(exportTrans, 'finishPolicy', trans.finishPolicy === FinishPolicy.MANUAL ? '' : trans.finishPolicy);
@@ -673,7 +671,7 @@ export class ExportService {
         model.getArcs().sort((a, b) => a.compare(b)).forEach(arc => {
             const exportArc = this.xmlConstructor.createElement('arc');
             this._exportUtils.exportTag(exportArc, 'id', arc.id, true);
-            this._exportUtils.exportTag(exportArc, 'type', this._exportUtils.exportArcType(arc.type));
+            this._exportUtils.exportTag(exportArc, 'type', arc.type);
             this._exportUtils.exportTag(exportArc, 'sourceId', arc.source.id);
             this._exportUtils.exportTag(exportArc, 'destinationId', arc.destination.id);
             this._exportUtils.exportExpression(exportArc, 'multiplicity', arc.multiplicity);

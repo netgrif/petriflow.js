@@ -36,16 +36,16 @@
     </place>
     <arc>
         <id>inputArc</id>
-        <type>regular</type>
+        <type>regular_tp</type>
         <sourceId>t1</sourceId>
         <destinationId>p1</destinationId>
-        <multiplicity dynamic="true">input</multiplicity>
+        <multiplicity>input</multiplicity>
     </arc>
     <arc>
         <id>outputArc</id>
-        <type>regular</type>
+        <type>regular_pt</type>
         <sourceId>p1</sourceId>
         <destinationId>t2</destinationId>
-        <multiplicity dynamic="true">output</multiplicity>
+        <multiplicity>output</multiplicity>
     </arc>
 </process>

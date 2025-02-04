@@ -2,11 +2,11 @@ import {Property} from '../data-variable/property';
 
 export abstract class Element {
     private _id: string;
-    private _properties?: Array<Property>;
+    private _properties: Array<Property>;
 
-    protected constructor(id: string) {
+    protected constructor(id: string, properties: Array<Property> = []) {
         this._id = id;
-        this._properties = []
+        this._properties = properties
     }
 
     get id(): string {
@@ -17,11 +17,11 @@ export abstract class Element {
         this._id = value;
     }
 
-    get properties(): Array<Property> | undefined{
+    get properties(): Array<Property>{
         return this._properties;
     }
 
-    set properties(value: Array<Property> | undefined) {
+    set properties(value: Array<Property>) {
         this._properties = value;
     }
 

@@ -21,8 +21,8 @@ export abstract class Simulation {
         if (!model) {
             throw new Error('Model can not be undefined');
         }
-        this._originalModel = model.clone();
-        this._simulationModel = model.clone();
+        this._originalModel = model;
+        this._simulationModel = model.merge();
         // noinspection DuplicatedCode due to TS2564: Property has no initializer and is not definitely assigned in the constructor.
         this._inputArcs = new Map<string, Array<Arc<NodeElement, NodeElement>>>();
         this._outputArcs = new Map<string, Array<Arc<NodeElement, NodeElement>>>();
@@ -50,7 +50,7 @@ export abstract class Simulation {
     public abstract assigned(): Array<Transition>;
 
     public reset(): void {
-        this._simulationModel = this.originalModel.clone();
+        this._simulationModel = this.originalModel.merge();
         // noinspection DuplicatedCode due to TS2564: Property has no initializer and is not definitely assigned in the constructor.
         this._inputArcs = new Map<string, Array<Arc<NodeElement, NodeElement>>>();
         this._outputArcs = new Map<string, Array<Arc<NodeElement, NodeElement>>>();
