@@ -1,5 +1,8 @@
 import {
     Action,
+    ActionType,
+    Arc,
+    ArcType,
     CaseLogic,
     Event,
     Expression,
@@ -109,6 +112,9 @@ export class ExportUtils {
         const exportAction = this.xmlConstructor.createElement('action');
         if (action.id !== undefined && action.id != null) {
             exportAction.setAttribute('id', action.id);
+        }
+        if (action.actionType !== undefined && action.actionType !== ActionType.VALUE) {
+            exportAction.setAttribute('type', action.actionType.toString());
         }
         exportAction.appendChild(this.createCDATA(action.definition));
         element.appendChild(exportAction);

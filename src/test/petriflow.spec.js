@@ -37,7 +37,9 @@ const {
     GridJustifyContent,
     GridAlignContent,
     GridAutoFlow,
-    GridDisplay
+    GridDisplay,
+    ActionType,
+    Role
 } = require('../../dist/petriflow');
 const fs = require('fs');
 const {beforeEach, describe, expect, test} = require('@jest/globals');
@@ -169,7 +171,9 @@ describe('Petriflow integration tests', () => {
         expect(processUploadEvent.id).toEqual(PROCESS_EVENTS_UPLOAD_ID);
         expect(processUploadEvent.preActions.length).toEqual(PROCESS_EVENTS_UPLOAD_PRE_LENGTH);
         expect(processUploadEvent.preActions[0].definition).toContain('test("process_upload_pre")');
+        expect(processUploadEvent.preActions[0].actionType).toEqual(ActionType.VALUE);
         expect(processUploadEvent.postActions.length).toEqual(PROCESS_EVENTS_UPLOAD_POST_LENGTH);
+        expect(processUploadEvent.postActions[0].actionType).toEqual(ActionType.ANY);
         expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_XML_COMMENT);
         expect(processUploadEvent.postActions[0].definition).toContain(ACTION_DEFINITION_JAVA_COMMENT);
         expect(processUploadEvent.postActions[0].definition).toContain('test("process_upload_post")');
@@ -182,8 +186,10 @@ describe('Petriflow integration tests', () => {
         const caseCreateEvent = model.getCaseEvent(CaseEventType.CREATE);
         expect(caseCreateEvent.id).toEqual(CASE_EVENTS_CREATE_ID);
         expect(caseCreateEvent.preActions.length).toEqual(CASE_EVENTS_CREATE_PRE_LENGTH);
+        expect(caseCreateEvent.preActions[0].actionType).toEqual(ActionType.COMPONENT);
         expect(caseCreateEvent.preActions[0].definition).toContain('test("case_create_pre")');
         expect(caseCreateEvent.postActions.length).toEqual(CASE_EVENTS_CREATE_POST_LENGTH);
+        expect(caseCreateEvent.postActions[0].actionType).toEqual(ActionType.VALUE);
         expect(caseCreateEvent.postActions[0].definition).toContain('test("case_create_post")');
         assertProperties(caseCreateEvent.properties, [new Property('create_case_event_property_key', 'create_case_event_property_value')])
         const caseDeleteEvent = model.getCaseEvent(CaseEventType.DELETE);
@@ -207,8 +213,10 @@ describe('Petriflow integration tests', () => {
         const roleAssignEvent = role1.getEvent(RoleEventType.ASSIGN);
         expect(roleAssignEvent.id).toEqual('assign_role');
         expect(roleAssignEvent.preActions.length).toEqual(1);
+        expect(roleAssignEvent.preActions[0].actionType).toEqual(ActionType.ANY);
         expect(roleAssignEvent.preActions[0].definition).toContain('test("assign_role_pre")');
         expect(roleAssignEvent.postActions.length).toEqual(1);
+        expect(roleAssignEvent.postActions[0].actionType).toEqual(ActionType.VALUE);
         expect(roleAssignEvent.postActions[0].definition).toContain('test("assign_role_post")');
         const roleCancelEvent = role1.getEvent(RoleEventType.CANCEL);
         expect(roleCancelEvent.id).toEqual('cancel_role');
@@ -261,7 +269,7 @@ describe('Petriflow integration tests', () => {
         expect(roleRefAnonymous.logic.create).toEqual(true);
         expect(roleRefAnonymous.logic.view).toEqual(false);
         expect(roleRefAnonymous.logic.delete).toEqual(undefined);
-        const roleRefDefault = model.getRoleRef('defaultRole');
+        const roleRefDefault = model.getRoleRef(Role.DEFAULT);
         expect(roleRefDefault.logic.create).toEqual(undefined);
         expect(roleRefDefault.logic.view).toEqual(true);
         expect(roleRefDefault.logic.delete).toEqual(false);
@@ -275,6 +283,8 @@ describe('Petriflow integration tests', () => {
         expect(cdataField.title.value).toEqual('CDATA &<>');
         expect(cdataField.init.value).toContain('<p>CDATA &amp;&lt;&gt;</p>');
         expect(cdataField.getEvent(DataEventType.SET).postActions.length).toEqual(2);
+        expect(cdataField.getEvent(DataEventType.SET).postActions[0].actionType).toEqual(ActionType.VALUE);
+        expect(cdataField.getEvent(DataEventType.GET).postActions[0].actionType).toEqual(ActionType.ANY);
         const numberField = model.getData('newVariable_1');
         expect(numberField.type).toEqual(DataType.NUMBER);
         expect(cdataField.scope).toEqual(FunctionScope.PROCESS);
@@ -890,7 +900,7 @@ describe('Petriflow integration tests', () => {
 
         const transitionPredefinedRoles = model.getTransition('predefined_roles');
         expect(transitionPredefinedRoles.roleRefs.length).toEqual(2);
-        const transitionPredefinedRolesDefault = transitionPredefinedRoles.roleRefs.find(r => r.id === 'defaultRole');
+        const transitionPredefinedRolesDefault = transitionPredefinedRoles.roleRefs.find(r => r.id === Role.DEFAULT);
         assertRoleRefLogic(transitionPredefinedRolesDefault, false, false, true, true, undefined);
         const transitionPredefinedRolesAnonymous = transitionPredefinedRoles.roleRefs.find(r => r.id === 'anonymous');
         assertRoleRefLogic(transitionPredefinedRolesAnonymous, true, undefined, false, false, false);
@@ -973,7 +983,7 @@ describe('Petriflow integration tests', () => {
     test('should import & export', () => {
         let file = fs.readFileSync(TEST_FILE_PATH).toString();
         debug = false;
-        const model1 = importAndExport(file, 17, 22, 5);
+        const model1 = importAndExport(file, 18, 22, 5);
         expect(model1).toBeDefined();
         const model2 = importAndExport(model1, 0, 20, 0);
         expect(model2).toBeDefined();
