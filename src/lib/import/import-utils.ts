@@ -228,8 +228,16 @@ export class ImportUtils {
     }
 
     public attachReference(arc: Arc<NodeElement, NodeElement>, reference: Place | DataVariable): void {
-        const weight = reference instanceof Place ? reference.marking : parseInt(reference.init?.value ?? '' as string, 10);
-
+        let weight: number;
+        if (reference instanceof Place) {
+            weight = reference.marking;
+        } else {
+            if (!!reference.init && !!reference.init.value && /^[1-9]\d*$/.test(reference.init.value.trim())) {
+                weight = parseInt(reference.init.value.trim());
+            } else {
+                weight = 0;
+            }
+        }
         if (isNaN(weight)) {
             throw new Error('Not a number. Cannot change the value of arc weight.');
         }
