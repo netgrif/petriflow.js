@@ -163,7 +163,7 @@ export class ExportService {
             ref.logic.view !== undefined) {
             const processRef = this.xmlConstructor.createElement(name);
             this._exportUtils.exportTag(processRef, 'id', ref.id, true);
-            this._exportUtils.exportCaseLogic(processRef, ref.logic, 'caseLogic');
+            this._exportUtils.exportCaseLogic(processRef, ref.logic, 'permission');
             element.appendChild(processRef);
         }
     }
@@ -177,7 +177,7 @@ export class ExportService {
             ref.logic.view !== undefined) {
             const transRef = this.xmlConstructor.createElement(name);
             this._exportUtils.exportTag(transRef, 'id', ref.id, true);
-            this._exportUtils.exportLogic(transRef, ref.logic, 'logic');
+            this._exportUtils.exportLogic(transRef, ref.logic, 'permission');
             if (ref.properties !== undefined) {
                 this.exportProperties(transRef, ref.properties)
             }
@@ -294,10 +294,10 @@ export class ExportService {
     }
 
     public exportTransitionContent(exportTransition: Element, transition: Transition): void {
-        if (transition.flex) {
+        if (transition.flex && transition.flex.items.length > 0) {
             this.exportFlex(exportTransition, transition.flex);
         }
-        if (transition.grid) {
+        if (transition.grid && transition.grid.items.length > 0) {
             this.exportGrid(exportTransition, transition.grid);
         }
     }

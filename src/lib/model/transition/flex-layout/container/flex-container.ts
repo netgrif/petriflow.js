@@ -4,7 +4,7 @@ import {FlexContainerProperties} from './flex-container-properties';
 export class FlexContainer {
 
     private _id: string;
-    private _items: Array<FlexItem>;
+    private readonly _items: Array<FlexItem>;
     private _properties: FlexContainerProperties;
 
     constructor(id: string) {
@@ -23,10 +23,6 @@ export class FlexContainer {
 
     get items(): Array<FlexItem> {
         return this._items;
-    }
-
-    set items(value: Array<FlexItem>) {
-        this._items = value;
     }
 
     get properties(): FlexContainerProperties {

@@ -269,7 +269,7 @@ export class ImportService {
                     continue;
                 }
                 const action = this.importUtils.parseAction(actionTag);
-                data.addAction(action, actionTrigger);
+                data.addAction(action, actionTrigger, undefined, `${data.id}_${actionTrigger}`);
                 converted += 1;
             }
             if (converted > 0) {

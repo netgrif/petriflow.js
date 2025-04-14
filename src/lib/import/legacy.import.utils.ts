@@ -96,7 +96,7 @@ export class LegacyImportUtils {
                     if (id === 'this' && thisId) {
                         id = thisId;
                     }
-                    newDefinition = newDefinition.replace(new RegExp(name), id);
+                    newDefinition = newDefinition.replace(new RegExp(name, 'g'), id);
                 }
             }
             definition = newDefinition;
@@ -268,7 +268,7 @@ export class LegacyImportUtils {
                 for (const actionTag of actionTags) {
                     const action = this.parseAction(actionTag, dataRef.id);
                     const actionTrigger = actionTag.getAttribute('trigger') as DataEventType;
-                    dataRef.addAction(action, actionTrigger);
+                    dataRef.addAction(action, actionTrigger, undefined, `${dataRef.id}_${actionTrigger}`);
                 }
             }
             let behaviorSet = false;

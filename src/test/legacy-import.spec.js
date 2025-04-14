@@ -86,8 +86,9 @@ describe('Petriflow legacy model import tests', () => {
     });
 
     test('legacy import test', () => {
+        // TODO: PF-75 - event id, empty events tag, id [$_a-zA-Z][_a-zA-Z0-9]*
         let file = fs.readFileSync(LEGACY_FILE_PATH).toString();
-        debug = true;
+        debug = false;
         const model1 = importAndExport(file, 18, 38, 25);
         expect(model1).toBeDefined();
         const model2 = importAndExport(model1, 0, 19, 0);

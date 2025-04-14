@@ -4,11 +4,12 @@ import {GridContainerProperties} from './grid-container-properties';
 export class GridContainer {
 
     private _id: string;
-    private _items?: Array<GridItem>;
+    private readonly _items: Array<GridItem>;
     private _properties: GridContainerProperties;
 
     constructor(id: string) {
         this._id = id;
+        this._items = new Array<GridItem>();
         this._properties = new GridContainerProperties();
     }
 
@@ -20,12 +21,8 @@ export class GridContainer {
         this._id = value;
     }
 
-    get items(): Array<GridItem> | undefined {
+    get items(): Array<GridItem> {
         return this._items;
-    }
-
-    set items(value: Array<GridItem> | undefined) {
-        this._items = value;
     }
 
     get properties(): GridContainerProperties {
@@ -37,9 +34,6 @@ export class GridContainer {
     }
 
     addItem(item: GridItem) {
-        if (this._items === undefined) {
-            this._items = [];
-        }
         this._items.push(item);
     }
 

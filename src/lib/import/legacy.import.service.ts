@@ -254,7 +254,7 @@ export class LegacyImportService {
                     continue;
                 }
                 const action = this.importUtils.parseAction(actionTag, data.id);
-                data.addAction(action, actionTrigger);
+                data.addAction(action, actionTrigger, undefined, `${data.id}_${actionTrigger}`);
                 converted += 1;
             }
             if (converted > 0) {
