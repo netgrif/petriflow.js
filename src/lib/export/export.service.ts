@@ -83,6 +83,7 @@ export class ExportService {
             const role = this.xmlConstructor.createElement('role');
             this._exportUtils.exportTag(role, 'id', item.id, true);
             this._exportUtils.exportI18nString(role, 'title', item.title, true);
+            this._exportUtils.exportTag(role, 'global', item.global ? 'true' : 'false');
             item.getEvents().forEach(event => {
                 this.exportEvent(role, event);
             });
@@ -98,7 +99,7 @@ export class ExportService {
 
     public exportEvent<T>(element: Element, event: Event<T>): void {
         if (event.isEmpty()) {
-            return
+            return;
         }
         let exportProcessEvent;
         if (event instanceof ProcessEvent) {
@@ -213,7 +214,7 @@ export class ExportService {
                 } else {
                     this._exportUtils.exportTag(exportData, 'encryption', 'true', false, [{
                         key: 'algorithm',
-                        value: data.encryption
+                        value: data.encryption,
                     }]);
                 }
             }
@@ -248,7 +249,7 @@ export class ExportService {
             translations.getI18ns().forEach(i18n => {
                 this._exportUtils.exportTag(i18ns, 'i18nString', i18n.value, false, [{
                     key: 'name',
-                    value: i18n.name ?? ''
+                    value: i18n.name ?? '',
                 }]);
             });
             doc.appendChild(i18ns);
@@ -353,7 +354,7 @@ export class ExportService {
             const props = this.xmlConstructor.createElement('properties');
             component.properties.forEach(prop => this._exportUtils.exportTag(props, 'property', prop.value, false, [{
                 key: 'key',
-                value: prop.key
+                value: prop.key,
             }]));
             const icons = this.xmlConstructor.createElement('option_icons');
             component.icons.forEach(icon => {
@@ -368,7 +369,7 @@ export class ExportService {
         } else {
             component.properties.forEach(prop => this._exportUtils.exportTag(comp, 'property', prop.value, false, [{
                 key: 'key',
-                value: prop.key
+                value: prop.key,
             }]));
         }
         element.appendChild(comp);
