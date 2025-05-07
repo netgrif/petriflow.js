@@ -183,6 +183,7 @@ describe('Petriflow integration tests', () => {
         expect(role1.title).not.toBeUndefined();
         expect(role1.title.value).toEqual(ROLE_TITLE_VALUE);
         expect(role1.title.name).toEqual(ROLE_1_TITLE_NAME);
+        expect(role1.global).toEqual(false);
         expect(role1.getEvents().length).toEqual(2);
         const roleAssignEvent = role1.getEvent(RoleEventType.ASSIGN);
         expect(roleAssignEvent.id).toEqual('assign_role');
@@ -199,12 +200,15 @@ describe('Petriflow integration tests', () => {
         expect(role2.title).not.toBeUndefined();
         expect(role2.title.value).toEqual(ROLE_TITLE_VALUE);
         expect(role2.title.name).toEqual('role_2_title');
+        expect(role2.global).toEqual(true);
         expect(role3.title).not.toBeUndefined();
         expect(role3.title.value).toEqual(ROLE_TITLE_VALUE);
         expect(role3.title.name).toEqual('role_3_title');
+        expect(role3.global).toEqual(false);
         expect(role4.title).not.toBeUndefined();
         expect(role4.title.value).toEqual(ROLE_TITLE_VALUE);
         expect(role4.title.name).toEqual('role_4_title');
+        expect(role4.global).toEqual(false);
         log('Model roles correct');
 
         expect(model.functions).toBeDefined();
