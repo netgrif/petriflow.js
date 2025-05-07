@@ -32,7 +32,7 @@ import {
     TransitionPermissionRef,
     Trigger,
     TriggerType,
-    XmlArcType
+    XmlArcType,
 } from '../model';
 
 export class ImportUtils {
@@ -228,8 +228,16 @@ export class ImportUtils {
     }
 
     public attachReference(arc: Arc<NodeElement, NodeElement>, reference: Place | DataVariable): void {
-        const weight = reference instanceof Place ? reference.marking : parseInt(reference.init?.value ?? '' as string, 10);
-
+        let weight: number;
+        if (reference instanceof Place) {
+            weight = reference.marking;
+        } else {
+            if (reference.init?.value && ImportUtils.isInitValueNumber(reference.init)) {
+                weight = parseInt(reference.init.value.trim());
+            } else {
+                weight = 0;
+            }
+        }
         if (isNaN(weight)) {
             throw new Error('Not a number. Cannot change the value of arc weight.');
         }
@@ -241,6 +249,29 @@ export class ImportUtils {
             arc.multiplicity = weight;
             arc.reference = reference.id;
         }
+    }
+
+    /**
+     * Determines whether the given value is an initial numeric value.
+     * This method checks if the provided `value` is defined, has a `value` property,
+     * and passes the `initValueNumberTest` logic.
+     *
+     * @param {I18nWithDynamic} [value] - The value to be checked.
+     * @return {boolean} Returns `true` if the value is an initial numeric value, otherwise `false`.
+     */
+    public static isInitValueNumber(value?: I18nWithDynamic): boolean {
+        return !!value && !!value.value && this.initValueNumberTest(value);
+    }
+
+    /**
+     * Validates whether the provided value in an I18nWithDynamic object is a valid positive number string.
+     *
+     * @param {I18nWithDynamic} [value] - The object containing the value to be tested.
+     * @return {boolean} Returns true if the value exists, is non-empty, and matches the regex pattern for a positive number; otherwise, returns false.
+     */
+    public static initValueNumberTest(value?: I18nWithDynamic): boolean {
+        if (!value || !value.value) return false;
+        return /^[1-9]\d*(\.0+)?$/.test(value.value.trim());
     }
 
     public parseTrigger(xmlTrigger: Element): Trigger {
@@ -365,7 +396,7 @@ export class ImportUtils {
     public parseEvent<T>(xmlEvent: Element, event: Event<T>): void {
         event.id = this.tagValue(xmlEvent, 'id');
         if (event.id === '') {
-            event.id = event.type + "_event_" + this.getNextEventId();
+            event.id = event.type + '_event_' + this.getNextEventId();
         }
         for (const actionsElement of Array.from(xmlEvent.getElementsByTagName('actions'))) {
             const actionsPhase = this.tagAttribute(actionsElement, 'phase') as EventPhase;
