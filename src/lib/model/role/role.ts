@@ -9,11 +9,13 @@ export class Role extends EventSource<RoleEvent, RoleEventType> {
 
     private _id: string;
     private _title: I18nString;
+    private _global: boolean;
 
     constructor(id: string) {
         super();
         this._id = id;
         this._title = new I18nString('');
+        this._global = false;
     }
 
     get id(): string {
@@ -32,9 +34,18 @@ export class Role extends EventSource<RoleEvent, RoleEventType> {
         this._title = value;
     }
 
+    get global(): boolean {
+        return this._global;
+    }
+
+    set global(value: boolean) {
+        this._global = value;
+    }
+
     public clone(): Role {
         const cloned = new Role(this._id);
         cloned._title = this._title?.clone();
+        cloned._global = this._global;
         this.getEvents().forEach(event => cloned.addEvent(event.clone()));
         return cloned;
     }

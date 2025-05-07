@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## [2.2.1](https://github.com/netgrif/petriflow.js/releases/tag/v2.2.1) (2025-05-07)
+
+### Fixed
+- [PF-79] Variables with no init values referenced in arcs will cause arcs not to load
+
+### Added
+- [PF-80] Global roles support
+
+
 ## [2.2.0](https://github.com/netgrif/petriflow.js/releases/tag/v2.2.0) (2024-07-26)
 
 ### Changed
