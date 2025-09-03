@@ -237,10 +237,9 @@
             </actions>
         </event>
     </role>
-    <role>
+    <role global="true">
         <id>newRole_2</id>
         <title name="role_2_title">title</title>
-        <global>true</global>
     </role>
     <role>
         <id>newRole_3</id>
