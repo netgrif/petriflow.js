@@ -81,9 +81,11 @@ export class ExportService {
     public exportRoles(doc: Element, model: PetriNet): void {
         model.getRoles().sort((a, b) => a.compare(b)).forEach(item => {
             const role = this.xmlConstructor.createElement('role');
+            if (item.global) {
+                role.setAttribute('global', item.global ? 'true' : 'false');
+            }
             this._exportUtils.exportTag(role, 'id', item.id, true);
             this._exportUtils.exportI18nString(role, 'title', item.title, true);
-            this._exportUtils.exportTag(role, 'global', item.global ? 'true' : 'false');
             item.getEvents().forEach(event => {
                 this.exportEvent(role, event);
             });

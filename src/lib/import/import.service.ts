@@ -149,7 +149,7 @@ export class ImportService {
             title = this.importUtils.parseI18n(xmlRole, 'name');
         }
         role.title = title;
-        role.global = this.importUtils.tagValue(xmlRole, 'global') === 'true';
+        role.global = this.importUtils.tagAttribute(xmlRole, 'global') === 'true';
         for (const xmlEvent of Array.from(xmlRole.getElementsByTagName('event'))) {
             const event = new RoleEvent(this.importUtils.tagAttribute(xmlEvent, 'type') as RoleEventType, '');
             event.message = this.importUtils.parseI18n(xmlEvent, 'message');
